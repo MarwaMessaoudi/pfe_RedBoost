@@ -1,0 +1,75 @@
+/* src/app/pages/frontoffice/evaluation-form/evaluation-form.component.scss */
+
+.w-100 {
+    width: 100%;
+}
+
+// Keep spinner styling if you used it
+.me-2 {
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Style for questions containing radio groups */
+.form-group-question {
+    margin-bottom: 1.5rem; /* Add space between question groups */
+    padding-bottom: 0.5rem; /* Space before potential validation errors */
+    border-bottom: 1px solid #eee; /* Optional separator */
+    padding-top: 0.5rem; /* Space above first question border */
+
+    label {
+        display: block; /* Label on its own line */
+        margin-bottom: 1rem; /* Increased space below label */
+        font-weight: 500;
+    }
+
+    mat-radio-group {
+        display: flex; /* Arrange radio buttons inline */
+        flex-wrap: wrap; /* Wrap to next line if needed */
+        gap: 16px; /* Space between radio buttons */
+    }
+    // No need for margin-right on mat-radio-button if using gap
+
+    // Optional: Adjust appearance of radios if in an invalid state
+    // .mat-form-field-invalid mat-radio-group {
+    //    outline: 1px solid red; // Simple highlight
+    // }
+}
+
+/* Red asterisk for required labels */
+.required-label::after {
+    content: ' *';
+    color: #f44336; /* Standard Material red error color */
+    margin-left: 2px; // Small space after label
+}
+
+/* Style for Material validation errors */
+mat-error {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+    // color handled by Material
+}
+
+/* Custom class for the dialog panel if used in open() */
+.evaluation-form-dialog {
+    // Example: Give the dialog a maximum height and make content scrollable
+    max-height: 90vh;
+    // This requires the content area to scroll:
+    .mat-dialog-content {
+        overflow-y: auto; /* Make the content scrollable */
+        padding-top: 8px; // Add a little space above the first field
+    }
+    // Also ensure sufficient padding for header/footer areas
+    .mat-dialog-title,
+    .mat-dialog-actions {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .mat-dialog-title {
+        padding-top: 16px;
+    }
+    .mat-dialog-actions {
+        padding-bottom: 16px;
+    }
+}

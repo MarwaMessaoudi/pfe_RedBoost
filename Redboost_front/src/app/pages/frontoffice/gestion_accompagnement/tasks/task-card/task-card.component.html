@@ -1,0 +1,30 @@
+<div class="task-card" [cdkDragDisabled]="!isDraggable()" cdkDrag>
+    <div class="task-content" (click)="openEditTaskDialog(task)">
+        <div class="task-header">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-actions" *ngIf="isCoach && task.status === TaskStatus.DONE">
+                <button class="action-button validate" (click)="validateTask(); $event.stopPropagation()" matTooltip="Valider la tâche">
+                    <mat-icon>check</mat-icon>
+                </button>
+                <button class="action-button reject" (click)="rejectTask(); $event.stopPropagation()" matTooltip="Rejeter la tâche">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="task-category" *ngIf="task.taskCategory || task.taskCategoryId">
+            <span class="category-badge">{{ categoryName }}</span>
+        </div>
+        <div class="task-footer">
+            <div class="task-info">
+                <span class="phase-name">{{ phaseName }}</span>
+            </div>
+            <span class="task-points" *ngIf="task.xpPoint">{{ task.xpPoint }}</span>
+            <div class="task-assignee">
+                <div class="assignee-avatar">
+                    <img *ngIf="assigneeAvatarUrl" [src]="assigneeAvatarUrl" alt="Assignee Avatar" class="avatar-image" />
+                    <span *ngIf="!assigneeAvatarUrl && assigneeInitials" class="default-avatar">{{ assigneeInitials }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

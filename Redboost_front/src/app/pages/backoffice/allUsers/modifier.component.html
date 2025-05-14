@@ -1,0 +1,86 @@
+<div class="modal-container">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Modifier l'Utilisateur</h4>
+        <button class="close-button" (click)="closeModal()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+  
+      <div class="modal-body">
+        <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+          <!-- First Name -->
+          <div class="input-group">
+            <label for="firstName">Prénom <span class="required">*</span></label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              placeholder="Entrez votre prénom"
+              [ngClass]="{'invalid-input': editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched}"
+            />
+            <div *ngIf="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched" class="error-message">
+              Le prénom est requis.
+            </div>
+          </div>
+  
+          <!-- Last Name -->
+          <div class="input-group">
+            <label for="lastName">Nom <span class="required">*</span></label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              placeholder="Entrez votre nom"
+              [ngClass]="{'invalid-input': editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched}"
+            />
+            <div *ngIf="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched" class="error-message">
+              Le nom est requis.
+            </div>
+          </div>
+  
+          <!-- Phone Number -->
+          <div class="input-group">
+            <label for="phoneNumber">Numéro de téléphone <span class="required">*</span></label>
+            <input
+              id="phoneNumber"
+              type="text"
+              formControlName="phoneNumber"
+              placeholder="Entrez votre numéro de téléphone"
+              [ngClass]="{'invalid-input': editForm.get('phoneNumber')?.invalid && editForm.get('phoneNumber')?.touched}"
+            />
+            <div *ngIf="editForm.get('phoneNumber')?.invalid && editForm.get('phoneNumber')?.touched" class="error-message">
+              Le numéro de téléphone doit contenir 8 chiffres.
+            </div>
+          </div>
+  
+          <!-- Email (Disabled) -->
+          <div class="input-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Entrez votre email"
+              [ngClass]="{'invalid-input': editForm.get('email')?.invalid && editForm.get('email')?.touched}"
+              [disabled]="true"
+            />
+          </div>
+  
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="error-message global-error">
+            {{ errorMessage }}
+          </div>
+        </form>
+      </div>
+  
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="editForm.invalid">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <p-toast></p-toast>

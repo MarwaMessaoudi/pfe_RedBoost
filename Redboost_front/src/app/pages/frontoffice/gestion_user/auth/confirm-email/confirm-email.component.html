@@ -1,0 +1,35 @@
+<div class="confirm-email-container">
+  <div class="confirm-email-card">
+    <h2>Confirm Your Email</h2>
+    <p>We've sent a confirmation code to <strong>{{ email }}</strong>. Please enter it below.</p>
+
+    <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
+      <!-- Confirmation Code -->
+      <div class="input-group">
+        <label for="code">Confirmation Code</label>
+        <input
+          id="code"
+          type="text"
+          formControlName="code"
+          placeholder="Enter your confirmation code"
+          [ngClass]="{ 'invalid-input': confirmForm.invalid && confirmForm.touched }"
+        />
+        <div *ngIf="confirmForm.invalid && confirmForm.touched" class="error-message">
+          Confirmation code is required
+        </div>
+      </div>
+
+      <!-- Error Message for Incorrect Code -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="confirm-button">Confirm Email</button>
+    </form>
+
+    <p class="resend-link">
+      Didn't receive the code? <a href="#">Resend Code</a>
+    </p>
+  </div>
+</div>

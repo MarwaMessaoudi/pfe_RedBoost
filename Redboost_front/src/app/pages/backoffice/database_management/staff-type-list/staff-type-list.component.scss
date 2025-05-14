@@ -1,0 +1,164 @@
+.container {
+    padding: 20px;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+.page-header {
+    background: linear-gradient(90deg, #ff4d4f, #4a90e2);
+    color: white;
+    padding: 20px;
+    border-radius: 15px 15px 0 0;
+    margin-bottom: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.add-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+:host ::ng-deep .add-btn.p-button {
+    background: #4a90e2;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+:host ::ng-deep .add-btn.p-button:hover {
+    background: #357abd;
+}
+
+:host ::ng-deep .filter-btn.p-button {
+    background: #e0e0e0;
+    color: #2c3e50;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+:host ::ng-deep .filter-btn.p-button:hover {
+    background: #d1d5db;
+}
+
+:host ::ng-deep .custom-table.p-datatable {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:host ::ng-deep .custom-table.p-datatable .p-datatable-thead > tr > th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+:host ::ng-deep .custom-table.p-datatable .p-datatable-tbody > tr > td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #2c3e50;
+}
+
+:host ::ng-deep .custom-table.p-datatable .p-datatable-tbody > tr > td:last-child {
+    display: flex;
+    gap: 15px; /* Increased spacing between action buttons */
+    align-items: center;
+}
+
+:host ::ng-deep .custom-table.p-datatable .p-datatable-tbody > tr:hover {
+    background: #f1f5f9;
+}
+
+.p-field {
+    margin-bottom: 15px;
+}
+
+.p-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+:host ::ng-deep .p-inputtext {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+:host ::ng-deep .p-multiselect {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    width: 100%;
+}
+
+:host ::ng-deep .p-multiselect .p-multiselect-label {
+    padding: 10px;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+:host ::ng-deep .p-dialog .p-button-primary {
+    background: #4a90e2;
+    border: none;
+    border-radius: 8px;
+}
+
+:host ::ng-deep .p-dialog .p-button-primary:hover {
+    background: #357abd;
+}
+
+:host ::ng-deep .p-dialog .p-button-secondary {
+    background: #e0e0e0;
+    color: #2c3e50;
+    border: none;
+    border-radius: 8px;
+}
+
+:host ::ng-deep .p-dialog .p-button-secondary:hover {
+    background: #d1d5db;
+}
+
+:host ::ng-deep .p-dialog ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+}
+
+:host ::ng-deep .p-dialog ul li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+:host ::ng-deep .p-error {
+    color: #ff4d4f;
+    font-size: 12px;
+    margin-top: 5px;
+}

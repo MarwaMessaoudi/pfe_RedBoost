@@ -1,0 +1,410 @@
+<!-- Contenu Principal -->
+<main class="main-content" *ngIf="projet; else noProject">
+  <!-- Back Arrow -->
+  <div class="back-arrow" (click)="goBack()" aria-label="Retour à la page précédente" title="Retour">
+    <span class="material-icons">arrow_back</span>
+  </div>
+
+  <!-- Section Héros -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <div class="hero-text">
+        <span class="pre-title">Projet en Vedette</span>
+        <h1>{{ projet.name || 'Nom non disponible' }}</h1>
+        <p class="subtitle">{{ projet.description || 'Aucune description' }}</p>
+        <div class="hero-cta">
+          <a [href]="projet.websiteUrl || '#'" target="_blank" class="cta-button primary" aria-label="Explorer le Projet">
+            <span>Explorer le Projet</span>
+            <span class="material-icons">east</span>
+          </a>
+          <a href="#products-services" class="cta-button secondary" aria-label="En Savoir Plus">En Savoir Plus</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="image-wrapper">
+          <img [src]="sanitizedImageUrl(projet.logoUrl)" alt="Logo du Projet" (error)="onImageError($event)">
+        </div>
+      </div>
+    </div>
+    <div class="hero-decor decor-top-right"></div>
+    <div class="hero-decor decor-bottom-left"></div>
+    <div class="hero-decor decor-middle-right"></div>
+  </section>
+
+  <!-- Contrôles d'Édition -->
+  <div class="edit-controls">
+    <span class="material-icons edit-button" (click)="openEditPopup()" *ngIf="!isEditing" title="Modifier" aria-label="Modifier le Projet">edit</span>
+  </div>
+
+  <!-- Edit Popup -->
+  <div class="edit-popup" *ngIf="isEditing && editProjet" [ngClass]="{'open': isEditing}">
+    <div class="edit-popup-content">
+      <div class="popup-header">
+        <h2>Modifier le Projet</h2>
+        <span class="material-icons close-popup" (click)="closeEditPopup()" aria-label="Fermer">close</span>
+      </div>
+      <form class="edit-form" (ngSubmit)="saveChanges()">
+        <div class="form-section">
+          <h3>Informations de Base</h3>
+          <div class="form-group">
+            <label for="name">Nom</label>
+            <input id="name" [(ngModel)]="editProjet.name" name="name" required aria-label="Nom du Projet">
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" [(ngModel)]="editProjet.description" name="description" aria-label="Description du Projet"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="sector">Secteur</label>
+            <input id="sector" [(ngModel)]="editProjet.sector" name="sector" required aria-label="Secteur du Projet">
+          </div>
+          <div class="form-group">
+            <label for="type">Type</label>
+            <input id="type" [(ngModel)]="editProjet.type" name="type" required aria-label="Type du Projet">
+          </div>
+          <div class="form-group">
+            <label for="creationDate">Date de Création</label>
+            <input id="creationDate" type="date" [(ngModel)]="editProjet.creationDate" name="creationDate" aria-label="Date de Création du Projet">
+          </div>
+          <div class="form-group">
+            <label for="location">Localisation</label>
+            <input id="location" [(ngModel)]="editProjet.location" name="location" aria-label="Localisation du Projet">
+          </div>
+          <div class="form-group">
+            <label for="objectives">Objectifs</label>
+            <select id="objectives" [(ngModel)]="editProjet.objectives" name="objectives" aria-label="Objectifs du Projet">
+              <option *ngFor="let obj of objectives" [value]="obj">{{ obj }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="status">Statut</label>
+            <select id="status" [(ngModel)]="editProjet.status" name="status" aria-label="Statut du Projet">
+              <option *ngFor="let stat of statuses" [value]="stat">{{ stat }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-section">
+          <h3>Informations Financières</h3>
+          <div class="form-group">
+            <label for="revenue">Revenus</label>
+            <input id="revenue" type="number" [(ngModel)]="editProjet.revenue" name="revenue" aria-label="Revenus du Projet">
+          </div>
+          <div class="form-group">
+            <label for="fundingGoal">Objectif de Financement</label>
+            <input id="fundingGoal" type="number" [(ngModel)]="editProjet.fundingGoal" name="fundingGoal" aria-label="Objectif de Financement du Projet">
+          </div>
+          <div class="form-group">
+            <label for="globalScore">Score Global</label>
+            <input id="globalScore" type="number" [(ngModel)]="editProjet.globalScore" name="globalScore" aria-label="Score Global du Projet">
+          </div>
+        </div>
+        <div class="form-section">
+          <h3>Détails Opérationnels</h3>
+          <div class="form-group">
+            <label for="numberOfEmployees">Nombre d'Employés</label>
+            <input id="numberOfEmployees" type="number" [(ngModel)]="editProjet.numberOfEmployees" name="numberOfEmployees" aria-label="Nombre d'Employés du Projet">
+          </div>
+          <div class="form-group">
+            <label for="nbFemaleEmployees">Employées Féminines</label>
+            <input id="nbFemaleEmployees" type="number" [(ngModel)]="editProjet.nbFemaleEmployees" name="nbFemaleEmployees" aria-label="Nombre d'Employées Féminines du Projet">
+          </div>
+          <div class="form-group">
+            <label for="associatedSectors">Secteurs Associés</label>
+            <input id="associatedSectors" [(ngModel)]="editProjet.associatedSectors" name="associatedSectors" aria-label="Secteurs Associés du Projet">
+          </div>
+          <div class="form-group">
+            <label for="technologiesUsed">Technologies</label>
+            <input id="technologiesUsed" [(ngModel)]="editProjet.technologiesUsed" name="technologiesUsed" aria-label="Technologies Utilisées du Projet">
+          </div>
+          <div class="form-group">
+            <label for="lastUpdated">Dernière Mise à Jour</label>
+            <input id="lastUpdated" type="date" [(ngModel)]="editProjet.lastUpdated" name="lastUpdated" aria-label="Dernière Mise à Jour du Projet">
+          </div>
+          <div class="form-group">
+            <label for="lastEvaluationDate">Dernière Évaluation</label>
+            <input id="lastEvaluationDate" type="date" [(ngModel)]="editProjet.lastEvaluationDate" name="lastEvaluationDate" aria-label="Dernière Date d'Évaluation du Projet">
+          </div>
+        </div>
+        <div class="form-section">
+          <h3>Autres</h3>
+          <div class="form-group">
+            <label for="websiteUrl">URL du Site Web</label>
+            <input id="websiteUrl" [(ngModel)]="editProjet.websiteUrl" name="websiteUrl" aria-label="URL du Site Web du Projet">
+          </div>
+          <div class="form-group">
+            <label for="logoFile">Logo</label>
+            <input id="logoFile" type="file" (change)="onFileChange($event)" accept="image/*" aria-label="Télécharger un nouveau logo">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="cta-button primary" [disabled]="isSaving" aria-label="Sauvegarder les Modifications">
+            <span *ngIf="!isSaving">Sauvegarder</span>
+            <span *ngIf="isSaving" class="spinner"></span>
+          </button>
+          <button type="button" class="cta-button secondary" (click)="closeEditPopup()" aria-label="Annuler">Annuler</button>
+          <div *ngIf="updateMessage" class="update-message">{{ updateMessage }}</div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Section Produits & Services -->
+  <section class="products-services-section" id="products-services">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-subtitle">Découvrez Nos Offres</span>
+        <h2>Produits & Services</h2>
+        <div class="header-decor">
+          <span class="decor-line"></span>
+          <span class="decor-dot"></span>
+          <span class="decor-line"></span>
+        </div>
+      </div>
+      <div class="products-services-grid">
+        <div class="product-service-card" 
+             (mouseenter)="hoveredItem = 1" 
+             (mouseleave)="hoveredItem = null" 
+             [ngClass]="{'hovered': hoveredItem === 1}" 
+             [routerLink]="['/details-projet', projet.id, 'ShowProd']"
+             role="link" 
+             tabindex="0" 
+             aria-label="Explorer les Produits"
+             (keydown.enter)="navigateTo('/ShowProd')">
+          <div class="card-icon">
+            <span class="material-icons">shopping_cart</span>
+          </div>
+          <h3>Produits</h3>
+          <p>Explorez notre marché soigneusement sélectionné de produits innovants.</p>
+          <div class="card-cta">
+            <span>Acheter Maintenant</span>
+            <span class="material-icons">arrow_forward</span>
+          </div>
+        </div>
+        <div class="product-service-card" 
+             (mouseenter)="hoveredItem = 2" 
+             (mouseleave)="hoveredItem = null" 
+             [ngClass]="{'hovered': hoveredItem === 2}" 
+             [routerLink]="['/details-projet', projet.id, 'ShowService']"
+             role="link" 
+             tabindex="0" 
+             aria-label="Explorer les Services"
+             (keydown.enter)="navigateTo('/ShowService')">
+          <div class="card-icon">
+            <span class="material-icons">build</span>
+          </div>
+          <h3>Services</h3>
+          <p>Trouvez des services experts adaptés à vos besoins.</p>
+          <div class="card-cta">
+            <span>En Savoir Plus</span>
+            <span class="material-icons">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-decor decor-top-left"></div>
+    <div class="section-decor decor-bottom-right"></div>
+    <div class="section-decor decor-middle-center"></div>
+  </section>
+
+  <!-- Section Points Forts du Projet -->
+  <section class="project-highlights-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-subtitle">Détails du Projet</span>
+        <h2>Points Forts du Projet</h2>
+        <div class="header-decor">
+          <span class="decor-line"></span>
+          <span class="decor-dot"></span>
+          <span class="decor-line"></span>
+        </div>
+      </div>
+      <div class="carousel-container">
+        <button class="carousel-control prev" (click)="prevSlide()" aria-label="Slide précédent">
+          <span class="material-icons">chevron_left</span>
+        </button>
+        <div class="carousel-track" #carouselTrack>
+          <!-- Slide 1: Basic Information -->
+          <div class="carousel-slide">
+            <div class="slide-content">
+              <h3>Informations de Base</h3>
+              <div class="detail-group">
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">business</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Secteur</span>
+                    <span class="detail-value">{{ projet.sector || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">category</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value">{{ projet.type || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">event</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Date de Création</span>
+                    <span class="detail-value">{{ projet.creationDate || 'Non spécifiée' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">location_on</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Localisation</span>
+                    <span class="detail-value">{{ projet.location || 'Non spécifiée' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">flag</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Objectifs</span>
+                    <span class="detail-value">{{ projet.objectives || 'Non spécifiés' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">trending_up</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Statut</span>
+                    <span class="detail-value">{{ projet.status || 'Non défini' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 2: Financial Information -->
+          <div class="carousel-slide">
+            <div class="slide-content">
+              <h3>Informations Financières</h3>
+              <div class="detail-group">
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">attach_money</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Revenus</span>
+                    <span class="detail-value">{{ projet.revenue || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">monetization_on</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Objectif de Financement</span>
+                    <span class="detail-value">{{ projet.fundingGoal || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">score</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Score Global</span>
+                    <span class="detail-value">{{ projet.globalScore || 'Non calculé' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 3: Operational Details -->
+          <div class="carousel-slide">
+            <div class="slide-content">
+              <h3>Détails Opérationnels</h3>
+              <div class="detail-group">
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">group</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Nombre d'Employés</span>
+                    <span class="detail-value">{{ projet.numberOfEmployees || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">people_alt</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Employées Féminines</span>
+                    <span class="detail-value">{{ projet.nbFemaleEmployees || 'Non spécifié' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">link</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Secteurs Associés</span>
+                    <span class="detail-value">{{ projet.associatedSectors || 'Non spécifiés' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">build_circle</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Technologies</span>
+                    <span class="detail-value">{{ projet.technologiesUsed || 'Non spécifiées' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">update</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Dernière Mise à Jour</span>
+                    <span class="detail-value">{{ projet.lastUpdated || 'Non spécifiée' }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="material-icons detail-icon">assessment</span>
+                  <div class="detail-text">
+                    <span class="detail-label">Dernière Évaluation</span>
+                    <span class="detail-value">{{ projet.lastEvaluationDate || 'Non spécifiée' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control next" (click)="nextSlide()" aria-label="Slide suivant">
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+      <div class="carousel-indicators">
+        <span class="indicator" *ngFor="let slide of [0,1,2]; let i = index" 
+              [ngClass]="{'active': currentSlide === i}" 
+              (click)="goToSlide(i)"
+              [attr.aria-label]="'Aller au slide ' + (i + 1)"></span>
+      </div>
+    </div>
+    <div class="section-decor decor-top-left"></div>
+    <div class="section-decor decor-bottom-right"></div>
+    <div class="section-decor decor-middle-center"></div>
+  </section>
+
+  <!-- Section Appel à l'Action 1 (Commencer) -->
+  <section class="cta-section get-started">
+    <div class="cta-overlay"></div>
+    <div class="cta-content container">
+      <span class="cta-subtitle">Lancez Votre Aventure</span>
+      <h2>Commencez Votre Projet Aujourd'hui</h2>
+      <p>Commencez à construire votre avenir avec notre soutien complet et nos ressources.</p>
+      <a href="#get-started" class="cta-button primary" aria-label="Commencer Maintenant">
+        <span>Commencer Maintenant</span>
+        <span class="material-icons">rocket_launch</span>
+      </a>
+    </div>
+    <div class="cta-decor decor-top-right"></div>
+    <div class="cta-decor decor-bottom-left"></div>
+    <div class="cta-decor decor-middle-right"></div>
+  </section>
+
+  <!-- Section Appel à l'Action 2 (Besoin d'Aide) -->
+  <section class="cta-section need-help">
+    <div class="cta-overlay"></div>
+    <div class="cta-content container">
+      <span class="cta-subtitle">Nous Sommes Là pour Vous</span>
+      <h2>Besoin d'Assistance ?</h2>
+      <p>Contactez notre équipe amicale pour un accompagnement personnalisé.</p>
+      <a href="#contact-us" class="cta-button primary" aria-label="Obtenir de l'Aide">
+        <span>Obtenir de l'Aide</span>
+        <span class="material-icons">support_agent</span>
+      </a>
+    </div>
+    <div class="cta-decor decor-top-right"></div>
+    <div class="cta-decor decor-bottom-left"></div>
+    <div class="cta-decor decor-middle-right"></div>
+  </section>
+</main>
+
+<ng-template #noProject>
+  <div class="alert">Aucun projet trouvé ou erreur lors du chargement des données.</div>
+</ng-template>

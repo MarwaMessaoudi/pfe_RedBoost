@@ -1,0 +1,302 @@
+<div class="page-container">
+  <div class="breadcrumb">
+    <div class="breadcrumb-back">
+      <button class="btn btn-back" routerLink="/GetProjet">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5m7-7l-7 7 7 7"></path>
+        </svg>
+        Retour
+      </button>
+    </div>
+    <div class="breadcrumb-content">
+      <span class="breadcrumb-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 13h6m-3-3v6m5 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"></path>
+        </svg>
+      </span>
+      <h1>Ajouter un Projet</h1>
+    </div>
+    <ul>
+      <li><a routerLink="/projets">Projets</a></li>
+      <li>Ajouter</li>
+    </ul>
+  </div>
+
+  <div class="separator-breadcrumb border-top"></div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="wizard">
+        <!-- Warning Message -->
+        <div *ngIf="warningMessage && !limitReached" class="alert alert-warning">
+          <span class="alert-icon">⚠️</span>
+          {{ warningMessage }}
+        </div>
+
+        <!-- Limit Reached Message -->
+        <div *ngIf="limitReached" class="alert alert-danger text-center">
+          <span class="alert-icon">🚫</span>
+          <p>{{ warningMessage }}</p>
+          <button class="btn btn-success" (click)="showLimitReachedAlert(warningMessage)">Mettre à niveau le compte</button>
+        </div>
+
+        <!-- Timeline Steps with Integrated Progress Bar -->
+        <ul class="timeline-steps">
+          <div class="progress-bar" [style.width]="(step / 4 * 100) + '%'"></div>
+          <li [class.active]="step === 1" [class.completed]="step > 1">
+            <span class="step-number">
+              <svg *ngIf="step <= 1" class="step-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="14" rx="2" ry="2"></rect>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span *ngIf="step > 1" class="checkmark">✔</span>
+            </span>
+            <span class="step-label">Étape 1</span>
+            <span class="step-tooltip">Détails essentiels du projet</span>
+          </li>
+          <li [class.active]="step === 2" [class.completed]="step > 2">
+            <span class="step-number">
+              <svg *ngIf="step <= 2" class="step-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="8"></line>
+              </svg>
+              <span *ngIf="step > 2" class="checkmark">✔</span>
+            </span>
+            <span class="step-label">Étape 2</span>
+            <span class="step-tooltip">Objectifs et statut</span>
+          </li>
+          <li [class.active]="step === 3" [class.completed]="step > 3">
+            <span class="step-number">
+              <svg *ngIf="step <= 3" class="step-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+              </svg>
+              <span *ngIf="step > 3" class="checkmark">✔</span>
+            </span>
+            <span class="step-label">Étape 3</span>
+            <span class="step-tooltip">Finances et équipe</span>
+          </li>
+          <li [class.active]="step === 4" [class.completed]="step > 4">
+            <span class="step-number">
+              <svg *ngIf="step <= 4" class="step-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span *ngIf="step > 4" class="checkmark">✔</span>
+            </span>
+            <span class="step-label">Étape 4</span>
+            <span class="step-tooltip">Informations supplémentaires</span>
+          </li>
+        </ul>
+
+        <!-- Form Content -->
+        <form [formGroup]="stepForm" (ngSubmit)="onSubmit()" #projetForm="ngForm" *ngIf="!limitReached">
+          <!-- Step 1 -->
+          <div *ngIf="step === 1" class="step-content">
+            <div class="step-header">
+              <svg class="step-header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="14" rx="2" ry="2"></rect>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <div>
+                <h2>Détails essentiels du projet</h2>
+                <p>Entrez les informations de base pour commencer à définir votre projet.</p>
+              </div>
+            </div>
+            <div class="form-scrollable">
+              <div class="form-group">
+                <label for="name">Nom <span class="required">*</span></label>
+                <input type="text" class="form-control" id="name" formControlName="name" placeholder="Entrez le nom du projet">
+                <div class="error-message" *ngIf="stepForm.get('name')?.touched && stepForm.get('name')?.invalid">
+                  Le nom est requis et doit contenir au moins 3 caractères.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="sector">Secteur <span class="required">*</span></label>
+                <input type="text" class="form-control" id="sector" formControlName="sector" placeholder="Entrez le secteur">
+                <div class="error-message" *ngIf="stepForm.get('sector')?.touched && stepForm.get('sector')?.invalid">
+                  Le secteur est requis.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="type">Type <span class="required">*</span></label>
+                <input type="text" class="form-control" id="type" formControlName="type" placeholder="Entrez le type (ex., Startup)">
+                <div class="error-message" *ngIf="stepForm.get('type')?.touched && stepForm.get('type')?.invalid">
+                  Le type est requis.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Description <span class="required">*</span></label>
+                <textarea class="form-control" id="description" formControlName="description" placeholder="Entrez une description"></textarea>
+                <div class="error-message" *ngIf="stepForm.get('description')?.touched && stepForm.get('description')?.invalid">
+                  La description est requise.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="logourl">Logo</label>
+                <input type="file" class="form-control" id="logourl" (change)="onFileChange($event)" name="logourl" placeholder="Choisissez un fichier">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div *ngIf="step === 2" class="step-content">
+            <div class="step-header">
+              <svg class="step-header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="8"></line>
+              </svg>
+              <div>
+                <h2>Objectifs et statut</h2>
+                <p>Définissez les objectifs et le statut actuel de votre projet.</p>
+              </div>
+            </div>
+            <div class="form-scrollable">
+              <div class="form-group">
+                <label for="objectives">Objectifs <span class="required">*</span></label>
+                <select class="form-control" id="objectives" formControlName="objectives">
+                  <option value="">Sélectionner un objectif</option>
+                  <option *ngFor="let obj of objectives" [value]="obj">{{ objectiveDisplayMap[obj] || obj }}</option>
+                </select>
+                <div class="error-message" *ngIf="stepForm.get('objectives')?.touched && stepForm.get('objectives')?.invalid">
+                  L'objectif est requis.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="status">Statut <span class="required">*</span></label>
+                <select class="form-control" id="status" formControlName="status">
+                  <option value="">Sélectionner un statut</option>
+                  <option *ngFor="let stat of statuses" [value]="stat">{{ statusDisplayMap[stat] || stat }}</option>
+                </select>
+                <div class="error-message" *ngIf="stepForm.get('status')?.touched && stepForm.get('status')?.invalid">
+                  Le statut est requis.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="creationDate">Date de création <span class="required">*</span></label>
+                <input type="date" class="form-control" id="creationDate" formControlName="creationDate">
+                <div class="error-message" *ngIf="stepForm.get('creationDate')?.touched && stepForm.get('creationDate')?.invalid">
+                  La date de création est requise.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="location">Localisation <span class="required">*</span></label>
+                <input type="text" class="form-control" id="location" formControlName="location" placeholder="Entrez la localisation">
+                <div class="error-message" *ngIf="stepForm.get('location')?.touched && stepForm.get('location')?.invalid">
+                  La localisation est requise.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div *ngIf="step === 3" class="step-content">
+            <div class="step-header">
+              <svg class="step-header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+              </svg>
+              <div>
+                <h2>Finances et équipe</h2>
+                <p>Fournissez des informations sur les finances et l'équipe de votre projet.</p>
+              </div>
+            </div>
+            <div class="form-scrollable">
+              <div class="form-group">
+                <label for="revenue">Revenus</label>
+                <input type="number" class="form-control" id="revenue" formControlName="revenue" placeholder="Entrez les revenus">
+                <div class="error-message" *ngIf="stepForm.get('revenue')?.touched && stepForm.get('revenue')?.invalid">
+                  Les revenus doivent être un nombre positif.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="fundingGoal">Objectif de financement</label>
+                <input type="number" class="form-control" id="fundingGoal" formControlName="fundingGoal" placeholder="Entrez l'objectif de financement">
+                <div class="error-message" *ngIf="stepForm.get('fundingGoal')?.touched && stepForm.get('fundingGoal')?.invalid">
+                  L'objectif de financement doit être un nombre positif.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="numberOfEmployees">Nombre d'employés</label>
+                <input type="number" class="form-control" id="numberOfEmployees" formControlName="numberOfEmployees" placeholder="Entrez le nombre d'employés">
+                <div class="error-message" *ngIf="stepForm.get('numberOfEmployees')?.touched && stepForm.get('numberOfEmployees')?.invalid">
+                  Le nombre d'employés doit être un nombre positif.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="nbFemaleEmployees">Nombre d'employées femmes</label>
+                <input type="number" class="form-control" id="nbFemaleEmployees" formControlName="nbFemaleEmployees" placeholder="Entrez le nombre d'employées femmes">
+                <div class="error-message" *ngIf="stepForm.get('nbFemaleEmployees')?.touched && stepForm.get('nbFemaleEmployees')?.invalid">
+                  Le nombre d'employées femmes doit être un nombre positif.
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="globalScore">Score global</label>
+                <input type="number" class="form-control" id="globalScore" formControlName="globalScore" placeholder="Entrez le score global" step="0.1">
+                <div class="error-message" *ngIf="stepForm.get('globalScore')?.touched && stepForm.get('globalScore')?.invalid">
+                  Le score global doit être compris entre 0 et 100.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div *ngIf="step === 4" class="step-content">
+            <div class="step-header">
+              <svg class="step-header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <div>
+                <h2>Informations supplémentaires</h2>
+                <p>Ajoutez des détails supplémentaires pour compléter votre projet.</p>
+              </div>
+            </div>
+            <div class="form-scrollable">
+              <div class="form-group">
+                <label for="websiteUrl">URL du site web</label>
+                <input type="url" class="form-control" id="websiteUrl" formControlName="websiteUrl" placeholder="Entrez l'URL du site web">
+                <div class="error-message" *ngIf="stepForm.get('websiteUrl')?.touched && stepForm.get('websiteUrl')?.invalid">
+                  L'URL doit être valide (ex., https://example.com).
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="associatedSectors">Secteurs associés</label>
+                <input type="text" class="form-control" id="associatedSectors" formControlName="associatedSectors" placeholder="Entrez les secteurs associés (ex., Tech, IA)">
+              </div>
+              <div class="form-group">
+                <label for="technologiesUsed">Technologies utilisées</label>
+                <input type="text" class="form-control" id="technologiesUsed" formControlName="technologiesUsed" placeholder="Entrez les technologies utilisées (ex., Java, Angular)">
+              </div>
+              <div class="form-group">
+                <label for="lastEvaluationDate">Date de la dernière évaluation</label>
+                <input type="date" class="form-control" id="lastEvaluationDate" formControlName="lastEvaluationDate">
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="d-flex justify-content-between mt-2 navigation-buttons">
+            <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
+            <div class="step-navigation">
+              <button *ngIf="step > 1" type="button" class="btn btn-secondary mr-2" (click)="goToPreviousStep()">Précédent</button>
+              <button *ngIf="step < 4" type="button" class="btn btn-primary mr-2" (click)="goToNextStep()" [disabled]="!isStepValid()">Suivant</button>
+              <button *ngIf="step === 4" type="button" class="btn btn-primary mr-2" (click)="previewProject()">Aperçu</button>
+              <button *ngIf="step === 4" type="submit" class="btn btn-success" [disabled]="isSaving || !stepForm.valid">
+                <span *ngIf="isSaving" class="spinner"></span>
+                <span *ngIf="!isSaving">Soumettre</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="message" *ngIf="updateMessage">{{ updateMessage }}</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,366 @@
+/* Wrapper for the dashboard */
+.dashboard-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background: #f9fafb;
+}
+
+/* Container for dashboard content */
+.dashboard-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    padding: 20px;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+/* Container for charts */
+.charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    grid-column: 1 / -1;
+    padding: 0;
+    min-height: 400px;
+}
+
+/* Card styling */
+.card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Stabilize chart canvases on hover */
+.card:hover .pie-chart-wrapper canvas,
+.card:hover .bar-chart-card canvas {
+    transform: none !important;
+    transition: none !important;
+}
+
+.card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #0a4955;
+}
+
+/* Overview card (Aperçu des Projets) */
+.overview-card .stats-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.overview-card .stat-item {
+    flex: 1 1 90px;
+    text-align: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.overview-card .stat-item:hover {
+    background: #e6f0fa;
+    transform: none;
+}
+
+/* General stats grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0a4955;
+    margin-bottom: 6px;
+}
+
+.value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0a4955;
+}
+
+/* Chart card */
+.chart-card {
+    flex: 1;
+    min-width: 280px;
+    padding: 12px;
+}
+
+/* Specific styling for pie chart card */
+.pie-chart-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.pie-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Fixed chart sizes to prevent shaking */
+.pie-chart-wrapper canvas {
+    width: 240px !important;
+    height: 240px !important;
+    max-width: 240px !important;
+    max-height: 240px !important;
+}
+
+/* Specific styling for bar chart card */
+.bar-chart-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.bar-chart-card canvas {
+    width: 100% !important;
+    height: 160px !important;
+    max-height: 160px !important;
+}
+
+/* Scrollable section */
+.scrollable {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-top: 8px;
+}
+
+.scrollable ul {
+    list-style: none;
+    padding: 0;
+}
+
+.scrollable li {
+    padding: 10px 0;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.95rem;
+    color: #0a4955;
+    transition: background 0.2s ease;
+}
+
+.scrollable li:hover {
+    background: #f8fafc;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.action-type {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #fff;
+    transition: none;
+}
+
+.action-type.phase {
+    background: #db1e37;
+}
+
+.action-type.task {
+    background: #0a4955;
+}
+
+.action-type:hover {
+    transform: none;
+}
+
+.action-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0a4955;
+}
+
+.sub-details {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.details {
+    color: #718096;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-button mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.action-button.validate {
+    color: #43a047;
+}
+
+.action-button.validate:hover {
+    background-color: rgba(67, 160, 71, 0.1);
+}
+
+.action-button.reject {
+    color: #e53935;
+}
+
+.action-button.reject:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+}
+
+.loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #0a4955;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Error message */
+.error-message {
+    grid-column: 1 / -1;
+    background: #fef2f2;
+    color: #db1e37;
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #fecdd3;
+}
+
+/* Custom scrollbar */
+.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background: #a0aec0;
+    border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .charts-container {
+        flex-direction: column;
+    }
+
+    .chart-card {
+        min-width: 100%;
+    }
+
+    .overview-card .stats-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pie-chart-wrapper canvas {
+        width: 200px !important;
+        height: 200px !important;
+        max-width: 200px !important;
+        max-height: 200px !important;
+    }
+
+    .bar-chart-card canvas {
+        height: 140px !important;
+        max-height: 140px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 14px;
+    }
+
+    .card h2 {
+        font-size: 1.2rem;
+    }
+
+    .value {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 14px;
+    }
+
+    .chart-card {
+        padding: 10px;
+    }
+
+    .loading {
+        padding: 32px;
+    }
+
+    .pie-chart-wrapper canvas {
+        width: 180px !important;
+        height: 180px !important;
+        max-width: 180px !important;
+        max-height: 180px !important;
+    }
+
+    .bar-chart-card canvas {
+        height: 120px !important;
+        max-height: 120px !important;
+    }
+}

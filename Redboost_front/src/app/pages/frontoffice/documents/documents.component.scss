@@ -1,0 +1,585 @@
+/* Brand Colors */
+$dark-teal: #0a4955;
+$teal-1: #245c67;
+$teal-2: #568086;
+$red: #db1e37;
+$pink-1: #e44d62;
+$pink-2: #ea7988;
+$gradient: linear-gradient(135deg, $red, $dark-teal);
+$light-bg: #f7fafc;
+$dark: #1a202c;
+$border-color: rgba(0, 0, 0, 0.08);
+$transition-time: 0.3s;
+$easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+/* Base Styles */
+:host {
+    display: block;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: $dark;
+    background: $light-bg;
+    min-height: 100vh;
+}
+
+/* Animations */
+@keyframes wave {
+    0% {
+        background-position-x: 0;
+    }
+    100% {
+        background-position-x: 100vw;
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px rgba($teal-2, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba($teal-2, 0.6);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Main Container */
+.drive-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Styles */
+/* Add this section to your documents.component.scss */
+
+.back-to-projects-btn {
+    /* Inherit some header button styles or define new ones */
+    background: rgba(255, 255, 255, 0.2); // Slightly transparent white for glass effect
+    color: white; // Text color should contrast with the gradient background
+    border: 1px solid rgba(255, 255, 255, 0.3); // Subtle border
+    padding: 12px 20px; // Adjust padding as needed
+    border-radius: 10px; // Softer corners
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px; // Space between icon and text
+    cursor: pointer;
+    transition: all $transition-time $easing;
+    backdrop-filter: blur(5px); // Match the header's glass effect
+    box-shadow: 0 4px 15px rgba($dark-teal, 0.1); // Subtle shadow
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.3); // Make slightly more opaque on hover
+        transform: translateY(-2px); // Subtle lift on hover
+        box-shadow: 0 6px 20px rgba($dark-teal, 0.15); // More pronounced shadow on hover
+    }
+
+    &:active {
+        transform: translateY(0); // Reset position on click
+        box-shadow: 0 2px 10px rgba($dark-teal, 0.1); // Smaller shadow on click
+    }
+
+    i {
+        font-size: 1.2rem; // Icon size
+        transition: transform $transition-time $easing;
+    }
+
+    &:hover i {
+        transform: translateX(-3px); // Subtle icon movement on hover
+    }
+}
+
+.drive-header {
+    background: $gradient;
+    color: white;
+    border-radius: 0 0 32px 32px; /* Slightly larger radius for a modern look */
+    padding: 3.5rem 4rem; /* Increased padding for more breathing room */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba($dark-teal, 0.25); /* Deeper shadow for depth */
+    margin-bottom: 3rem; /* More space below */
+    min-height: 180px; /* Larger height */
+    backdrop-filter: blur(8px); /* Subtle glass effect */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Faint border for definition */
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        max-width: 1600px; /* Wider content area */
+        margin: 0 auto; /* Centered */
+    }
+
+    .header-title {
+        margin: 0;
+        font-weight: 800; /* Bolder for professionalism */
+        font-size: 2.5rem; /* Larger text */
+        display: flex;
+        align-items: center;
+        gap: 16px; /* More spacing */
+        letter-spacing: 0.5px; /* Subtle spacing for elegance */
+
+        i {
+            font-size: 2.2rem; /* Larger icon */
+            transition: transform $transition-time $easing;
+        }
+
+        &:hover i {
+            transform: scale(1.1); /* Slight icon animation on hover */
+        }
+    }
+
+    .header-wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px; /* Slightly taller wave */
+        background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="rgba(255,255,255,0.15)"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="rgba(255,255,255,0.2)"/></svg>');
+        background-size: cover;
+        animation: wave 15s linear infinite; /* Slower wave for elegance */
+        opacity: 0.8; /* Subtler wave */
+    }
+}
+
+.connect-btn {
+    background: rgba(255, 255, 255, 0.95); /* Slightly transparent for glass effect */
+    color: $dark-teal;
+    border: 1px solid rgba($teal-2, 0.2); /* Subtle border */
+    padding: 14px 28px; /* Larger padding */
+    border-radius: 12px; /* Softer corners */
+    font-weight: 700; /* Bolder text */
+    font-size: 1.1rem; /* Slightly larger text */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all $transition-time $easing;
+    box-shadow: 0 6px 20px rgba($dark-teal, 0.15); /* Softer shadow */
+    backdrop-filter: blur(5px); /* Glass effect */
+
+    &:hover {
+        transform: translateY(-4px); /* More pronounced lift */
+        box-shadow: 0 12px 25px rgba($dark-teal, 0.25);
+        background: $teal-2;
+        color: white;
+        border-color: transparent;
+
+        i {
+            transform: rotate(10deg); /* Subtle icon animation */
+        }
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba($dark-teal, 0.2);
+    }
+
+    i {
+        font-size: 1.5rem; /* Larger icon */
+        transition: transform $transition-time $easing;
+    }
+}
+
+/* Status Messages */
+.status-message {
+    padding: 14px 24px;
+    border-radius: 10px;
+    margin: 0 auto 2.5rem;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    background: rgba($teal-2, 0.1);
+    color: $dark-teal;
+    border-left: 4px solid $teal-2;
+}
+
+/* Main Content Layout */
+.drive-content {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 30px;
+    margin-bottom: 3rem;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Glass Card Effect */
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba($teal-2, 0.2);
+    box-shadow: 0 10px 30px rgba($dark-teal, 0.1);
+    padding: 2rem;
+    transition: transform $transition-time $easing;
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+}
+
+/* Folders Panel */
+.folders-panel {
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: $dark-teal;
+        }
+    }
+
+    .nav-btn {
+        background: rgba($teal-2, 0.1);
+        color: $teal-2;
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all $transition-time $easing;
+
+        &:hover {
+            background: rgba($teal-2, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba($teal-2, 0.2);
+        }
+    }
+
+    .current-path {
+        background: rgba($teal-2, 0.05);
+        padding: 12px 18px;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        font-size: 1rem;
+        color: $dark;
+
+        .path {
+            font-weight: 600;
+            color: $teal-1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    }
+}
+
+/* Folders List */
+.folders-list {
+    height: calc(100% - 120px);
+    overflow-y: auto;
+    padding-right: 12px;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba($teal-2, 0.3);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+    }
+}
+
+.folder-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background: white;
+    transition: all $transition-time $easing;
+
+    &.active {
+        background: rgba($teal-2, 0.1);
+        border-left: 4px solid $teal-2;
+    }
+
+    &.subfolder {
+        padding-left: 35px;
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 2px;
+            background: rgba($dark, 0.2);
+        }
+    }
+
+    .folder-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba($teal-2, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 18px;
+        color: $teal-2;
+        font-size: 1.4rem;
+        transition: all $transition-time $easing;
+    }
+
+    .folder-info {
+        flex: 1;
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: $dark;
+        }
+
+        p {
+            margin: 4px 0 0;
+            font-size: 0.9rem;
+            color: lighten($dark, 30%);
+        }
+    }
+
+    .arrow {
+        color: lighten($dark, 50%);
+        font-size: 1rem;
+        transition: transform $transition-time $easing;
+    }
+
+    &:hover {
+        .folder-icon {
+            background: rgba($teal-2, 0.2);
+            transform: scale(1.1);
+        }
+
+        .arrow {
+            transform: translateX(5px);
+        }
+    }
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 0;
+    color: lighten($dark, 40%);
+
+    i {
+        font-size: 3.5rem;
+        margin-bottom: 1.2rem;
+        color: rgba($teal-2, 0.3);
+    }
+
+    h3 {
+        margin: 0 0 0.6rem;
+        font-weight: 500;
+    }
+
+    p {
+        margin: 0;
+        font-size: 1rem;
+    }
+}
+
+/* Actions Panel */
+.actions-panel {
+    h2 {
+        margin: 0 0 2rem;
+        font-size: 1.6rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: $dark-teal;
+    }
+}
+
+.action-section {
+    margin-bottom: 2.5rem;
+
+    h3 {
+        margin: 0 0 1.2rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $dark;
+    }
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 1.2rem;
+
+    &.hover-glow:hover {
+        .styled-input {
+            border-color: $teal-2;
+            box-shadow: 0 0 0 4px rgba($teal-2, 0.1);
+        }
+    }
+
+    .prefix-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: lighten($dark, 30%);
+        font-size: 1.2rem;
+    }
+}
+
+.styled-input {
+    width: 100%;
+    padding: 14px 18px 14px 50px;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all $transition-time $easing;
+    background: white;
+
+    &:focus {
+        outline: none;
+        border-color: $teal-2;
+        box-shadow: 0 0 0 4px rgba($teal-2, 0.2);
+    }
+}
+
+.upload-zone {
+    border: 2px dashed rgba($teal-2, 0.3);
+    border-radius: 10px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 1.2rem;
+    transition: all $transition-time $easing;
+    background: rgba($teal-2, 0.03);
+
+    label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        color: lighten($dark, 20%);
+
+        i {
+            font-size: 2.2rem;
+            color: rgba($teal-2, 0.5);
+            transition: transform $transition-time $easing;
+        }
+
+        span {
+            font-size: 1rem;
+        }
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    &:hover,
+    &.active {
+        border-color: $teal-2;
+        background: rgba($teal-2, 0.05);
+
+        i {
+            transform: scale(1.1);
+        }
+    }
+}
+
+.action-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all $transition-time $easing;
+    color: white;
+
+    i {
+        font-size: 1.1rem;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    &.primary {
+        background: linear-gradient(135deg, $red, $pink-1);
+    }
+
+    &.secondary {
+        background: linear-gradient(135deg, $teal-1, $teal-2);
+    }
+
+    &.success {
+        background: linear-gradient(135deg, $teal-2, lighten($teal-2, 10%));
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .drive-header {
+        padding: 2rem;
+
+        .header-title {
+            font-size: 1.6rem;
+        }
+    }
+
+    .glass-card {
+        padding: 1.5rem;
+    }
+
+    .folder-item {
+        padding: 12px 15px;
+    }
+}

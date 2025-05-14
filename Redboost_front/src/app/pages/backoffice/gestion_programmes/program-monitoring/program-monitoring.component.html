@@ -1,0 +1,410 @@
+<div class="container">
+    <div class="separator-breadcrumb border-top"></div>
+
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-title-container">
+                <h1 class="title">Vos Programmes</h1>
+                <button mat-icon-button class="add-project-button" (click)="openAddProgramForm()" aria-label="Ajouter un programme" matTooltip="Ajouter un programme">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+            <div class="header-decoration"></div>
+            <p class="subtitle">Gérez vos programmes</p>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filter-section">
+            <div class="search-bar">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" placeholder="Rechercher un programme..." [(ngModel)]="searchTerm" (ngModelChange)="searchPrograms($event)" class="search-input" />
+            </div>
+
+            <div class="filters">
+                <div class="filter-item">
+                    <label>Statut</label>
+                    <select (change)="filterByStatus($event)">
+                        <option value="all">Tous</option>
+                        <option value="ACTIVE">Actif</option>
+                        <option value="ENATTENTE">En attente</option>
+                        <option value="TERMINE">Terminé</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <label>Date</label>
+                    <select (change)="filterByDate($event)">
+                        <option value="all">Toutes</option>
+                        <option value="upcoming">Prochains</option>
+                        <option value="recent">Récents</option>
+                        <option value="distant">Lointains</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PROGRAM CARDS -->
+    <section class="cards-container">
+        <div class="projects-grid">
+            <div class="project-card" *ngFor="let program of filteredPrograms">
+                <div class="card-content">
+                    <div class="card-background">
+                        <div class="card-header">
+                            <h2 class="project-title">{{ program.name }}</h2>
+                        </div>
+                    </div>
+
+                    <div class="card-buttons">
+                        <mat-icon class="status-icon" [ngClass]="getStatusClass(program.status)">
+                            {{ getStatusIcon(program.status) }}
+                        </mat-icon>
+                        <button mat-icon-button class="edit-button" (click)="openEditProgramForm(program)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button class="delete-button" (click)="deleteProgram(program.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="card-details">
+                        <div class="image-wrapper" *ngIf="program.logoUrl">
+                            <img [src]="program.logoUrl" alt="{{ program.name }}" class="project-image" />
+                        </div>
+
+                        <div class="project-details">
+                            <div class="detail-item-wrapper">
+                                <div class="detail-item description">
+                                    <mat-icon>description</mat-icon>
+                                    <span>{{ program.description }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <mat-icon>calendar_today</mat-icon>
+                                    <span>{{ program.startDate | date: 'yyyy-MM-dd' }} - {{ program.endDate | date: 'yyyy-MM-dd' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <mat-icon>person</mat-icon>
+                                    <span>{{ program.programLead.firstName }} {{ program.programLead.lastName }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button mat-flat-button class="phases-button" (click)="viewProgram(program.id)">Voir détails <mat-icon>visibility</mat-icon></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NO RESULTS -->
+        <div class="no-results" *ngIf="filteredPrograms.length === 0">
+            <mat-icon class="no-results-icon">mood_bad</mat-icon>
+            <p>Aucun programme trouvé.</p>
+        </div>
+    </section>
+</div>
+
+<div class="modal-overlay" *ngIf="showAddProgramForm || showEditProgramForm" (click)="closeForm($event)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ showAddProgramForm ? 'Ajouter un Programme' : 'Modifier le Programme' }}</h2>
+            <button mat-icon-button class="close-button" (click)="closeForm()" aria-label="Fermer">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <form [formGroup]="showAddProgramForm ? programForm : editProgramForm" (ngSubmit)="showAddProgramForm ? addProgram() : updateProgram()" class="modal-body">
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name">Nom du Programme *</label>
+                <input
+                    id="name"
+                    type="text"
+                    formControlName="name"
+                    placeholder="Entrez le nom du programme"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('name') : isEditFieldInvalid('name')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('name') : isEditFieldInvalid('name')">Le nom du programme est requis.</div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description *</label>
+                <textarea
+                    id="description"
+                    formControlName="description"
+                    placeholder="Entrez une description"
+                    rows="4"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('description') : isEditFieldInvalid('description')
+                    }"
+                ></textarea>
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('description') : isEditFieldInvalid('description')">La description est requise.</div>
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group">
+                <label for="startDate">Date de Début *</label>
+                <input
+                    id="startDate"
+                    type="date"
+                    formControlName="startDate"
+                    [min]="today"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('startDate') : isEditFieldInvalid('startDate')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('startDate') : isEditFieldInvalid('startDate')">La date de début est requise.</div>
+            </div>
+
+            <!-- End Date -->
+            <div class="form-group">
+                <label for="endDate">Date de Fin *</label>
+                <input
+                    id="endDate"
+                    type="date"
+                    formControlName="endDate"
+                    [min]="minEndDate"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('endDate') : isEditFieldInvalid('endDate')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('endDate') : isEditFieldInvalid('endDate')">La date de fin est requise et doit être après la date de début.</div>
+                <div class="error-message" *ngIf="showAddProgramForm ? programForm.get('endDate')?.hasError('invalidEndDate') : editProgramForm.get('endDate')?.hasError('invalidEndDate')">La date de fin doit être postérieure à la date de début.</div>
+            </div>
+
+            <!-- Budget -->
+            <div class="form-group">
+                <label for="budget">Budget (€) *</label>
+                <input
+                    id="budget"
+                    type="number"
+                    formControlName="budget"
+                    placeholder="Entrez le budget"
+                    min="0"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('budget') : isEditFieldInvalid('budget')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('budget') : isEditFieldInvalid('budget')">Le budget est requis et doit être supérieur ou égal à 0.</div>
+            </div>
+
+            <!-- Status (Edit Mode Only) -->
+            <div class="form-group" *ngIf="showEditProgramForm">
+                <label for="status">Statut *</label>
+                <select
+                    id="status"
+                    formControlName="status"
+                    [ngClass]="{
+                        invalid: isEditFieldInvalid('status')
+                    }"
+                >
+                    <option value="ACTIVE">Actif</option>
+                    <option value="ENATTENTE">En attente</option>
+                    <option value="TERMINE">Terminé</option>
+                </select>
+                <div class="error-message" *ngIf="isEditFieldInvalid('status')">Le statut est requis.</div>
+            </div>
+
+            <!-- Program Lead -->
+            <div class="form-group">
+                <label for="programLeadId">Responsable du Programme *</label>
+                <select
+                    id="programLeadId"
+                    formControlName="programLeadId"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('programLeadId') : isEditFieldInvalid('programLeadId')
+                    }"
+                >
+                    <option value="" disabled selected>Choisir un responsable</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                </select>
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('programLeadId') : isEditFieldInvalid('programLeadId')">Le responsable du programme est requis.</div>
+            </div>
+
+            <!-- Logo Upload -->
+            <div class="form-group">
+                <label for="logo">Logo du Programme *</label>
+                <div class="logo-upload">
+                    <input id="logo" type="file" accept="image/*" (change)="showAddProgramForm ? onFileSelected($event) : onEditFileSelected($event)" #fileInput />
+                    <div class="logo-preview" *ngIf="showEditProgramForm && editProgramForm.get('logoUrl')?.value && !selectedEditFile">
+                        <img [src]="editProgramForm.get('logoUrl')?.value" alt="Logo Preview" />
+                    </div>
+                    <div class="file-name" *ngIf="showAddProgramForm ? selectedFile : selectedEditFile">
+                        {{ (showAddProgramForm ? selectedFile : selectedEditFile)?.name }}
+                    </div>
+                </div>
+                <div class="error-message" *ngIf="showAddProgramForm && isFieldInvalid('logo')">Le logo est requis.</div>
+            </div>
+
+            <!-- Required Fields Alert -->
+            <div class="alert" *ngIf="showRequiredAlert">
+                <mat-icon>warning</mat-icon>
+                Veuillez remplir tous les champs requis.
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="cancel-button" (click)="closeForm()">Annuler</button>
+                <button type="submit" class="submit-button">
+                    {{ showAddProgramForm ? 'Ajouter' : 'Mettre à jour' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showAddProgramForm || showEditProgramForm" (click)="closeForm($event)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ showAddProgramForm ? 'Ajouter un Programme' : 'Modifier le Programme' }}</h2>
+            <button mat-icon-button class="close-button" (click)="closeForm()" aria-label="Fermer">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <form [formGroup]="showAddProgramForm ? programForm : editProgramForm" (ngSubmit)="showAddProgramForm ? addProgram() : updateProgram()" class="modal-body">
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name">Nom du Programme *</label>
+                <input
+                    id="name"
+                    type="text"
+                    formControlName="name"
+                    placeholder="Entrez le nom du programme"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('name') : isEditFieldInvalid('name')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('name') : isEditFieldInvalid('name')">Le nom du programme est requis.</div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description *</label>
+                <textarea
+                    id="description"
+                    formControlName="description"
+                    placeholder="Entrez une description"
+                    rows="4"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('description') : isEditFieldInvalid('description')
+                    }"
+                ></textarea>
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('description') : isEditFieldInvalid('description')">La description est requise.</div>
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group">
+                <label for="startDate">Date de Début *</label>
+                <input
+                    id="startDate"
+                    type="date"
+                    formControlName="startDate"
+                    [min]="today"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('startDate') : isEditFieldInvalid('startDate')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('startDate') : isEditFieldInvalid('startDate')">La date de début est requise.</div>
+            </div>
+
+            <!-- End Date -->
+            <div class="form-group">
+                <label for="endDate">Date de Fin *</label>
+                <input
+                    id="endDate"
+                    type="date"
+                    formControlName="endDate"
+                    [min]="minEndDate"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('endDate') : isEditFieldInvalid('endDate')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('endDate') : isEditFieldInvalid('endDate')">La date de fin est requise et doit être après la date de début.</div>
+            </div>
+
+            <!-- Budget -->
+            <div class="form-group">
+                <label for="budget">Budget (€) *</label>
+                <input
+                    id="budget"
+                    type="number"
+                    formControlName="budget"
+                    placeholder="Entrez le budget"
+                    min="0"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('budget') : isEditFieldInvalid('budget')
+                    }"
+                />
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('budget') : isEditFieldInvalid('budget')">Le budget est requis et doit être supérieur ou égal à 0.</div>
+            </div>
+
+            <!-- Status (Edit Mode Only) -->
+            <div class="form-group" *ngIf="showEditProgramForm">
+                <label for="status">Statut *</label>
+                <select
+                    id="status"
+                    formControlName="status"
+                    [ngClass]="{
+                        invalid: isEditFieldInvalid('status')
+                    }"
+                >
+                    <option value="ACTIVE">Actif</option>
+                    <option value="ENATTENTE">En attente</option>
+                    <option value="TERMINE">Terminé</option>
+                </select>
+                <div class="error-message" *ngIf="isEditFieldInvalid('status')">Le statut est requis.</div>
+            </div>
+
+            <!-- Program Lead -->
+            <div class="form-group">
+                <label for="programLeadId">Responsable du Programme *</label>
+                <select
+                    id="programLeadId"
+                    formControlName="programLeadId"
+                    [ngClass]="{
+                        invalid: showAddProgramForm ? isFieldInvalid('programLeadId') : isEditFieldInvalid('programLeadId')
+                    }"
+                >
+                    <option value="" disabled selected>Choisir un responsable</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+                </select>
+                <div class="error-message" *ngIf="showAddProgramForm ? isFieldInvalid('programLeadId') : isEditFieldInvalid('programLeadId')">Le responsable du programme est requis.</div>
+            </div>
+
+            <!-- Logo Upload -->
+            <div class="form-group">
+                <label for="logo">Logo du Programme *</label>
+                <div class="logo-upload">
+                    <input id="logo" type="file" accept="image/*" (change)="showAddProgramForm ? onFileSelected($event) : onEditFileSelected($event)" #fileInput />
+                    <div class="logo-preview" *ngIf="showEditProgramForm && editProgramForm.get('logoUrl')?.value && !selectedEditFile">
+                        <img [src]="editProgramForm.get('logoUrl')?.value" alt="Logo Preview" />
+                    </div>
+                    <div class="file-name" *ngIf="showAddProgramForm ? selectedFile : selectedEditFile">
+                        {{ (showAddProgramForm ? selectedFile : selectedEditFile)?.name }}
+                    </div>
+                </div>
+                <div class="error-message" *ngIf="showAddProgramForm && isFieldInvalid('logo')">Le logo est requis.</div>
+            </div>
+
+            <!-- Required Fields Alert -->
+            <div class="alert" *ngIf="showRequiredAlert">
+                <mat-icon>warning</mat-icon>
+                Veuillez remplir tous les champs requis.
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="cancel-button" (click)="closeForm()">Annuler</button>
+                <button type="submit" class="submit-button">
+                    {{ showAddProgramForm ? 'Ajouter' : 'Mettre à jour' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

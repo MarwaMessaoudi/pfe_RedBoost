@@ -1,0 +1,115 @@
+<div class="dashboard-wrapper">
+    <div class="dashboard-container">
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <!-- Contenu principal -->
+        <div *ngIf="statistics; else loading">
+            <!-- Aperçu des Projets -->
+            <div class="card overview-card">
+                <h2>Aperçu des Projets</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="label">Total des Projets</span>
+                        <span class="value">{{ statistics!.projects.totalProjects }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Progrès Moyen</span>
+                        <span class="value">{{ statistics!.projects.averageProgress | number: '1.0-2' }}%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Prêt pour Révision</span>
+                        <span class="value">{{ statistics!.projects.reviewReadyProjects }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Projets Actifs</span>
+                        <span class="value">{{ statistics!.projects.activeProjects }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Container -->
+            <div class="card charts-container">
+                <div class="chart-card pie-chart-card">
+                    <h2>Répartition des Projets</h2>
+                    <div class="pie-chart-wrapper">
+                        <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType"> </canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card bar-chart-card">
+                    <h2>Achèvement des Phases</h2>
+                    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType"> </canvas>
+                </div>
+            </div>
+
+            <!-- Aperçu des Tâches -->
+            <div class="card">
+                <h2>Aperçu des Tâches</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="label">Validations en Attente</span>
+                        <span class="value">{{ statistics!.tasks.pendingValidations }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Tâches en Retard</span>
+                        <span class="value">{{ statistics!.tasks.overdueTasks }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions en Attente -->
+            <div class="card">
+                <h2>Actions en Attente</h2>
+                <div class="scrollable">
+                    <ul>
+                        <li *ngFor="let action of pendingTaskActions">
+                            <div class="action-item">
+                                <span class="action-type task"> Tâche </span>
+                                <span class="action-details">
+                                    <span class="project-name">{{ action.projectName }}</span>
+                                    <span class="sub-details">
+                                        - {{ action.phaseName }} - {{ action.taskTitle }}
+                                        <span class="details">({{ action.details }})</span>
+                                    </span>
+                                </span>
+                                <div class="task-actions">
+                                    <button class="action-button validate" (click)="validateTask(action.taskId)" matTooltip="Valider la tâche">
+                                        <mat-icon>check</mat-icon>
+                                    </button>
+                                    <button class="action-button reject" (click)="rejectTask(action.taskId)" matTooltip="Rejeter la tâche">
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li *ngIf="pendingTaskActions.length === 0">Aucune tâche en attente de validation.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Engagement -->
+            <div class="card">
+                <h2>Engagement</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="label">Commentaires</span>
+                        <span class="value">{{ statistics!.engagement.commentsCount }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Phases Validées</span>
+                        <span class="value">{{ statistics!.engagement.phasesValidated }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Réunions Planifiées</span>
+                        <span class="value">{{ statistics!.engagement.meetingsScheduled }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #loading>
+        <div class="loading">Chargement du tableau de bord...</div>
+    </ng-template>
+</div>

@@ -1,0 +1,87 @@
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Left Section: Login Form -->
+        <div class="login-card">
+            <!-- Back Arrow -->
+            <div class="back-arrow">
+                <a routerLink="/landing">
+                    <span class="pi pi-arrow-left"></span>
+                </a>
+            </div>
+            <h2>Bienvenue</h2>
+            <p>Veuillez vous connecter à votre compte</p>
+
+            <form (ngSubmit)="onLogin()">
+                <!-- Generic error message at the top -->
+                <div *ngIf="isSubmitted && errorMessage" class="error-message top-error">
+                    {{ errorMessage }}
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="Entrez votre email" required #emailInput="ngModel" [ngClass]="{ 'invalid-input': isSubmitted && emailInput.invalid }" />
+                    <div *ngIf="isSubmitted && emailInput.invalid" class="error-message">
+                        {{ emailInput.errors?.['required'] ? 'Email requis' : 'Format d’email invalide' }}
+                    </div>
+                    <!-- Removed specific AUTH008 error message -->
+                    <div *ngIf="isSubmitted && loginError === 'AUTH017'" class="error-message">Veuillez confirmer votre email avant de vous connecter. <a (click)="resendConfirmationEmail()" class="resend-link">Renvoyer l'email</a></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Mot de passe</label>
+                    <input id="password" type="password" [(ngModel)]="password" name="password" placeholder="Entrez votre mot de passe" required #passwordInput="ngModel" [ngClass]="{ 'invalid-input': isSubmitted && passwordInput.invalid }" />
+                    <div *ngIf="isSubmitted && passwordInput.invalid" class="error-message">Mot de passe requis</div>
+                    <!-- Removed specific AUTH010 error message -->
+                </div>
+
+                <button type="submit" class="login-button">Se connecter</button>
+            </form>
+
+            <div class="divider">
+                <span>OU</span>
+            </div>
+
+            <!-- Role Selection Dropdown -->
+            <div class="role-selection">
+                <label for="role">Vous êtes:</label>
+                <select id="role" [(ngModel)]="selectedRole" required>
+                    <option value="" disabled selected>Sélectionnez votre rôle</option>
+                    <option value="ENTREPRENEUR">Entrepreneur</option>
+                    <option value="INVESTOR">Investisseur</option>
+                </select>
+                <div *ngIf="isGoogleSubmitted && !selectedRole" class="error-message">Veuillez sélectionner un rôle</div>
+            </div>
+
+            <button class="social-button gmail-button" (click)="onGoogleLogin()">
+                <img src="assets/images/google.webp" alt="Google Logo" class="google-logo" />
+                Se connecter avec Google
+            </button>
+
+            <div class="forgot-password-link">
+                <a routerLink="/forgot-password" class="p-link">Mot de passe oublié ?</a>
+            </div>
+            <p class="signup-link">Pas de compte ? <a routerLink="/signup">S’inscrire</a></p>
+        </div>
+
+        <!-- Right Section: Contact Info -->
+        <div class="contact-info">
+            <h2>Accédez à votre compte</h2>
+            <p>
+                <span class="pi pi-lock"></span>
+                Connectez-vous en toute sécurité pour gérer votre profil et vos paramètres.
+            </p>
+            <p>
+                <span class="pi pi-star"></span>
+                Débloquez des fonctionnalités exclusives et du contenu personnalisé.
+            </p>
+            <p>
+                <span class="pi pi-users"></span>
+                Rejoignez notre communauté et connectez-vous avec d’autres.
+            </p>
+            <p class="signup-prompt">
+                <span class="pi pi-sign-in"></span>
+                Nouveau ici ? <a routerLink="/signup">Créez un compte aujourd’hui !</a>
+            </p>
+        </div>
+    </div>
+</div>

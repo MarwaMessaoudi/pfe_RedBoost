@@ -1,0 +1,560 @@
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* Color Variables */
+$primary-color: #0A4955;
+$accent-color: #DB1E37;
+$header-gradient-start: #1e3c41;
+$header-gradient-end: #a11223;
+$darker-accent: #B61930;
+$soft-gray: #f5f7fa;
+$subtle-line: #e0e0e0;
+$white: #ffffff;
+$shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+/* Global Font */
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Page Container */
+.page-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e6ecef 100%), linear-gradient(45deg, rgba(10, 73, 85, 0.05), rgba(219, 30, 55, 0.05));
+  min-height: 100vh;
+  padding: 40px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  padding: 20px;
+  background: $white;
+  border-radius: 12px;
+  box-shadow: $shadow;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breadcrumb-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap; /* Allow wrapping if needed on smaller screens */
+}
+
+.breadcrumb-icon {
+  color: $primary-color;
+}
+
+.breadcrumb h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(90deg, $primary-color, $accent-color);
+  color: transparent;
+  display: inline-block;
+  background-clip: text;
+  margin: 0;
+}
+
+.breadcrumb ul {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+}
+
+.breadcrumb ul li {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.breadcrumb ul li a {
+  text-decoration: none;
+  font-weight: 600;
+  background: linear-gradient(90deg, $primary-color, $accent-color);
+  color: transparent;
+  display: inline-block;
+  background-clip: text;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.breadcrumb ul li a:hover {
+  opacity: 0.8;
+}
+
+/* Back Button */
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $primary-color;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: $soft-gray;
+  transform: translateX(-3px);
+}
+
+.btn-back svg {
+  width: 20px;
+  height: 20px;
+}
+
+.separator-breadcrumb {
+  border-top: 2px solid $subtle-line;
+  margin: 20px 0;
+}
+
+/* Wizard */
+.wizard {
+  padding: 30px;
+  background: $white;
+  border-radius: 20px;
+  box-shadow: $shadow;
+}
+
+/* Timeline Steps with Progress Bar */
+.timeline-steps {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.timeline-steps::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 15px;
+  right: 15px;
+  height: 6px;
+  background-color: $subtle-line;
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.progress-bar {
+  position: absolute;
+  top: 18px;
+  left: 15px;
+  height: 6px;
+  background: linear-gradient(90deg, $primary-color, $accent-color);
+  border-radius: 3px;
+  z-index: 2;
+  transition: width 0.5s ease;
+  animation: progressGlow 2s infinite;
+}
+
+@keyframes progressGlow {
+  0% { box-shadow: 0 0 5px rgba(10, 73, 85, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(10, 73, 85, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(10, 73, 85, 0.3); }
+}
+
+.timeline-steps li {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+  transition: all 0.3s ease;
+}
+
+.timeline-steps li:hover {
+  transform: scale(1.1);
+}
+
+.timeline-steps .step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  background-color: $subtle-line;
+  color: #6c757d;
+  font-weight: 700;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.timeline-steps .step-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.timeline-steps .checkmark {
+  font-size: 22px;
+}
+
+.timeline-steps .step-label {
+  display: block;
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.timeline-steps .step-tooltip {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: $primary-color;
+  color: $white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.timeline-steps li:hover .step-tooltip {
+  display: block;
+}
+
+.timeline-steps li.active .step-number {
+  background: linear-gradient(90deg, $primary-color, $accent-color);
+  color: $white;
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(10, 73, 85, 0.5);
+  animation: glow 1.5s infinite;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(10, 73, 85, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(10, 73, 85, 0.7); }
+  100% { box-shadow: 0 0 5px rgba(10, 73, 85, 0.3); }
+}
+
+.timeline-steps li.completed .step-number {
+  background-color: $accent-color;
+  color: $white;
+}
+
+@media (max-width: 768px) {
+  .timeline-steps .step-label {
+    font-size: 12px;
+  }
+
+  .timeline-steps .step-number {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 14px;
+  }
+
+  .timeline-steps .step-tooltip {
+    display: none !important;
+  }
+}
+
+/* Step Header */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: $white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: $shadow;
+  border-left: 5px solid $accent-color;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-header:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.step-header-icon {
+  color: $primary-color;
+  width: 24px;
+  height: 24px;
+}
+
+.step-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: $primary-color;
+  margin: 0;
+}
+
+.step-header p {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Form Styles */
+.step-content {
+  min-height: auto;
+  animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6c757d;
+  margin-bottom: 6px;
+}
+
+.form-group .required {
+  color: $accent-color;
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  color: #495057;
+  background: $soft-gray;
+  transition: all 0.3s ease;
+  background-clip: padding-box;
+  border-image: linear-gradient(to right, $primary-color, $accent-color) 1;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-image: linear-gradient(to right, $primary-color, $accent-color) 1;
+  box-shadow: 0 0 8px rgba(10, 73, 85, 0.3);
+  background: $white;
+  outline: none;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.form-group textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+/* Remove custom date icon */
+.form-group input[type="date"] {
+  position: relative;
+  padding-right: 12px; /* Match other inputs */
+}
+
+/* Remove the emoji calendar icon */
+.form-group input[type="date"]::before {
+  content: none;
+}
+
+/* Style the native date picker icon (webkit browsers) */
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(40%) sepia(50%) saturate(500%) hue-rotate(150deg) brightness(90%); /* Adjust color to match theme */
+  cursor: pointer;
+}
+
+.error-message {
+  color: $accent-color;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  background-color: $white;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 25px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  background: $white;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn:active::after {
+  width: 150px;
+  height: 150px;
+  opacity: 0;
+}
+
+.btn:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background: linear-gradient(90deg, #6c757d, #5a6268);
+  color: $white;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, $primary-color, darken($primary-color, 10%));
+  color: $white;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, $accent-color, $darker-accent);
+  color: $white;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Alerts */
+.alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: $shadow;
+  background: $white;
+}
+
+.alert-warning {
+  color: #856404;
+  border-left: 4px solid #ffeeba;
+}
+
+.alert-danger {
+  color: #721c24;
+  border-left: 4px solid #f5c6cb;
+}
+
+.alert .alert-icon {
+  font-size: 20px;
+}
+
+.alert .btn-success {
+  margin-top: 8px;
+}
+
+/* Navigation */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.step-navigation {
+  display: flex;
+  gap: 10px;
+}
+
+.mr-2 {
+  margin-right: 10px;
+}
+
+/* Utilities */
+.text-center {
+  text-align: center;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid $white;
+  border-top: 2px solid $accent-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: $accent-color;
+  text-align: center;
+  font-weight: 600;
+  background: $white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  box-shadow: $shadow;
+}

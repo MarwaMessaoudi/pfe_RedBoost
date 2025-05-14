@@ -1,0 +1,135 @@
+<div class="drive-container">
+    <!-- Header Section -->
+    <div class="drive-header">
+        <div class="header-content">
+            <button class="back-to-projects-btn" (click)="goBackToProjects()" [@buttonClick]="'clicked'">
+                <i class="fas fa-arrow-left"></i>
+                <span>Retour aux Projets</span>
+            </button>
+            <h1 class="header-title"><i class="fas fa-folder-tree"></i> Documents du Projet</h1>
+        </div>
+        <div class="header-wave"></div>
+    </div>
+
+    <!-- Status Messages -->
+    <div *ngIf="successMessage" class="status-message success" @fadeIn><i class="fas fa-check-circle"></i> {{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="status-message error" @fadeIn><i class="fas fa-exclamation-circle"></i> {{ errorMessage }}</div>
+
+    <!-- Main Content -->
+    <div class="drive-content">
+        <!-- Folders and Files Panel -->
+        <div class="folders-panel glass-card">
+            <div class="panel-header">
+                <h2><i class="fas fa-folder-tree"></i> Explorateur de Fichiers</h2>
+                <button *ngIf="folderHistory.length > 1" class="nav-btn" (click)="goBack()" [@buttonClick]="'clicked'">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <div class="current-path" *ngIf="selectedFolder">
+                <span>Dossier actuel : </span>
+                <span class="path"><i class="fas fa-folder-open"></i> {{ selectedFolder.name }}</span>
+            </div>
+
+            <div class="folders-list">
+                <!-- Subfolders -->
+                <div class="subfolders-container">
+                    <div
+                        *ngFor="let subFolder of subFolders"
+                        class="folder-item subfolder hover-scale"
+                        (click)="selectFolder(subFolder)"
+                        (mouseenter)="onHover(subFolder)"
+                        (mouseleave)="onLeave(subFolder)"
+                        [@hoverScale]="subFolder.isHovered ? 'hovered' : 'default'"
+                        [@staggerIn]
+                    >
+                        <div class="folder-icon">
+                            <i class="fas fa-folder-minus"></i>
+                        </div>
+                        <div class="folder-info">
+                            <h3>{{ subFolder.name }}</h3>
+                            <p>Sous-dossier</p>
+                        </div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                </div>
+
+                <!-- Files -->
+                <div class="files-container">
+                    <div *ngFor="let file of files" class="folder-item file-item hover-scale" (click)="openFile(file)" (mouseenter)="onHover(file)" (mouseleave)="onLeave(file)" [@hoverScale]="file.isHovered ? 'hovered' : 'default'" [@staggerIn]>
+                        <div class="folder-icon">
+                            <i
+                                class="fas fa-file"
+                                [ngClass]="{
+                                    'fa-file-pdf': file.mimeType.includes('pdf'),
+                                    'fa-file-image': file.mimeType.includes('image'),
+                                    'fa-file-word': file.mimeType.includes('document'),
+                                    'fa-file-excel': file.mimeType.includes('spreadsheet')
+                                }"
+                            ></i>
+                        </div>
+                        <div class="folder-info">
+                            <h3>{{ file.name }}</h3>
+                            <p>{{ file.mimeType }}</p>
+                        </div>
+                        <i class="fas fa-external-link-alt arrow"></i>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="subFolders.length === 0 && files.length === 0" class="empty-state">
+                    <i class="fas fa-folder-plus"></i>
+                    <h3>Dossier vide</h3>
+                    <p>Créez un sous-dossier ou téléversez des fichiers pour commencer.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Panel -->
+        <div class="actions-panel glass-card">
+            <h2><i class="fas fa-tools"></i> Gestionnaire de Fichiers</h2>
+
+            <!-- Create Subfolder -->
+            <div class="action-section" @fadeIn>
+                <h3><i class="fas fa-folder-plus"></i> Nouveau dossier</h3>
+                <div class="input-group hover-glow">
+                    <i class="fas fa-folder prefix-icon"></i>
+                    <input
+                        [(ngModel)]="subFolderName"
+                        placeholder="Nom du sous-dossier"
+                        class="styled-input"
+                        (focus)="subFolderInputFocused = true"
+                        (blur)="subFolderInputFocused = false"
+                        [@inputFocus]="subFolderInputFocused ? 'focused' : 'blurred'"
+                    />
+                </div>
+                <button class="action-btn secondary" (click)="createSubFolder()" [disabled]="!subFolderName || isCreatingSubFolder" [@buttonClick]="'clicked'">
+                    <span class="button-content">
+                        <i class="fas fa-plus"></i>
+                        <span class="button-text">{{ isCreatingSubFolder ? 'Création...' : 'Créer' }}</span>
+                    </span>
+                    <span class="ripple"></span>
+                </button>
+            </div>
+
+            <!-- File Upload -->
+            <div class="action-section" @fadeIn>
+                <h3><i class="fas fa-cloud-upload-alt"></i> Téléverser des fichiers</h3>
+                <div class="upload-zone hover-glow" (dragover)="$event.preventDefault()" (drop)="handleFileDrop($event)">
+                    <label for="fileInput">
+                        <i class="fas fa-file-upload"></i>
+                        <span>{{ fileName || 'Glissez-déposez des fichiers ici ou cliquez pour sélectionner' }}</span>
+                    </label>
+                    <input id="fileInput" type="file" (change)="onFileSelected($event)" class="file-input" />
+                </div>
+                <button class="action-btn success" (click)="uploadFile()" [disabled]="!selectedFile || isUploadingFile" [@buttonClick]="'clicked'">
+                    <span class="button-content">
+                        <i class="fas fa-upload"></i>
+                        <span class="button-text">{{ isUploadingFile ? 'Téléversement...' : 'Téléverser' }}</span>
+                    </span>
+                    <span class="ripple"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,105 @@
+<div class="modal-overlay animate-fadeIn">
+    <div class="modal-box animate-slideIn">
+        <!-- Close Button -->
+        <button class="close-icon" (click)="onCancel()" aria-label="Close modal">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Modal Title -->
+        <h3 class="modal-title">
+            <i class="fas fa-plus-circle"></i>
+            {{ data.isEdit ? 'Modifier la Tâche' : 'Nouvelle Tâche' }}
+        </h3>
+
+        <!-- Form -->
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="activity-form">
+            <div class="form-group">
+                <label for="title">Titre:</label>
+                <input id="title" formControlName="title" placeholder="Entrez le titre de la tâche" required aria-required="true" />
+                <small *ngIf="taskForm.get('title')?.touched && taskForm.get('title')?.hasError('required')" class="error-msg"> Le titre est obligatoire </small>
+            </div>
+
+            <div class="form-group">
+                <label for="taskCategory">Catégorie:</label>
+                <select id="taskCategory" formControlName="taskCategory" required aria-required="true">
+                    <option value="" disabled selected>Sélectionnez une catégorie</option>
+                    <option *ngFor="let category of taskCategories" [value]="category.id">{{ category.name }}</option>
+                </select>
+                <small *ngIf="taskForm.get('taskCategory')?.touched && taskForm.get('taskCategory')?.hasError('required')" class="error-msg"> La catégorie est obligatoire </small>
+            </div>
+
+            <div class="form-group">
+                <label for="xpPoint">Points XP:</label>
+                <input id="xpPoint" type="number" formControlName="xpPoint" placeholder="Entrez les points XP" required aria-required="true" min="0" />
+                <small *ngIf="taskForm.get('xpPoint')?.touched && taskForm.get('xpPoint')?.hasError('required')" class="error-msg"> Les points XP sont obligatoires </small>
+                <small *ngIf="taskForm.get('xpPoint')?.touched && taskForm.get('xpPoint')?.hasError('min')" class="error-msg"> Les points XP doivent être au moins 0 </small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" formControlName="description" placeholder="Entrez une description" rows="3" aria-required="false"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="assigneeId">Assigné à:</label>
+                <select id="assigneeId" formControlName="assigneeId" required aria-required="true">
+                    <option value="" disabled selected>Sélectionnez un responsable</option>
+                    <option *ngFor="let assignee of data.entrepreneurs" [value]="assignee.id">{{ assignee.firstName }} {{ assignee.lastName }}</option>
+                </select>
+                <small *ngIf="taskForm.get('assigneeId')?.touched && taskForm.get('assigneeId')?.hasError('required')" class="error-msg"> Assigné est obligatoire </small>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priorité:</label>
+                <select id="priority" formControlName="priority" required aria-required="true">
+                    <option value="" disabled selected>Sélectionnez une priorité</option>
+                    <option *ngFor="let priority of priorityOptions" [value]="priority">{{ getTranslatedPriority(priority) }}</option>
+                </select>
+                <small *ngIf="taskForm.get('priority')?.touched && taskForm.get('priority')?.hasError('required')" class="error-msg"> La priorité est obligatoire </small>
+            </div>
+
+            <div class="form-group date-range">
+                <div class="date-field">
+                    <label for="startDate">Date de début:</label>
+                    <!-- Bind min attribute to the calculated effective minimum (max of today and phase start) -->
+                    <input id="startDate" type="date" formControlName="startDate" [min]="effectiveMinStartDate" [max]="phaseEndDate || null" (change)="onStartDateChange($event)" required aria-required="true" />
+                    <small *ngIf="taskForm.get('startDate')?.touched && taskForm.get('startDate')?.hasError('required')" class="error-msg"> La date de début est obligatoire </small>
+                    <!-- Error messages from startDatePhaseValidator -->
+                    <small *ngIf="taskForm.hasError('invalidStartDateEarly')" class="error-msg"> La date de début ne peut pas être antérieure au {{ effectiveMinStartDate | date: 'mediumDate' }}. </small>
+                    <small *ngIf="taskForm.hasError('startDateAfterPhaseEnd')" class="error-msg"> La date de début ne peut pas être postérieure à la date de fin de la phase ({{ phaseEndDate | date: 'mediumDate' }}). </small>
+                </div>
+                <div class="date-field">
+                    <label for="endDate">Date de fin:</label>
+                    <!-- Bind min to the selected startDate (or effectiveMinStartDate if startDate isn't set yet) -->
+                    <!-- Bind max to the phaseEndDate -->
+                    <input id="endDate" type="date" formControlName="endDate" [min]="taskForm.get('startDate')?.value || effectiveMinStartDate" [max]="phaseEndDate || null" (change)="onEndDateChange($event)" required aria-required="true" />
+                    <small *ngIf="taskForm.get('endDate')?.touched && taskForm.get('endDate')?.hasError('required')" class="error-msg"> La date de fin est obligatoire </small>
+                    <!-- Error messages from group validators -->
+                    <small *ngIf="taskForm.hasError('dateRangeInvalid')" class="error-msg"> La date de fin ne peut pas être antérieure à la date de début. </small>
+                    <small *ngIf="taskForm.hasError('endDateBeforePhaseStart')" class="error-msg"> La date de fin ne peut pas être antérieure à la date de début de la phase ({{ phaseStartDate | date: 'mediumDate' }}). </small>
+                    <small *ngIf="taskForm.hasError('endDateAfterPhaseEnd')" class="error-msg"> La date de fin ne peut pas être postérieure à la date de fin de la phase ({{ phaseEndDate | date: 'mediumDate' }}). </small>
+                </div>
+            </div>
+
+            <div class="form-group attachments-section">
+                <label>Pièce jointe:</label>
+                <div class="attachment-list" *ngIf="selectedFile">
+                    <span class="attachment-chip">{{ selectedFile.name }}</span>
+                    <button type="button" class="remove-attachment" (click)="removeAttachment()" aria-label="Remove attachment">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p *ngIf="!selectedFile" class="no-attachments">Aucune pièce jointe sélectionnée</p>
+                <button type="button" class="btn-add-attachment" (click)="addAttachment()" [disabled]="selectedFile != null" aria-label="Ajouter une pièce jointe">Ajouter une pièce jointe</button>
+                <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" />
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" (click)="onCancel()" aria-label="Annuler">Annuler</button>
+                <button type="submit" class="btn-send" [disabled]="taskForm.invalid || submitting" [attr.aria-label]="data.isEdit ? 'Mettre à jour la tâche' : 'Créer la tâche'">
+                    {{ data.isEdit ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

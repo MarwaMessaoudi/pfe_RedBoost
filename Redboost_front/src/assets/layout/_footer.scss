@@ -1,0 +1,18 @@
+//Assign custom colours to variables
+$custom-color-100: #0a4955;
+$custom-color-200: #245c67;
+$custom-color-300: #568086;
+$custom-color-400: #db1e37;
+$custom-color-500: #e44d62;
+$custom-color-600: #ea7988;
+$custom-color-700: #db1e37;
+$custom-color-800: #0a4955;
+
+.layout-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0 1rem 0;
+    gap: 0.5rem;
+    border-top: 1px solid $custom-color-200; // Changed to a custom colour
+}

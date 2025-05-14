@@ -1,0 +1,248 @@
+<div class="container">
+    <div class="separator-breadcrumb border-top"></div>
+
+    <!-- Header Section -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-title-container">
+                <h1 class="title">Vos Projets</h1>
+                <button *ngIf="currentUserRole === 'entrepreneur'" mat-icon-button class="add-project-button" (click)="navigateToCreateProject()" aria-label="Ajouter un nouveau projet" matTooltip="Ajouter un projet">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+            <div class="header-decoration"></div>
+            <p class="subtitle">Gérez vos entreprises</p>
+        </div>
+        <div class="filter-section">
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher par nom, secteur ou localisation..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" class="search-input" />
+            </div>
+            <div class="filters">
+                <div class="filter-item">
+                    <select id="sector-select" [(ngModel)]="selectedSector" (ngModelChange)="onSectorChange()">
+                        <option value="">Tous les Secteurs</option>
+                        <option *ngFor="let sector of uniqueSectors" [value]="sector">{{ sector }}</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <select id="location-select" [(ngModel)]="selectedLocation" (ngModelChange)="onLocationChange()">
+                        <option value="">Toutes les Localisations</option>
+                        <option *ngFor="let location of uniqueLocations" [value]="location">{{ location }}</option>
+                    </select>
+                </div>
+                <div class="sort-controls">
+                    <div class="filter-item">
+                        <div class="sort-wrapper">
+                            <select id="sort-select" [(ngModel)]="sortField" (ngModelChange)="onSortFieldChange()">
+                                <option value="creationDate">Date de Création</option>
+                                <option value="globalScore">Note</option>
+                            </select>
+                            <button mat-icon-button class="sort-toggle" (click)="toggleSortDirection()" [class.active]="sortAscending" aria-label="Changer l'ordre de tri">
+                                <mat-icon>{{ sortAscending ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tabbed Sections -->
+    <mat-tab-group mat-align-tabs="center" class="tab-group">
+        <!-- Projects Tab -->
+        <mat-tab label="Projets">
+            <section class="cards-container">
+                <ng-container *ngIf="filteredProjets$ | async as projets; else loading">
+                    <div class="projects-grid" *ngIf="projets.length > 0; else noResults">
+                        <div class="project-card" *ngFor="let projet of projets; let i = index">
+                            <div class="card-content" [ngClass]="getCardColorClass(i)">
+                                <div class="card-background"></div>
+                                <div class="card-buttons">
+                                    <button *ngIf="currentUserRole === 'entrepreneur' && projet.id !== undefined && projet.id !== 0" mat-icon-button class="delete-button" (click)="deleteProjet(projet.id)" aria-label="Supprimer le projet">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                    <button *ngIf="currentUserRole === 'entrepreneur' && projet.id !== undefined && projet.id !== 0" mat-icon-button class="add-user-button" (click)="inviteUser(projet.id)" aria-label="Ajouter un utilisateur">
+                                        <mat-icon>person_add</mat-icon>
+                                    </button>
+                                    <button mat-icon-button class="documents-button" (click)="navigateToDocuments(projet.id)" aria-label="Voir les documents" matTooltip="Voir les documents" *ngIf="projet.id !== undefined && projet.id !== 0">
+                                        <mat-icon>folder</mat-icon>
+                                    </button>
+                                </div>
+                                <div class="card-details">
+                                    <h2 class="project-title">{{ projet.name }}</h2>
+                                    <div class="price-tag">
+                                        <span class="star-icon">⭐</span>
+                                        {{ projet.globalScore | number: '1.2-2' }}
+                                    </div>
+                                    <p class="project-sector">{{ projet.sector }}</p>
+                                    <div class="image-wrapper" *ngIf="projet.logoUrl && projet.logoUrl !== 'null'">
+                                        <img
+                                            [src]="sanitizedImageUrl(projet.logoUrl)"
+                                            [attr.data-original-url]="projet.logoUrl || 'null'"
+                                            alt="{{ projet.name || 'Logo Projet' }}"
+                                            class="project-image"
+                                            loading="lazy"
+                                            (error)="onImageError($event)"
+                                            (load)="onImageLoad(projet.logoUrl)"
+                                        />
+                                    </div>
+                                    <div class="project-details">
+                                        <div class="detail-item-wrapper">
+                                            <div class="detail-item location">
+                                                <mat-icon>location_on</mat-icon>
+                                                <span>{{ projet.location }}</span>
+                                            </div>
+                                            <div class="detail-item date">
+                                                <mat-icon>calendar_today</mat-icon>
+                                                <span>{{ projet.creationDate }}</span>
+                                            </div>
+                                            <div class="detail-item site" *ngIf="projet.websiteUrl">
+                                                <mat-icon>language</mat-icon>
+                                                <a [href]="projet.websiteUrl" target="_blank" rel="noopener noreferrer">Visiter</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button mat-flat-button class="view-button" [routerLink]="['/details-projet', projet.id ?? 0]">Détails</button>
+                                        <button mat-flat-button class="phases-button" (click)="navigateToPhases(projet.id)">Accompagnement</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #noResults>
+                        <div class="no-results">
+                            <div class="no-results-content">
+                                <mat-icon class="no-results-icon">folder_open</mat-icon>
+                                <h3 class="no-results-title">Aucun Projet Trouvé</h3>
+                                <p class="no-results-message">Il semble que vous n'ayez aucun projet pour le moment. Créez-en un pour commencer !</p>
+                                <button *ngIf="currentUserRole === 'entrepreneur'" mat-flat-button class="create-button" (click)="navigateToCreateProject()">Créer un Projet</button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ng-container>
+                <ng-template #loading>
+                    <div class="loading-container">
+                        <mat-spinner diameter="50" color="primary"></mat-spinner>
+                        <p class="loading-message">Chargement...</p>
+                    </div>
+                </ng-template>
+            </section>
+        </mat-tab>
+
+        <!-- Invitations Tab -->
+        <mat-tab label="Invitations" *ngIf="currentUserRole === 'entrepreneur'">
+            <section class="pending-invitations-section" *ngIf="pendingInvitations.length > 0; else noInvitations">
+                <h2 class="section-title">Invitations en Attente</h2>
+                <div class="invitations-grid">
+                    <div class="invitation-card" *ngFor="let invitation of pendingInvitations">
+                        <div class="invitation-content">
+                            <div class="invitation-header">
+                                <h3 class="invitation-title">{{ invitation.projectName }}</h3>
+                                <span class="invitation-status">En attente</span>
+                            </div>
+                            <p class="invitation-email">Invité par: {{ invitation.invitorName }} ({{ invitation.invitorEmail }})</p>
+                            <div class="invitation-actions">
+                                <button mat-flat-button class="accept-button" (click)="acceptInvitation(invitation.projectId)" [disabled]="!invitation.projectId || invitation.projectId === 0"><mat-icon>check_circle</mat-icon> Accepter</button>
+                                <button mat-flat-button class="decline-button" (click)="declineInvitation(invitation.projectId)" [disabled]="!invitation.projectId || invitation.projectId === 0"><mat-icon>cancel</mat-icon> Refuser</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <ng-template #noInvitations>
+                <div class="no-results">
+                    <div class="no-results-content">
+                        <mat-icon class="no-results-icon">mail_outline</mat-icon>
+                        <h3 class="no-results-title">Aucune Invitation</h3>
+                        <p class="no-results-message">Vous n'avez aucune invitation en attente. Collaborez avec d'autres pour en recevoir !</p>
+                    </div>
+                </div>
+            </ng-template>
+        </mat-tab>
+
+        <!-- Contacts Tab -->
+        <mat-tab label="Contacts">
+            <section class="cards-container">
+                <ng-container *ngIf="filteredProjets$ | async as projets; else loading">
+                    <div class="projects-grid" *ngIf="projets.length > 0; else noResults">
+                        <div class="project-card" *ngFor="let projet of projets">
+                            <div class="card-content">
+                                <div class="project-header">
+                                    <img
+                                        *ngIf="projet.logoUrl && projet.logoUrl !== 'null'"
+                                        [src]="sanitizedImageUrl(projet.logoUrl)"
+                                        alt="{{ projet.name }} Logo"
+                                        class="project-logo"
+                                        (error)="onImageError($event)"
+                                        (load)="onImageLoad(projet.logoUrl)"
+                                    />
+                                    <div class="project-name-wrapper">
+                                        <h2 class="project-title-header">{{ projet.name }}</h2>
+                                    </div>
+                                </div>
+                                <div class="contact-grid" *ngIf="projet.id !== undefined && projet.id !== 0 && projetContacts[projet.id] && !isLoadingContacts">
+                                    <ng-container *ngFor="let userGroup of groupUsersByEmail(projetContacts[projet.id]); trackBy: trackByUserGroup">
+                                        <div class="user-card">
+                                            <div class="user-card-content">
+                                                <img [src]="projectContactAvatars[projet.id][userGroup.users[0].id] || defaultAvatar" alt="User Avatar" class="user-avatar" (error)="onAvatarError($event)" />
+                                                <div class="user-info">
+                                                    <div class="user-name-wrapper">
+                                                        <p class="user-name">{{ getUserName(userGroup.users[0]) }}</p>
+                                                        <div class="user-role">
+                                                            <span class="role-badge {{ role.toLowerCase() }}" *ngFor="let role of userGroup.roles">
+                                                                {{ role }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="user-email">{{ userGroup.users[0].email || 'N/A' }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                                <div
+                                    class="contact-empty"
+                                    *ngIf="
+                                        projet.id &&
+                                        !isLoadingContacts &&
+                                        !projetContacts[projet.id]?.founder &&
+                                        !projetContacts[projet.id]?.entrepreneurs?.length &&
+                                        !projetContacts[projet.id]?.coaches?.length &&
+                                        !projetContacts[projet.id]?.investors?.length
+                                    "
+                                >
+                                    Aucun contact assigné à ce projet.
+                                </div>
+                                <div *ngIf="isLoadingContacts" class="loading-container">
+                                    <mat-spinner diameter="30" color="primary"></mat-spinner>
+                                    <p>Chargement des contacts...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #noResults>
+                        <div class="no-results">
+                            <div class="no-results-content">
+                                <mat-icon class="no-results-icon">people_outline</mat-icon>
+                                <h3 class="no-results-title">Aucun Contact Trouvé</h3>
+                                <p class="no-results-message">Il semble que vous n'ayez aucun contact pour le moment. Ajoutez des projets pour collaborer !</p>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ng-container>
+                <ng-template #loading>
+                    <div class="loading-container">
+                        <mat-spinner diameter="50" color="primary"></mat-spinner>
+                        <p class="loading-message">Chargement...</p>
+                    </div>
+                </ng-template>
+            </section>
+        </mat-tab>
+
+        <!-- Rendez Vous Tab -->
+        <mat-tab label="Rendez Vous" *ngIf="currentUserRole === 'entrepreneur'">
+            <app-coach-list [projects]="(filteredProjets$ | async) ?? []"></app-coach-list>
+        </mat-tab>
+    </mat-tab-group>
+</div>

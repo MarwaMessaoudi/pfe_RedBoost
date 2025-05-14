@@ -1,0 +1,109 @@
+<div class="kanban-board relative">
+    <div class="header">
+        <button mat-icon-button class="back-button" (click)="goBackToPhases()" aria-label="Retour aux phases" matTooltip="Retour aux phases">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ phaseName }} - Tableau Kanban</h1>
+        <div class="actions-container">
+            <button mat-fab color="accent" (click)="openCreateTaskCategoryDialog()" matTooltip="Créer une catégorie">
+                <mat-icon>category</mat-icon>
+            </button>
+            <button mat-fab color="primary" (click)="openCreateTaskDialog()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <div class="search-box">
+            <input type="text" placeholder="Rechercher des tâches..." [(ngModel)]="searchTerm" (input)="onSearchTermChange(searchTerm)" />
+        </div>
+        <div class="filters">
+            <div class="filter-group">
+                <select id="categoryFilter" [(ngModel)]="categoryFilter" (change)="applyFilters()">
+                    <option value="ALL">Toutes les catégories</option>
+                    <option *ngFor="let category of taskCategories" [value]="category.id">
+                        {{ category.name }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select id="statusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                    <option value="ALL">Tous les statuts</option>
+                    <option [value]="TaskStatus.TO_DO">À faire</option>
+                    <option [value]="TaskStatus.IN_PROGRESS">En cours</option>
+                    <option [value]="TaskStatus.DONE">Terminé</option>
+                    <option [value]="TaskStatus.VALIDATED">Validé</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select id="priorityFilter" [(ngModel)]="priorityFilter" (change)="applyFilters()">
+                    <option value="ALL">Toutes les priorités</option>
+                    <option *ngFor="let priority of TaskPriority | keyvalue" [value]="priority.value">
+                        {{ priority.value }}
+                    </option>
+                </select>
+            </div>
+
+            <button class="btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
+        </div>
+    </div>
+
+    <div class="board-container flex">
+        <div class="board-columns-wrapper flex-grow">
+            <div class="kanban-column" cdkDropList id="todo" [cdkDropListConnectedTo]="['inprogress', 'done']" [cdkDropListData]="todo" (cdkDropListDropped)="drop($event)">
+                <h2>À FAIRE ({{ todo.length }}) - XP: {{ calculateTotalXp(todo) }}</h2>
+                <app-task-card
+                    *ngFor="let task of todo"
+                    [task]="task"
+                    [phaseName]="phaseName"
+                    [assigneeAvatarUrl]="getAssigneeAvatarUrl(task.assigneeId)"
+                    [assigneeInitials]="getAssigneeInitials(task.assigneeId)"
+                    [openEditTaskDialog]="openEditTaskDialog.bind(this)"
+                >
+                </app-task-card>
+            </div>
+
+            <div class="kanban-column" cdkDropList id="inprogress" [cdkDropListConnectedTo]="['todo', 'done']" [cdkDropListData]="inprogress" (cdkDropListDropped)="drop($event)">
+                <h2>EN COURS ({{ inprogress.length }}) - XP: {{ calculateTotalXp(inprogress) }}</h2>
+                <app-task-card
+                    *ngFor="let task of inprogress"
+                    [task]="task"
+                    [phaseName]="phaseName"
+                    [assigneeAvatarUrl]="getAssigneeAvatarUrl(task.assigneeId)"
+                    [assigneeInitials]="getAssigneeInitials(task.assigneeId)"
+                    [openEditTaskDialog]="openEditTaskDialog.bind(this)"
+                >
+                </app-task-card>
+            </div>
+
+            <div class="kanban-column" cdkDropList id="done" [cdkDropListConnectedTo]="['todo', 'inprogress']" [cdkDropListData]="completed" (cdkDropListDropped)="drop($event)">
+                <h2>TERMINÉ ({{ completed.length }}) - XP: {{ calculateTotalXp(completed) }}</h2>
+                <app-task-card
+                    *ngFor="let task of completed"
+                    [task]="task"
+                    [phaseName]="phaseName"
+                    [assigneeAvatarUrl]="getAssigneeAvatarUrl(task.assigneeId)"
+                    [assigneeInitials]="getAssigneeInitials(task.assigneeId)"
+                    [openEditTaskDialog]="openEditTaskDialog.bind(this)"
+                >
+                </app-task-card>
+            </div>
+
+            <div class="kanban-column" cdkDropList id="validated" [cdkDropListData]="validated">
+                <h2>VALIDÉ ({{ validated.length }}) - XP: {{ calculateTotalXp(validated) }}</h2>
+                <app-task-card
+                    *ngFor="let task of validated"
+                    [task]="task"
+                    [phaseName]="phaseName"
+                    [assigneeAvatarUrl]="getAssigneeAvatarUrl(task.assigneeId)"
+                    [assigneeInitials]="getAssigneeInitials(task.assigneeId)"
+                    [openEditTaskDialog]="openEditTaskDialog.bind(this)"
+                >
+                </app-task-card>
+            </div>
+        </div>
+        <app-task-update [task]="selectedTask" [isOpen]="isPanelOpen" [entrepreneurs]="entrepreneurs" (closeEvent)="closePanel()" (taskUpdated)="loadTasksForPhase(phaseId!)"></app-task-update>
+    </div>
+</div>

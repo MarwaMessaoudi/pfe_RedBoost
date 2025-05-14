@@ -1,0 +1,276 @@
+<div class="task-update-container" [class.open]="isOpen" *ngIf="taskActivity">
+    <div class="task-update-content" [formGroup]="taskActivityForm">
+        <!-- Header -->
+        <div class="header-task-update">
+            <div class="task-identifier">
+                <div class="task-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="#4287f5">
+                        <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h2>{{ taskActivity.taskActivityId ? 'Activité-' + taskActivity.taskActivityId : 'Nouvelle Activité' }}</h2>
+            </div>
+            <div class="header-task-update-actions">
+                <button (click)="deleteTaskActivity()" class="icon-button" title="Supprimer l'activité" *ngIf="taskActivity.taskActivityId">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <button (click)="close()" class="icon-button" title="Fermer">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Task Title -->
+            <div class="task-title">
+                <div *ngIf="!editingTitle" class="display-mode">
+                    <h1>{{ taskActivity.title }}</h1>
+                    <button (click)="startEditingTitle()" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="editingTitle" class="edit-mode">
+                    <input type="text" formControlName="title" class="title-input" placeholder="Titre de l'activité" />
+                    <div class="edit-actions">
+                        <button (click)="saveTitle()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditTitle()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Category Display -->
+            <div class="task-category-section">
+                <div class="task-category-display" *ngIf="!editingCategory">
+                    <span>Catégorie: </span>
+                    <span class="category-name">{{ getCategoryName(taskActivity.taskCategoryActivityId) }}</span>
+                    <button (click)="startEditingCategory()" class="edit-button" title="Modifier la catégorie">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="editingCategory" class="edit-mode">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Catégorie</mat-label>
+                        <mat-select [(ngModel)]="selectedCategoryId" [ngModelOptions]="{ standalone: true }">
+                            <mat-option *ngFor="let category of availableCategories" [value]="category.id">
+                                {{ category.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="edit-actions">
+                        <button (click)="saveTaskCategory()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditTaskCategory()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>Description</h3>
+                    <button (click)="startEditingDescription()" *ngIf="!editingDescription" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="!editingDescription" class="description-content">
+                    <p>{{ taskActivity.description || 'Aucune description fournie' }}</p>
+                </div>
+                <div *ngIf="editingDescription" class="description-edit">
+                    <textarea formControlName="description" rows="4" class="description-input"></textarea>
+                    <div class="edit-actions">
+                        <button (click)="saveDescription()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditDescription()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="section status-dropdown">
+                <div class="section-header-task-update">
+                    <h3>STATUT</h3>
+                </div>
+                <div class="status-box" (click)="toggleStatusDropdown()">
+                    {{ taskActivity.statusActivity || 'TO_DO' }}
+                </div>
+                <div class="dropdown-menu" *ngIf="showStatusDropdown">
+                    <div class="dropdown-item" *ngFor="let status of statusOptions" (click)="selectStatus(status)">
+                        {{ status }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignees Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>RESPONSABLES</h3>
+                </div>
+                <div class="assignees-list">
+                    <div *ngIf="taskActivity?.assigneeId && availableAssignees.length > 0">
+                        <div class="assignee-item">
+                            <div class="assignee-info">
+                                <span>{{ getAssigneeName(taskActivity.assigneeId) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="(!taskActivity?.assigneeId && availableAssignees.length === 0) || availableAssignees.length === 0" class="no-assignees">Aucun responsable pour le moment</div>
+                    <button class="add-assignee-button" (click)="openAssigneeDropdown()"><span class="plus-icon">+</span> Changer le responsable</button>
+                    <div class="dropdown-menu" *ngIf="showAssigneeDropdown">
+                        <div class="dropdown-item" *ngFor="let assignee of availableAssignees" (click)="selectAssignee(assignee)">
+                            <div class="assignee-info">
+                                <span>{{ assignee.firstName }} {{ assignee.lastName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Section -->
+            <div class="section priority-dropdown">
+                <div class="section-header-task-update">
+                    <h3>PRIORITÉ</h3>
+                </div>
+                <div class="priority-display" (click)="togglePriorityDropdown()">
+                    <span>{{ taskActivity.priorityActivity || 'LOW' }}</span>
+                </div>
+                <div class="dropdown-menu" *ngIf="showPriorityDropdown">
+                    <div class="dropdown-item" *ngFor="let priority of priorityOptions" (click)="selectPriority(priority)">
+                        {{ priority }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Points Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>POINTS XP</h3>
+                    <button (click)="startEditingXpPoint()" *ngIf="!editingXpPoint" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="!editingXpPoint" class="xp-points">
+                    {{ taskActivity.xpPoint || 0 }}
+                </div>
+                <div *ngIf="editingXpPoint" class="edit-mode">
+                    <input type="number" formControlName="xpPoint" class="xp-input" min="0" placeholder="Points XP" />
+                    <div class="edit-actions">
+                        <button (click)="saveXpPoint()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditXpPoint()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>PIÈCES JOINTES</h3>
+                </div>
+                <div *ngIf="taskActivity" class="attachments-list">
+                    <div *ngIf="!taskActivity?.attachments?.length" class="no-attachments">Aucune pièce jointe disponible</div>
+                    <div class="attachment-item" *ngFor="let attachment of taskActivity?.attachments; trackBy: trackByAttachments">
+                        <div class="attachment-info">
+                            <span>{{ attachment?.name }}</span>
+                        </div>
+                        <div class="attachment-actions">
+                            <button class="download-button" (click)="downloadAttachment(attachment)" title="Télécharger">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </button>
+                            <button class="delete-button" (click)="deleteAttachment(attachment)" title="Supprimer">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Section -->
+            <div class="section">
+                <div class="date-range">
+                    <div class="date-field">
+                        <label>Date de début</label>
+                        <div class="date-input-container">
+                            <mat-form-field appearance="outline" class="date-picker-field">
+                                <input matInput [matDatepicker]="startPicker" formControlName="startDate" [matDatepickerFilter]="startDateFilter" (dateChange)="saveStartDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #startPicker></mat-datepicker>
+                            </mat-form-field>
+                            <div class="date-actions">
+                                <button class="save-button" (click)="saveStartDate()">Mettre à jour</button>
+                                <button class="cancel-edit-button" (click)="cancelEditStartDate()">Annuler</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="date-field">
+                        <label>Date d'échéance</label>
+                        <div class="date-input-container">
+                            <mat-form-field appearance="outline" class="date-picker-field">
+                                <input matInput [matDatepicker]="endPicker" formControlName="endDate" [matDatepickerFilter]="endDateFilter" (dateChange)="saveEndDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #endPicker></mat-datepicker>
+                            </mat-form-field>
+                            <div class="date-actions">
+                                <button class="save-button" (click)="saveEndDate()">Mettre à jour</button>
+                                <button class="cancel-edit-button" (click)="cancelEditEndDate()">Annuler</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creation/Update Info -->
+            <div class="meta-info">
+                <div *ngIf="taskActivity.createdAt">Crée le - {{ taskActivity.createdAt | date: 'medium' }}</div>
+                <div *ngIf="taskActivity.updatedAt">Modifiée le - {{ taskActivity.updatedAt | date: 'medium' }}</div>
+            </div>
+
+            <!-- Comments -->
+            <div class="section comments-section">
+                <div class="section-header-task-update">
+                    <h3>Commentaires</h3>
+                </div>
+                <div class="comments-list">
+                    <div *ngIf="!comments || comments.length === 0" class="no-comments">Aucun commentaire pour le moment</div>
+                    <div class="comment-item" *ngFor="let comment of comments">
+                        <div class="comment-header-task-update">
+                            <div class="commenter-info">
+                                <img *ngIf="comment.profilePictureUrl" [src]="comment.profilePictureUrl" alt="Profile Picture" class="commenter-avatar" />
+                                <span class="commenter-name">{{ comment.firstName }} {{ comment.lastName }}</span>
+                                <span class="comment-date">{{ comment.createdAt | date: 'short' }}</span>
+                            </div>
+                        </div>
+                        <div class="comment-body">
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    <div class="new-comment">
+                        <div class="comment-form">
+                            <textarea formControlName="comment" placeholder="Ajouter un commentaire" rows="2" class="comment-input"></textarea>
+                            <button class="save-button" [disabled]="!taskActivityForm.value.comment || submitting" (click)="addComment()">Commenter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="loading-overlay">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</div>

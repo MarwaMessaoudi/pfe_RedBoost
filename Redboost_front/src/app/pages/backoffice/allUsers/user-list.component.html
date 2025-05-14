@@ -1,0 +1,66 @@
+<div class="users-container">
+  <!-- Header with Filter and Add User Button -->
+  <div class="users-header">
+    <h2>Liste des Utilisateurs</h2>
+    <div class="filter-and-add">
+      <!-- Role Filter Dropdown -->
+      <div class="role-filter">
+        <label for="roleFilter">Filtrer par rôle: </label>
+        <select id="roleFilter" [(ngModel)]="selectedRole" (change)="onRoleFilterChange(selectedRole)">
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+      <!-- Add User Button -->
+      <div class="add-user-header">
+        <button class="btn-add-user" (click)="showCreateUserDialog()">
+          <i class="bi bi-plus"></i> Ajouter un Utilisateur
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users List -->
+  <div class="users-list">
+    <div class="user-card" *ngFor="let user of users">
+      <div class="user-content">
+        <div class="user-info">
+          <div class="user-title">
+            {{ user.firstName | uppercase }} {{ user.lastName | uppercase }}
+            <span class="role-tag" [ngClass]="{
+              'role-entrepreneur': user.role === 'ENTREPRENEUR',
+              'role-coach': user.role === 'COACH',
+              'role-superadmin': user.role === 'SUPERADMIN',
+              'role-admin': user.role === 'ADMIN',
+              'role-investor': user.role === 'INVESTOR'
+            }">
+              {{ user.role }}
+            </span>
+          </div>
+          <div class="user-details">
+            <span class="id">
+              <i class="bi bi-phone"></i>
+              +216 {{ user.phoneNumber }}
+            </span>
+            <span class="email">
+              <i class="bi bi-envelope"></i>
+              {{ user.email }}
+            </span>
+          </div>
+        </div>
+        <div class="user-actions">
+          <button class="btn-edit" (click)="showEditUserDialog(user)">
+            Modifier
+          </button>
+          <button class="btn-delete" (click)="deleteUser(user.id)">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!users.length" class="empty-state">
+      <i class="bi bi-person-x"></i>
+      <p>Aucun utilisateur trouvé.</p>
+    </div>
+  </div>
+</div>

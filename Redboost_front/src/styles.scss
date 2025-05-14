@@ -1,0 +1,77 @@
+// Correct usage
+@use '@angular/material' as mat;
+/* You can add global styles to this file, and also import other style files */
+@use './tailwind.css';
+@use './assets/layout/layout.scss';
+@use 'primeicons/primeicons.css';
+@use './assets/demo/demo.scss';
+
+@use '@fortawesome/fontawesome-free/css/all.min.css';
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+html {
+    @include mat.theme(
+        (
+            color: (
+                theme-type: light,
+                primary: mat.$azure-palette,
+                tertiary: mat.$blue-palette
+            ),
+            typography: Roboto,
+            density: 0
+        )
+    );
+}
+
+/* Global Styles */
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+}
+
+.p-component {
+    font-family: var(--font-family);
+}
+
+/* Styles for SpeedDial */
+.p-speeddial {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.p-speeddial-button.p-button.p-button-info {
+    width: 4rem;
+    height: 4rem;
+}
+
+.p-speeddial-action {
+    width: 3rem;
+    height: 3rem;
+}
+/* Add to your global styles.scss or styles.css */
+.styled-dialog .mat-mdc-dialog-container {
+    padding: 0;
+}
+
+.styled-dialog .mat-mdc-dialog-surface {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* For older versions of Angular Material */
+.styled-dialog .mat-dialog-container {
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}

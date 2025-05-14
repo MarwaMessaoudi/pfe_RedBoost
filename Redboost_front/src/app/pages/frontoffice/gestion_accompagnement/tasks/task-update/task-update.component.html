@@ -1,0 +1,344 @@
+<div class="task-update-container" [class.open]="isOpen" *ngIf="task">
+    <div class="task-update-content" [formGroup]="taskForm">
+        <!-- Header -->
+        <div class="header-task-update">
+            <div class="task-identifier">
+                <div class="task-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="#4287f5">
+                        <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h2>{{ task.taskId ? 'Tâche-' + task.taskId : 'Nouvelle Tâche' }}</h2>
+            </div>
+            <div class="header-task-update-actions">
+                <button (click)="deleteTask()" class="icon-button" title="Supprimer la tâche" *ngIf="task.taskId">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <button (click)="close()" class="icon-button" title="Fermer">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Task Title -->
+            <div class="task-title">
+                <div *ngIf="!editingTitle" class="display-mode">
+                    <h1>{{ task.title }}</h1>
+                    <button (click)="startEditingTitle()" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="editingTitle" class="edit-mode">
+                    <input type="text" formControlName="title" class="title-input" placeholder="Titre de la tâche" />
+                    <div class="edit-actions">
+                        <button (click)="saveTitle()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditTitle()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                    <mat-error *ngIf="taskForm.get('title')?.hasError('required') && taskForm.get('title')?.touched"> Le titre est requis </mat-error>
+                </div>
+            </div>
+
+            <!-- Task Category Display -->
+            <div class="task-category-section">
+                <div class="task-category-display" *ngIf="!editingCategory">
+                    <span>Catégorie: </span>
+                    <span class="category-name">{{ getCategoryName(task.taskCategoryId) }}</span>
+                    <button (click)="startEditingCategory()" class="edit-button" title="Modifier la catégorie">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="editingCategory" class="edit-mode">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Catégorie</mat-label>
+                        <mat-select [(ngModel)]="selectedCategoryId" [ngModelOptions]="{ standalone: true }">
+                            <mat-option *ngFor="let category of availableCategories" [value]="category.id">
+                                {{ category.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <div class="edit-actions">
+                        <button (click)="saveTaskCategory()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditTaskCategory()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>Description</h3>
+                    <button (click)="startEditingDescription()" *ngIf="!editingDescription" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="!editingDescription" class="description-content">
+                    <p>{{ task.description || 'Aucune description fournie' }}</p>
+                </div>
+                <div *ngIf="editingDescription" class="description-edit">
+                    <textarea formControlName="description" rows="4" class="description-input"></textarea>
+                    <div class="edit-actions">
+                        <button (click)="saveDescription()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditDescription()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Tasks Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>Sous-tâches</h3>
+                </div>
+                <div class="sub-tasks-list">
+                    <div *ngIf="!subTasks.length" class="no-sub-tasks">Aucune sous-tâche pour le moment</div>
+                    <div class="sub-task-item" *ngFor="let subTask of subTasks; let i = index">
+                        <div *ngIf="editingSubTaskIndex !== i" class="display-mode">
+                            <div class="sub-task-title">{{ subTask.title }}</div>
+                            <div class="sub-task-description">{{ subTask.description || 'Aucune description' }}</div>
+                            <div class="sub-task-actions">
+                                <button (click)="startEditingSubTask(i)" class="edit-button">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button (click)="deleteSubTask(i)" class="delete-button">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="editingSubTaskIndex === i" class="edit-mode">
+                            <input type="text" [(ngModel)]="subTasks[i].title" [ngModelOptions]="{ standalone: true }" placeholder="Titre de la sous-tâche" />
+                            <textarea [(ngModel)]="subTasks[i].description" [ngModelOptions]="{ standalone: true }" rows="2" placeholder="Description"></textarea>
+                            <div class="edit-actions">
+                                <button (click)="saveSubTask(i)" class="save-button">Enregistrer</button>
+                                <button (click)="cancelEditSubTask(i)" class="cancel-edit-button">Annuler</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add New Sub-Task -->
+                    <div class="new-sub-task">
+                        <input type="text" [(ngModel)]="newSubTask.title" [ngModelOptions]="{ standalone: true }" placeholder="Nouvelle sous-tâche" />
+                        <textarea [(ngModel)]="newSubTask.description" [ngModelOptions]="{ standalone: true }" rows="2" placeholder="Description"></textarea>
+                        <button (click)="addSubTask()" class="save-button">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="section status-dropdown">
+                <div class="section-header-task-update">
+                    <h3>STATUT</h3>
+                </div>
+                <div class="status-box" (click)="toggleStatusDropdown()">
+                    {{ getTranslatedStatus(task.status) }}
+                </div>
+                <div class="dropdown-menu" *ngIf="showStatusDropdown">
+                    <div class="dropdown-item" *ngFor="let status of statusOptions" (click)="selectStatus(status)">
+                        {{ getTranslatedStatus(status) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignees Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>RESPONSABLES</h3>
+                </div>
+                <div class="assignees-list">
+                    <div *ngIf="task?.assigneeId && availableAssignees.length > 0">
+                        <div class="assignee-item">
+                            <div class="assignee-info">
+                                <span>{{ getAssigneeName(task.assigneeId) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="(!task?.assigneeId && availableAssignees.length === 0) || availableAssignees.length === 0" class="no-assignees">Aucun responsable pour le moment</div>
+                    <button class="add-assignee-button" (click)="openAssigneeDropdown()"><span class="plus-icon">+</span> Changer le responsable</button>
+                    <div class="dropdown-menu" *ngIf="showAssigneeDropdown">
+                        <div class="dropdown-item" *ngFor="let assignee of availableAssignees" (click)="selectAssignee(assignee)">
+                            <div class="assignee-info">
+                                <span>{{ assignee.firstName }} {{ assignee.lastName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <mat-error *ngIf="taskForm.get('assigneeId')?.hasError('required') && taskForm.get('assigneeId')?.touched"> Un responsable est requis </mat-error>
+                </div>
+            </div>
+
+            <!-- Priority Section -->
+            <div class="section priority-dropdown">
+                <div class="section-header-task-update">
+                    <h3>PRIORITÉ</h3>
+                </div>
+                <div class="priority-display" (click)="togglePriorityDropdown()">
+                    <svg *ngIf="task.priority === 'LOW'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#36B37E">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                    <svg *ngIf="task.priority === 'MEDIUM'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#FFAB00">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" />
+                    </svg>
+                    <svg *ngIf="task.priority === 'HIGH'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#FF5630">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    <span>{{ task.priority ? getTranslatedPriority(task.priority) : 'Unknown Priority' }}</span>
+                </div>
+                <div class="dropdown-menu" *ngIf="showPriorityDropdown">
+                    <div class="dropdown-item" *ngFor="let priority of priorityOptions" (click)="selectPriority(priority)">
+                        <div class="priority-item">
+                            <svg *ngIf="priority === 'LOW'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#36B37E">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
+                            <svg *ngIf="priority === 'MEDIUM'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#FFAB00">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" />
+                            </svg>
+                            <svg *ngIf="priority === 'HIGH'" class="priority-icon" viewBox="0 0 24 24" fill="none" stroke="#FF5630">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                            <span>{{ getTranslatedPriority(priority) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Points Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>POINTS XP</h3>
+                    <button (click)="startEditingXpPoint()" *ngIf="!editingXpPoint" class="edit-button">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+                <div *ngIf="!editingXpPoint" class="xp-points">
+                    {{ task.xpPoint || 0 }}
+                </div>
+                <div *ngIf="editingXpPoint" class="edit-mode">
+                    <input type="number" formControlName="xpPoint" class="xp-input" min="0" placeholder="Points XP" />
+                    <div class="edit-actions">
+                        <button (click)="saveXpPoint()" class="save-button">Enregistrer</button>
+                        <button (click)="cancelEditXpPoint()" class="cancel-edit-button">Annuler</button>
+                    </div>
+                    <mat-error *ngIf="taskForm.get('xpPoint')?.hasError('min') && taskForm.get('xpPoint')?.touched"> Les points XP doivent être positifs ou nuls </mat-error>
+                </div>
+            </div>
+
+            <!-- Attachments Section -->
+            <div class="section">
+                <div class="section-header-task-update">
+                    <h3>PIÈCE JOINTE</h3>
+                </div>
+                <div class="attachments-list">
+                    <div *ngIf="!task?.attachment?.fileId" class="no-attachments">Aucune pièce jointe disponible</div>
+                    <div class="attachment-item" *ngIf="task?.attachment?.fileId">
+                        <div class="attachment-info">
+                            <svg class="attachment-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{{ attachmentName || 'Chargement...' }}</span>
+                            <button class="download-button" (click)="downloadAttachment()" title="Télécharger">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Section -->
+            <div class="section">
+                <div class="date-range">
+                    <div class="date-field">
+                        <label>Date de début</label>
+                        <div class="date-input-container">
+                            <mat-form-field appearance="outline" class="date-picker-field">
+                                <input matInput [matDatepicker]="startPicker" formControlName="startDate" [matDatepickerFilter]="startDateFilter" (dateChange)="saveStartDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #startPicker></mat-datepicker>
+                                <mat-error *ngIf="taskForm.get('startDate')?.hasError('required') && taskForm.get('startDate')?.touched"> La date de début est requise </mat-error>
+                                <mat-error *ngIf="taskForm.hasError('invalidStartDateEarly') && taskForm.get('startDate')?.touched">
+                                    La date de début doit être postérieure ou égale à {{ taskForm.errors?.['invalidStartDateEarly']?.requiredAfter | date: 'dd/MM/yyyy' }}
+                                </mat-error>
+                                <mat-error *ngIf="taskForm.hasError('startDateAfterPhaseEnd') && taskForm.get('startDate')?.touched">
+                                    La date de début doit être antérieure ou égale à {{ taskForm.errors?.['startDateAfterPhaseEnd']?.requiredBefore | date: 'dd/MM/yyyy' }}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="date-field">
+                        <label>Date d'échéance</label>
+                        <div class="date-input-container">
+                            <mat-form-field appearance="outline" class="date-picker-field">
+                                <input matInput [matDatepicker]="endPicker" formControlName="endDate" [matDatepickerFilter]="endDateFilter" (dateChange)="saveEndDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #endPicker></mat-datepicker>
+                                <mat-error *ngIf="taskForm.get('endDate')?.hasError('required') && taskForm.get('endDate')?.touched"> La date d'échéance est requise </mat-error>
+                                <mat-error *ngIf="taskForm.hasError('endDateBeforePhaseStart') && taskForm.get('endDate')?.touched">
+                                    La date d'échéance doit être postérieure ou égale à {{ taskForm.errors?.['endDateBeforePhaseStart']?.requiredAfter | date: 'dd/MM/yyyy' }}
+                                </mat-error>
+                                <mat-error *ngIf="taskForm.hasError('endDateAfterPhaseEnd') && taskForm.get('endDate')?.touched">
+                                    La date d'échéance doit être antérieure ou égale à {{ taskForm.errors?.['endDateAfterPhaseEnd']?.requiredBefore | date: 'dd/MM/yyyy' }}
+                                </mat-error>
+                                <mat-error *ngIf="taskForm.hasError('dateRangeInvalid') && taskForm.get('endDate')?.touched"> La date d'échéance doit être postérieure ou égale à la date de début </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creation/Update Info -->
+            <div class="meta-info">
+                <div *ngIf="task.createdAt">Crée le - {{ task.createdAt | date: 'medium' }}</div>
+                <div *ngIf="task.updatedAt">Modifiée le - {{ task.updatedAt | date: 'medium' }}</div>
+            </div>
+
+            <!-- Comments -->
+            <div class="section comments-section">
+                <div class="section-header-task-update">
+                    <h3>Commentaires</h3>
+                </div>
+                <div class="comments-list">
+                    <div *ngIf="!comments || comments.length === 0" class="no-comments">Aucun commentaire pour le moment</div>
+                    <div class="comment-item" *ngFor="let comment of comments">
+                        <div class="comment-header-task-update">
+                            <div class="commenter-info">
+                                <img *ngIf="comment.profilePictureUrl" [src]="comment.profilePictureUrl" alt="Profile Picture" class="commenter-avatar" />
+                                <span class="commenter-name">{{ comment.firstName }} {{ comment.lastName }}</span>
+                                <span class="comment-date">{{ comment.createdAt | date: 'short' }}</span>
+                            </div>
+                        </div>
+                        <div class="comment-body">
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    <div class="new-comment">
+                        <div class="comment-form">
+                            <textarea formControlName="comment" placeholder="Ajouter un commentaire" rows="2" class="comment-input"></textarea>
+                            <button class="save-button" [disabled]="!taskForm.value.comment || submitting" (click)="addComment()">Commenter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="loading-overlay">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</div>

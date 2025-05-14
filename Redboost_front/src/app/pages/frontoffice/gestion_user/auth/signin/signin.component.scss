@@ -1,0 +1,319 @@
+/* General Styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Arial', sans-serif;
+  padding: 2rem;
+}
+
+.login-wrapper {
+  display: flex;
+  max-width: 900px;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.login-card {
+  flex: 1;
+  background: white;
+  padding: 2rem;
+  border-radius: 10px 0 0 10px;
+  text-align: center;
+  position: relative; /* For positioning the back arrow */
+}
+
+/* Back Arrow Styles */
+.back-arrow {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.back-arrow a {
+  color: #245C67; /* custom-dark-blue */
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.back-arrow a:hover {
+  color: #DB1E37; /* custom-red */
+}
+
+h2 {
+  color: #245C67; /* custom-dark-blue */
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: #568086; /* custom-light-blue */
+  margin-bottom: 2rem;
+}
+
+/* Input Fields */
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+label {
+  display: block;
+  color: #245C67; /* custom-dark-blue */
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #568086; /* custom-light-blue */
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #245C67; /* custom-dark-blue */
+}
+
+input:focus {
+  outline: none;
+  border-color: #DB1E37; /* custom-red */
+}
+
+/* Buttons */
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #DB1E37; /* custom-red */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #E44D62; /* custom-pink */
+}
+
+.google-login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: white;
+  color: #245C67; /* custom-dark-blue */
+  border: 1px solid #568086; /* custom-light-blue */
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.google-login-button:hover {
+  background-color: #f5f5f5;
+}
+
+.google-login-button img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Divider */
+.divider {
+  margin: 1.5rem 0;
+  position: relative;
+  color: #568086; /* custom-light-blue */
+}
+
+.divider span {
+  background: white;
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #568086; /* custom-light-blue */
+  z-index: 0;
+}
+
+/* Sign Up Link */
+.signup-link {
+  color: #568086; /* custom-light-blue */
+  margin-top: 1rem;
+}
+
+.signup-link a {
+  color: #DB1E37; /* custom-red */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.signup-link a:hover {
+  color: #E44D62; /* custom-pink */
+}
+
+/* Right Section: Updated Content for Sign-In Interface */
+.contact-info {
+  flex: 1;
+  background: #0A4955;
+  color: white;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+}
+
+.contact-info h2 {
+  color: white;
+  font-size: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.contact-info h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 50%;
+  height: 2px;
+  background: #DB1E37;
+}
+
+.contact-info p {
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+  font-size: 1rem;
+  font-weight: 300;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  color: white;
+}
+
+.contact-info p:first-of-type {
+  margin-top: 50px; /* Add margin-top to the first <p> tag */
+}
+
+.contact-info p:hover {
+  opacity: 1;
+}
+
+.contact-info p a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.contact-info p a:hover {
+  color: #EA7988;
+  text-decoration: underline;
+}
+
+.contact-info span {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.signup-prompt {
+  margin-top: 2rem;
+}
+
+.google-logo {
+  width: 20px; /* Adjust size as needed */
+  height: 20px;
+  margin-right: 8px; /* Space between logo and text */
+  vertical-align: middle; /* Align with text */
+}
+
+.role-selection {
+  margin-bottom: 1rem;
+}
+
+.role-selection label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.role-selection select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.google-logo {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.social-button.gmail-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Style for the resend link */
+.resend-link {
+  color: #DB1E37; /* custom-red */
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.resend-link:hover {
+  color: #E44D62; /* custom-pink */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+
+  .login-card, .contact-info {
+    border-radius: 10px;
+  }
+
+  .login-card {
+    border-radius: 10px 10px 0 0;
+  }
+
+  .contact-info {
+    border-radius: 0 0 10px 10px;
+  }
+}

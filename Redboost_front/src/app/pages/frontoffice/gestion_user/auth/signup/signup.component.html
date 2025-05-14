@@ -1,0 +1,209 @@
+<div class="registration-container">
+  <!-- Full-screen overlay for blur effect -->
+  <div *ngIf="displayDialog" class="blur-overlay"></div>
+
+  <div class="registration-wrapper">
+    <!-- Left Section: Updated with Buttons and Back Arrow -->
+    <div class="registration-card">
+      <!-- Back Arrow -->
+      <div class="back-arrow">
+        <a routerLink="/landing">
+          <span class="pi pi-arrow-left"></span>
+        </a>
+      </div>
+      <h2>Créer votre compte</h2>
+      <p>Inscrivez-vous pour poursuivre votre aventure avec nous</p>
+
+      <!-- Role Selection Dropdown -->
+      <div class="role-selection">
+        <label for="role">Vous êtes :</label>
+        <select id="role" [(ngModel)]="selectedRole" required (change)="onRoleChange()">
+          <option value="" disabled selected>Sélectionnez votre rôle</option>
+          <option value="ENTREPRENEUR">Entrepreneur</option>
+          <option value="INVESTOR">Investisseur</option>
+        </select>
+        <!-- Error message for role selection -->
+        <div *ngIf="showRoleError()" class="error-message">
+          Le rôle est requis
+        </div>
+      </div>
+
+      <!-- Google Login Button -->
+      <button class="social-button gmail-button" (click)="onGoogleLogin()">
+        <img src="assets/images/google.webp" alt="Logo Google" class="google-logo">
+        S'inscrire avec Google
+      </button>
+      <div class="divider">
+        <span>OU</span>
+      </div>
+      <button class="register-button" (click)="showDialog()">S'inscrire avec un email</button>
+      <p class="login-link">
+        Vous avez déjà un compte ? <a routerLink="/signin">Se connecter</a>
+      </p>
+
+      <!-- Modal with Sign-Up Form -->
+      <p-dialog 
+        header="Créer votre compte" 
+        [(visible)]="displayDialog" 
+        [modal]="true" 
+        [style]="{ width: '500px' }" 
+        [baseZIndex]="10000"
+        [draggable]="false"
+        [resizable]="false"
+      >
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <!-- First Name -->
+          <div class="input-group">
+            <label for="firstName">Prénom</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              placeholder="Entrez votre prénom"
+              [ngClass]="{ 'invalid-input': submitted() && f['firstName'].errors }"
+            />
+            <div *ngIf="submitted() && f['firstName'].errors" class="error-message">
+              Le prénom est requis
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="input-group">
+            <label for="lastName">Nom</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              placeholder="Entrez votre nom"
+              [ngClass]="{ 'invalid-input': submitted() && f['lastName'].errors }"
+            />
+            <div *ngIf="submitted() && f['lastName'].errors" class="error-message">
+              Le nom est requis
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Entrez votre email"
+              [ngClass]="{ 'invalid-input': submitted() && f['email'].errors }"
+            />
+            <div *ngIf="submitted() && f['email'].errors" class="error-message">
+              {{ f['email'].errors['required'] ? 'L\'email est requis' : 'Format d\'email invalide' }}
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <div class="password-field">
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Entrez votre mot de passe"
+                (input)="onPasswordInput()"
+                [ngClass]="{ 'invalid-input': submitted() && f['password'].errors }"
+              />
+              <span
+                class="pi toggle-icon"
+                [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"
+                (click)="showPassword = !showPassword"
+                [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              ></span>
+            </div>
+            <!-- Password Strength Feedback -->
+            <div *ngIf="passwordStrength()" class="password-strength" [ngClass]="passwordStrength() === 'Strong' ? 'strong' : 'weak'">
+              Force du mot de passe : {{ passwordStrength() }}
+            </div>
+            <div *ngIf="submitted() && f['password'].errors" class="error-message">
+              <div *ngIf="f['password'].errors['required']">Le mot de passe est requis</div>
+              <div *ngIf="f['password'].errors['minlength']">Le mot de passe doit contenir au moins 8 caractères</div>
+              <div *ngIf="f['password'].errors['pattern']">
+                Le mot de passe doit inclure au moins 8 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial (&#64;, #, $, %, ^, &, +, =, !)
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="input-group">
+            <label for="confirmPassword">Confirmer le mot de passe</label>
+            <div class="password-field">
+              <input
+                id="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Confirmez votre mot de passe"
+                [ngClass]="{ 'invalid-input': submitted() && (f['confirmPassword'].errors || registerForm.errors?.['mismatch']) }"
+              />
+              <span
+                class="pi toggle-icon"
+                [ngClass]="showConfirmPassword ? 'pi-eye-slash' : 'pi-eye'"
+                (click)="showConfirmPassword = !showConfirmPassword"
+                [attr.aria-label]="showConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              ></span>
+            </div>
+            <div *ngIf="submitted() && f['confirmPassword'].errors" class="error-message">
+              <div *ngIf="f['confirmPassword'].errors['required']">La confirmation du mot de passe est requise</div>
+            </div>
+            <div *ngIf="submitted() && registerForm.errors?.['mismatch']" class="error-message">
+              Les mots de passe ne correspondent pas
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="input-group">
+            <label for="phoneNumber">Numéro de téléphone</label>
+            <input
+              id="phoneNumber"
+              type="text"
+              formControlName="phoneNumber"
+              placeholder="Entrez votre numéro de téléphone"
+              [ngClass]="{ 'invalid-input': submitted() && f['phoneNumber'].errors }"
+            />
+            <div *ngIf="submitted() && f['phoneNumber'].errors" class="error-message">
+              Le numéro de téléphone est requis
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="register-button">S'inscrire</button>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage()" class="error-message global-error">
+            {{ errorMessage() }}
+          </div>
+        </form>
+
+        <p class="login-link">
+          Vous avez déjà un compte ? <a routerLink="/signin">Se connecter</a>
+        </p>
+      </p-dialog>
+    </div>
+
+    <!-- Right Section: Reverted to Original Content -->
+    <div class="contact-info">
+      <h2>Rejoignez notre plateforme</h2>
+      <p>
+        <span class="pi pi-user-plus"></span>
+        Créez un compte pour commencer votre aventure.
+      </p>
+      <p>
+        <span class="pi pi-briefcase"></span>
+        Connectez-vous avec des entrepreneurs, des coaches et des investisseurs.
+      </p>
+      <p>
+        <span class="pi pi-star"></span>
+        Accédez à des ressources et opportunités exclusives.
+      </p>
+      <p class="login-prompt">
+        <span class="pi pi-sign-in"></span>
+        Déjà membre ? <a routerLink="/login">Connectez-vous maintenant !</a>
+      </p>
+    </div>
+  </div>
+</div>

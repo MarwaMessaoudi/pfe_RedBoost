@@ -1,0 +1,144 @@
+<div class="popup-overlay" (click)="closePopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <h2>Détails du Rendez-vous</h2>
+  
+      <!-- General Details Section (Inside a Card) -->
+      <div class="card general-details-card">
+        <div class="card-header">
+          <h3>Informations Générales</h3>
+        </div>
+        <div class="card-body">
+          <div class="details-body">
+            <!-- Left Column -->
+            <div class="details-left">
+              <p>
+                <strong>Titre :</strong>
+                {{ data.RendezVous.title ? data.RendezVous.title : 'Non spécifié' }}
+              </p>
+              <p>
+                <strong>Description :</strong>
+                {{ data.RendezVous.description ? data.RendezVous.description : 'Aucune description' }}
+              </p>
+              <p>
+                <strong>Date :</strong>
+                {{ data.RendezVous.date ? (data.RendezVous.date | date:'mediumDate') : 'Non spécifiée' }}
+              </p>
+              <p>
+                <strong>Heure :</strong>
+                {{ data.RendezVous.heure ? data.RendezVous.heure : 'Non spécifiée' }}
+              </p>
+            </div>
+            <!-- Right Column -->
+            <div class="details-right">
+              <p>
+                <strong>Durée :</strong>
+                {{ data.RendezVous.duration ? data.RendezVous.duration : 'Non spécifiée' }}
+              </p>
+              <p>
+                <strong>Statut :</strong>
+                <span class="status-badge" [ngClass]="{
+                  'status-accepted': data.RendezVous.status === 'ACCEPTED',
+                  'status-pending': data.RendezVous.status === 'PENDING',
+                  'status-rejected': data.RendezVous.status === 'REJECTED'
+                }">
+                  {{ data.RendezVous.status ? data.RendezVous.status : 'Inconnu' }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Cards Container for Entrepreneur and Coach -->
+      <div class="cards-container">
+        <!-- Entrepreneur Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Entrepreneur</h3>
+          </div>
+          <div class="card-body">
+            <div class="profile-picture-container">
+              <img
+                [src]="data.RendezVous.entrepreneur?.profilePictureUrl || 'assets/images/default-profile.png'"
+                alt="Photo de l'entrepreneur"
+                class="profile-picture"
+              />
+            </div>
+            <p>
+              <strong>ID :</strong>
+              {{ data.RendezVous.entrepreneur?.id ? data.RendezVous.entrepreneur?.id : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Prénom :</strong>
+              {{ data.RendezVous.entrepreneur?.firstName ? data.RendezVous.entrepreneur?.firstName : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Nom :</strong>
+              {{ data.RendezVous.entrepreneur?.lastName ? data.RendezVous.entrepreneur?.lastName : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Email :</strong>
+              <a *ngIf="data.RendezVous.entrepreneur?.email" [href]="'mailto:' + data.RendezVous.entrepreneur?.email">
+                {{ data.RendezVous.entrepreneur?.email }}
+              </a>
+              <span *ngIf="!data.RendezVous.entrepreneur?.email">Non spécifié</span>
+            </p>
+            <p>
+              <strong>LinkedIn :</strong>
+              <a *ngIf="data.RendezVous.entrepreneur?.linkedin" [href]="data.RendezVous.entrepreneur?.linkedin" target="_blank">
+                Profil LinkedIn
+              </a>
+              <span *ngIf="!data.RendezVous.entrepreneur?.linkedin">Non spécifié</span>
+            </p>
+          </div>
+        </div>
+  
+        <!-- Coach Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Coach</h3>
+          </div>
+          <div class="card-body">
+            <div class="profile-picture-container">
+              <img
+                [src]="data.RendezVous.coach?.profilePictureUrl || 'assets/images/default-profile.png'"
+                alt="Photo du coach"
+                class="profile-picture"
+              />
+            </div>
+            <p>
+              <strong>ID :</strong>
+              {{ data.RendezVous.coach?.id ? data.RendezVous.coach?.id : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Prénom :</strong>
+              {{ data.RendezVous.coach?.firstName ? data.RendezVous.coach?.firstName : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Nom :</strong>
+              {{ data.RendezVous.coach?.lastName ? data.RendezVous.coach?.lastName : 'Non spécifié' }}
+            </p>
+            <p>
+              <strong>Email :</strong>
+              <a *ngIf="data.RendezVous.coach?.email" [href]="'mailto:' + data.RendezVous.coach?.email">
+                {{ data.RendezVous.coach?.email }}
+              </a>
+              <span *ngIf="!data.RendezVous.coach?.email">Non spécifié</span>
+            </p>
+            <p>
+              <strong>LinkedIn :</strong>
+              <a *ngIf="data.RendezVous.coach?.linkedin" [href]="data.RendezVous.coach?.linkedin" target="_blank">
+                Profil LinkedIn
+              </a>
+              <span *ngIf="!data.RendezVous.coach?.linkedin">Non spécifié</span>
+            </p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="button-container">
+        <button class="close-btn" (click)="closePopup()">Fermer</button>
+        <button class="action-btn" (click)="navigateToAppointmentList()">Faire Rendez-vous</button>
+      </div>
+    </div>
+  </div>

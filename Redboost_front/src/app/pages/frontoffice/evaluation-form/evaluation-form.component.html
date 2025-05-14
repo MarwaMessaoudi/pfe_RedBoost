@@ -1,0 +1,146 @@
+<!-- src/app/pages/frontoffice/evaluation-form/evaluation-form.component.html -->
+
+<!-- Use Mat Dialog Title and Content -->
+<h2 mat-dialog-title>
+    Formulaire d'évaluation<span *ngIf="phaseName"> pour la phase : {{ phaseName }}</span>
+</h2>
+
+<!-- Add a close button icon in the header (Optional, requires MatIconModule) -->
+<!-- <button mat-icon-button class="dialog-close-button" (click)="closeDialog()" aria-label="Close dialog">
+  <mat-icon>close</mat-icon>
+</button> -->
+
+<mat-dialog-content class="mat-typography">
+    <!-- Remove (ngSubmit) from the form tag itself. Submission is triggered by button click. -->
+    <form [formGroup]="evaluationForm">
+        <!-- Nom & prénom - Disabled field -->
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Nom & prénom</mat-label>
+            <input matInput formControlName="nomPrenom" />
+            <!-- Validators aren't typically needed for disabled inputs as their value comes from data -->
+        </mat-form-field>
+
+        <!-- Projet - Disabled field -->
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Projet</mat-label>
+            <input matInput formControlName="projet" />
+            <!-- Validators aren't typically needed for disabled inputs -->
+        </mat-form-field>
+
+        <!-- Question 1: Satisfaction globale -->
+        <div class="form-group-question">
+            <label class="required-label">Quel est votre niveau de satisfaction global concernant les séances de coaching que vous avez reçus ?</label>
+            <mat-radio-group aria-label="Satisfaction globale" formControlName="satisfactionGlobale">
+                <!-- Values MUST match backend enum STRING values -->
+                <mat-radio-button value="TRES_SATISFAIT">Très satisfait</mat-radio-button>
+                <mat-radio-button value="SATISFAIT">Satisfait</mat-radio-button>
+                <mat-radio-button value="INSATISFAIT">Insatisfait</mat-radio-button>
+            </mat-radio-group>
+            <!-- Show error if the form control has errors (e.g., required and untouched) -->
+            <mat-error *ngIf="submitted && f['satisfactionGlobale'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 2: Est ce que les séances de coaching avaient répondu à vos attentes -->
+        <div class="form-group-question">
+            <label class="required-label">Est ce que les séances de coaching avaient répondu à vos attentes ?</label>
+            <mat-radio-group aria-label="Attentes reponse" formControlName="attentesReponse">
+                <mat-radio-button value="MOYEN">Moyen</mat-radio-button>
+                <mat-radio-button value="ELEVE">Elevé</mat-radio-button>
+                <mat-radio-button value="TRES_ELEVE">Très élevé</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['attentesReponse'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 3: Est ce que RedStart Tunisie vous a affecté au bon coach? -->
+        <div class="form-group-question">
+            <label class="required-label">Est ce que RedStart Tunisie vous a affecté au bon coach?</label>
+            <mat-radio-group aria-label="RedStart coach qualité" formControlName="redStartCoachQualite">
+                <mat-radio-button value="FAIBLE">Faible</mat-radio-button>
+                <mat-radio-button value="MOYEN">moyen</mat-radio-button>
+                <mat-radio-button value="ELEVE">Elevé</mat-radio-button>
+                <mat-radio-button value="TRES_ELEVE">très élevé</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['redStartCoachQualite'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 4: Ambiance générale -->
+        <div class="form-group-question">
+            <label class="required-label">Ambiance générale</label>
+            <mat-radio-group aria-label="Ambiance générale" formControlName="ambianceGenerale">
+                <mat-radio-button value="FAIBLE">Faible</mat-radio-button>
+                <mat-radio-button value="MOYEN">moyen</mat-radio-button>
+                <mat-radio-button value="ELEVE">Elevé</mat-radio-button>
+                <mat-radio-button value="TRES_ELEVE">très élevé</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['ambianceGenerale'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 5: Compétences coach -->
+        <div class="form-group-question">
+            <label class="required-label">Comment évaluez-vous les compétences et l'expertise de votre coach ?</label>
+            <mat-radio-group aria-label="Compétences coach" formControlName="coachCompetence">
+                <mat-radio-button value="TRES_COMPETENT">Très compétent</mat-radio-button>
+                <mat-radio-button value="COMPETENT">Compétent</mat-radio-button>
+                <mat-radio-button value="MOYENNEMENT_COMPETENT">Moyennement compétent</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['coachCompetence'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 6: Coach compréhension -->
+        <div class="form-group-question">
+            <label class="required-label">Dans quelle mesure votre coach a-t-il su comprendre vos besoins et objectifs spécifiques ?</label>
+            <mat-radio-group aria-label="Coach compréhension" formControlName="coachComprehension">
+                <mat-radio-button value="TRES_BIEN">Très bien</mat-radio-button>
+                <mat-radio-button value="BIEN">Bien</mat-radio-button>
+                <mat-radio-button value="PAS_TRES_BIEN">Pas très bien</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['coachComprehension'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Question 7: Qualité communication -->
+        <div class="form-group-question">
+            <label class="required-label">Comment évaluez-vous la qualité de la communication entre vous et votre coach ?</label>
+            <mat-radio-group aria-label="Qualité communication" formControlName="communicationQualite">
+                <mat-radio-button value="EXCELLENTE">Excellente</mat-radio-button>
+                <mat-radio-button value="ELEVE">Elevé</mat-radio-button>
+                <mat-radio-button value="TRES_ELEVE">Très élevé</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="submitted && f['communicationQualite'].hasError('required')"> Ce champ est obligatoire. </mat-error>
+        </div>
+
+        <!-- Textarea: Points forts -->
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Citez 3 points forts</mat-label>
+            <textarea matInput formControlName="pointsForts" rows="3"></textarea>
+        </mat-form-field>
+
+        <!-- Textarea: Points faibles -->
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Citez 3 points faibles</mat-label>
+            <textarea matInput formControlName="pointsFaibles" rows="3"></textarea>
+        </mat-form-field>
+
+        <!-- Textarea: Autre commentaire -->
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Y a-t-il autre chose que vous souhaitez partager au sujet de votre expérience de coaching avec nous ?</mat-label>
+            <textarea matInput formControlName="autreCommentaire" rows="3"></textarea>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<!-- Use Mat Dialog Actions -->
+<mat-dialog-actions align="end">
+    <!-- The Annuler button. Calls closeDialog() which in turn uses dialogRef.close('cancel'). -->
+    <!-- <button mat-button (click)="closeDialog()">Annuler</button> -->
+
+    <!-- The Submit button. Calls onSubmit() and is disabled while submitting or if form is invalid. -->
+    <!-- Use type="button" to prevent default form submission in case it was implicitly inherited -->
+    <button type="button" mat-button color="primary" (click)="onSubmit()" [disabled]="evaluationForm.invalid || submitting">
+        <!-- Show spinner conditionally -->
+        <mat-spinner *ngIf="submitting" diameter="20" class="me-2"></mat-spinner>
+        Soumettre
+    </button>
+
+    <!-- **REMOVED the problematic "Clear form" button that caused the error** -->
+    <!-- <button type="button" mat-button (click)="onClear()">Clear form</button> -->
+</mat-dialog-actions>

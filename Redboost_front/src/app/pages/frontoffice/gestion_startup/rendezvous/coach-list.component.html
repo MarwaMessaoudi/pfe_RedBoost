@@ -1,0 +1,126 @@
+<div class="dashboard-container">
+  <div class="dashboard-content">
+    <div class="main-grid">
+      <div class="coaches-section">
+        <div class="section-header">
+          <h2>
+            <mat-icon>people</mat-icon> Vos Coachs
+          </h2>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-spinner" *ngIf="isLoading">
+          <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" *ngIf="errorMessage">
+          <p>{{ errorMessage }}</p>
+        </div>
+
+        <!-- Filters (Always Visible) -->
+        <div class="filters-container" *ngIf="!isLoading && !errorMessage">
+          <div class="search-bar">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              placeholder="Rechercher un coach par nom..."
+              [(ngModel)]="searchTerm"
+              (input)="filterCoaches()"
+              class="search-input"
+              aria-label="Rechercher un coach par nom"
+            />
+          </div>
+
+          <div class="specialization-filter">
+            <mat-icon class="filter-icon">category</mat-icon>
+            <select
+              [(ngModel)]="selectedSpecialization"
+              (ngModelChange)="filterCoaches()"
+              class="filter-select"
+            >
+              <option value="">Toutes les spécialités</option>
+              <option *ngFor="let spec of specializations" [value]="spec">
+                {{ spec }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- No Coaches Message -->
+        <div class="no-coaches" *ngIf="!isLoading && !errorMessage && filteredCoaches.length === 0">
+          <p>Aucun coach disponible pour le moment.</p>
+        </div>
+
+        <!-- Coach Content -->
+        <div class="coach-content" *ngIf="!isLoading && !errorMessage && filteredCoaches.length > 0">
+          <!-- Coach Cards -->
+          <div class="coach-grid">
+            <div
+              class="coach-card"
+              *ngFor="let coach of filteredCoaches | slice: (page - 1) * itemsPerPage : page * itemsPerPage"
+            >
+              <div class="coach-header">
+                <div class="coach-avatar">
+                  <!-- Show image if profilePictureUrl exists, otherwise show text avatar -->
+                  <ng-container *ngIf="coach.profilePictureUrl; else textAvatar">
+                    <img
+                      [src]="coach.profilePictureUrl"
+                      [alt]="coach.name ?? 'Coach'"
+                      (error)="handleImageError(coach)"
+                      loading="lazy"
+                    />
+                  </ng-container>
+                  <ng-template #textAvatar>
+                    <div class="text-avatar">
+                      {{ getFirstLetter(coach.name ?? '') }}
+                    </div>
+                  </ng-template>
+                  <span class="status-indicator" [class.active]="isCoachActive(coach)"></span>
+                </div>
+                <div class="coach-info">
+                  <h3>{{ coach.name ?? 'N/A' }}</h3>
+                  <p class="specialization">Spécialité {{ coach.specialization }}</p>
+                  <p class="email">{{ coach.email }}</p>
+                </div>
+              </div>
+
+              <div class="coach-actions">
+                <button  (click)="discoverCoach(coach)" class="discover">
+                  <mat-icon>visibility</mat-icon> Découvrir
+                </button>
+                <button (click)="reserveCoach(coach)" class="reserver">
+                  <mat-icon>event</mat-icon> Réserver
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="totalPages > 1">
+            <!-- Page Indicator -->
+            <p>Page {{ page }} of {{ totalPages }}</p>
+
+            <!-- Pagination Controls -->
+            <button mat-icon-button (click)="prevPage()" [disabled]="page === 1">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span *ngFor="let pageNum of getPageNumbers()">
+              <button
+                mat-button
+                [class.active]="pageNum === page"
+                (click)="typeof pageNum === 'number' && goToPage(pageNum)"
+                [disabled]="typeof pageNum !== 'number'"
+              >
+                {{ pageNum }}
+              </button>
+            </span>
+            <button mat-icon-button (click)="nextPage()" [disabled]="page === totalPages">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

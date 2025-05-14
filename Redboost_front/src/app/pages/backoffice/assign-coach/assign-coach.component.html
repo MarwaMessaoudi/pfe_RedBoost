@@ -1,0 +1,47 @@
+<div class="assignment-container">
+    <h1 class="title">Coach Assignment Dashboard</h1>
+
+    <div class="assignment-card">
+        <div class="form-section">
+            <div class="select-wrapper">
+                <label for="projectSelect" class="select-label">Select Project</label>
+                <select id="projectSelect" class="custom-select" (change)="onProjectChange($event)" [disabled]="loading">
+                    <option value="">Choose a project...</option>
+                    <option *ngFor="let project of projects" [value]="project.id">
+                        {{ project.name }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="select-wrapper">
+                <label for="coachSelect" class="select-label">Select Coach</label>
+                <select id="coachSelect" class="custom-select" (change)="onCoachChange($event)" [value]="selectedCoachId ?? ''" [disabled]="loading || !selectedProject">
+                    <option value="">Choose a coach...</option>
+                    <option *ngFor="let coach of coaches" [value]="coach.id">{{ coach.firstName }} {{ coach.lastName }} ({{ coach.specialization || 'General' }})</option>
+                </select>
+            </div>
+
+            <button class="assign-button" (click)="assignCoach()" [disabled]="loading || !selectedProject || selectedCoachId === null">
+                {{ loading ? 'Assigning...' : 'Assign Coach' }}
+            </button>
+        </div>
+
+        <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <div class="assigned-section" *ngIf="selectedProject">
+            <h3 class="section-title">Assigned Coaches</h3>
+            <div class="coach-list" *ngIf="assignedCoaches.length > 0; else noCoaches">
+                <div class="coach-card" *ngFor="let coach of assignedCoaches">
+                    <div class="coach-info">
+                        <span class="coach-name">{{ coach.firstName }} {{ coach.lastName }}</span>
+                        <span class="coach-specialty">{{ coach.specialization || 'General' }}</span>
+                    </div>
+                </div>
+            </div>
+            <ng-template #noCoaches>
+                <p class="no-data">No coaches assigned yet.</p>
+            </ng-template>
+        </div>
+    </div>
+</div>

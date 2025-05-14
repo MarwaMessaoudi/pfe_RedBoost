@@ -1,0 +1,436 @@
+.messagerie-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  .liste-reclamations, .detail-reclamation {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .chargement, .erreur, .aucun-resultat {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+  }
+  
+  .chargement {
+    background-color: #e5f1ff;
+    color: #0056b3;
+  }
+  
+  .erreur {
+    background-color: #ffe5e5;
+    color: #d32f2f;
+  }
+  
+  .aucun-resultat {
+    background-color: #f5f5f5;
+    color: #666;
+  }
+  
+  .reclamations-liste {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    .reclamation-item {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #f0f0f0;
+      }
+      
+      .reclamation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        
+        h3 {
+          margin: 0;
+          font-size: 16px;
+        }
+        
+        .statut {
+          padding: 4px 8px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: bold;
+        }
+      }
+      
+      .reclamation-info {
+        font-size: 14px;
+        color: #666;
+        
+        p {
+          margin: 5px 0;
+        }
+        
+        .description {
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+  
+  // Styles des différents statuts
+  .statut-nouvelle {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .statut-en_cours {
+    background-color: #fff8e1;
+    color: #ff8f00;
+  }
+  
+  .statut-résolue {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .statut-fermée {
+    background-color: #eeeeee;
+    color: #757575;
+  }
+  
+  // Styles du détail d'une réclamation
+  .detail-reclamation {
+    .detail-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      
+      .btn-retour {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #666;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin-right: 15px;
+        
+        &:hover {
+          color: #333;
+        }
+        
+        span {
+          font-size: 18px;
+          margin-right: 5px;
+        }
+      }
+      
+      h2 {
+        margin: 0;
+        flex-grow: 1;
+      }
+      
+      .statut-detail {
+        padding: 5px 10px;
+      }
+    }
+    
+    .detail-info {
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      
+      p {
+        margin: 5px 0;
+      }
+    }
+  }
+  
+  // Styles des messages
+  .messages-container {
+    h3 {
+      margin-bottom: 15px;
+    }
+    
+    .messages-liste {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+      
+      .message {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        max-width: 80%;
+        
+        &.message-utilisateur {
+          align-self: flex-end;
+          background-color: #e3f2fd;
+          border-top-right-radius: 0;
+        }
+        
+        &.message-admin {
+          align-self: flex-start;
+          background-color: #f5f5f5;
+          border-top-left-radius: 0;
+        }
+        
+        .message-content {
+          p {
+            margin: 0;
+            word-break: break-word;
+          }
+          
+          .message-icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 18px;
+          }
+        }
+        
+        .message-info {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 8px;
+          font-size: 12px;
+          color: #666;
+        }
+        
+        // Styles pour les fichiers attachés aux messages
+        .message-files {
+          margin-top: 10px;
+          padding-top: 10px;
+          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          
+          .files-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+          }
+          
+          .files-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            .file-item {
+              margin-bottom: 5px;
+              
+              .file-link {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: #1976d2;
+                font-size: 13px;
+                
+                &:hover {
+                  text-decoration: underline;
+                }
+                
+                .file-icon {
+                  margin-right: 5px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Styles du formulaire de nouveau message
+    .nouveau-message {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+        font-family: inherit;
+        font-size: 14px;
+        
+        &:focus {
+          outline: none;
+          border-color: #1976d2;
+        }
+      }
+      
+      // Styles pour l'upload de fichiers
+      .fichiers-upload {
+        margin-top: 10px;
+        
+        .upload-container {
+          display: flex;
+          align-items: center;
+          
+          .file-input {
+            display: none;
+          }
+          
+          .file-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            transition: background-color 0.2s;
+            
+            &:hover {
+              background-color: #e0e0e0;
+            }
+            
+            .file-icon {
+              margin-right: 5px;
+            }
+          }
+        }
+        
+        .selected-files {
+          margin-top: 10px;
+          
+          .files-preview {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            .file-preview-item {
+              display: flex;
+              align-items: center;
+              background-color: #f5f5f5;
+              padding: 8px 10px;
+              border-radius: 4px;
+              margin-bottom: 5px;
+              font-size: 13px;
+              
+              .file-name {
+                flex-grow: 1;
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+              
+              .file-size {
+                color: #777;
+                margin: 0 10px;
+              }
+              
+              .file-remove {
+                background: none;
+                border: none;
+                color: #d32f2f;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                
+                &:hover {
+                  background-color: rgba(211, 47, 47, 0.1);
+                  border-radius: 50%;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      .actions-container {
+        display: flex;
+        justify-content: flex-end;
+        
+        button {
+          padding: 8px 16px;
+          background-color: #1976d2;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: background-color 0.2s;
+          
+          &:hover {
+            background-color: #1565c0;
+          }
+          
+          &:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+    
+    .message-info-fermee {
+      text-align: center;
+      padding: 15px;
+      background-color: #fff3e0;
+      color: #e65100;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+  }
+}
+.reclamation-description {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+// CSS you can add to your component's styles
+.message-container {
+  position: relative;
+  padding-left: 15px;
+  margin-bottom: 10px;
+}
+
+.message-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #e0e0e0; /* Light gray color, adjust as needed */
+  border-radius: 2px;
+}
+
+/* You can add different colors for different message types */
+.message-container.response::before {
+  background-color: #4285f4; /* Blue for responses */
+}
+
+.message-container.client::before {
+  background-color: #34a853; /* Green for client messages */
+}

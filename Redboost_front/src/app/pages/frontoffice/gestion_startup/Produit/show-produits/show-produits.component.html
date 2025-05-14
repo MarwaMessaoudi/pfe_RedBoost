@@ -1,0 +1,145 @@
+<div class="container">
+    <!-- Particle Animation Background -->
+    <div class="particle-container">
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+        <div class="particle particle-teal"></div>
+        <div class="particle particle-red"></div>
+    </div>
+
+    <header class="page-header">
+        <h1 class="page-title">Produits</h1>
+        <button class="add-btn" (click)="openAddModal()" [disabled]="isLoading"><span class="material-icons">add</span> Ajouter un produit</button>
+    </header>
+
+    <section class="product-section">
+        <div class="loading" *ngIf="isLoading"><span class="spinner"></span> Chargement...</div>
+        <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+        <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <div class="product-grid" *ngIf="!isLoading">
+            <div *ngFor="let produit of produits" class="product-card">
+                <div class="product-image-wrapper">
+                    <img [src]="produit.image || 'https://via.placeholder.com/150'" [alt]="produit.name" class="product-image" />
+                    <span class="price-tag">{{ produit.price.toFixed(2) }} $</span>
+                    <button class="heart-btn" (click)="toggleFavorite(produit)" [ngClass]="{ favorite: produit.isFavorite }">
+                        <span class="material-icons">{{ produit.isFavorite ? 'favorite' : 'favorite_border' }}</span>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <div class="name-category-wrapper">
+                        <h3 class="product-name">{{ produit.name }}</h3>
+                        <p class="product-category">{{ produit.categorie }}</p>
+                    </div>
+                    <p class="product-description" *ngIf="produit.description">{{ produit.description }}</p>
+                    <button class="buy-btn" (click)="buyProduit(produit)">Ajouter au panier</button>
+                </div>
+                <div class="product-actions">
+                    <button class="action-btn edit-btn" (click)="editProduit(produit)" [disabled]="isLoading" title="Modifier">
+                        <span class="material-icons">edit</span>
+                    </button>
+                    <button class="action-btn delete-btn" (click)="deleteProduit(produit.id!)" [disabled]="isLoading" title="Supprimer">
+                        <span class="material-icons">delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Product Modal -->
+    <div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Ajouter un produit</h2>
+                <button class="close-btn" (click)="closeAddModal()" [disabled]="isLoading">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form #addProduitForm="ngForm" (ngSubmit)="createProduit()" class="modal-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Nom</label>
+                    <input type="text" id="name" [(ngModel)]="newProduit.name" name="name" required />
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" [(ngModel)]="newProduit.description" name="description" rows="3" placeholder="Entrez la description du produit"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price">Prix ($)</label>
+                    <input type="number" id="price" [(ngModel)]="newProduit.price" name="price" step="0.01" min="0" required />
+                </div>
+                <div class="form-group">
+                    <label for="categorie">Catégorie</label>
+                    <select id="categorie" [(ngModel)]="selectedCategory" name="categorie" (ngModelChange)="onCategoryChange()" required>
+                        <option value="" disabled selected>Sélectionnez une catégorie</option>
+                        <option *ngFor="let cat of defaultCategories" [value]="cat">{{ cat }}</option>
+                        <option value="other">Autre</option>
+                    </select>
+                    <input *ngIf="showCustomCategory" type="text" id="customCategory" [(ngModel)]="newProduit.categorie" name="customCategory" placeholder="Entrez une catégorie personnalisée" required />
+                </div>
+                <div class="form-group">
+                    <label for="image">Image</label>
+                    <input type="file" id="image" (change)="onFileSelected($event)" accept="image/*" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn" [disabled]="isLoading || addProduitForm.invalid"><span *ngIf="isLoading" class="spinner"></span> Ajouter</button>
+                    <button type="button" class="cancel-btn" (click)="closeAddModal()" [disabled]="isLoading">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal-overlay" *ngIf="editingProduit" (click)="editingProduit = null">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Modifier le produit</h2>
+                <button class="close-btn" (click)="editingProduit = null" [disabled]="isLoading">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form #editProduitForm="ngForm" (ngSubmit)="updateProduit()" class="modal-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="editName">Nom</label>
+                    <input type="text" id="editName" [(ngModel)]="editingProduit.name" name="editName" required />
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" [(ngModel)]="editingProduit.description" name="editDescription" rows="3" placeholder="Entrez la description du produit"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Prix ($)</label>
+                    <input type="number" id="editPrice" [(ngModel)]="editingProduit.price" name="editPrice" step="0.01" min="0" required />
+                </div>
+                <div class="form-group">
+                    <label for="editCategorie">Catégorie</label>
+                    <select id="editCategorie" [(ngModel)]="selectedCategory" name="editCategorie" (ngModelChange)="onCategoryChange()" required>
+                        <option value="" disabled>Sélectionnez une catégorie</option>
+                        <option *ngFor="let cat of defaultCategories" [value]="cat">{{ cat }}</option>
+                        <option value="other">Autre</option>
+                    </select>
+                    <input *ngIf="showCustomCategory" type="text" id="editCustomCategory" [(ngModel)]="editingProduit.categorie" name="editCustomCategory" placeholder="Entrez une catégorie personnalisée" required />
+                </div>
+                <div class="form-group">
+                    <label for="editImage">Image</label>
+                    <input type="file" id="editImage" (change)="onFileSelected($event)" accept="image/*" />
+                    <img *ngIf="editingProduit.image" [src]="editingProduit.image" alt="Image actuelle" class="preview-image" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn" [disabled]="isLoading || editProduitForm.invalid"><span *ngIf="isLoading" class="spinner"></span> Enregistrer</button>
+                    <button type="button" class="cancel-btn" (click)="editingProduit = null" [disabled]="isLoading">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

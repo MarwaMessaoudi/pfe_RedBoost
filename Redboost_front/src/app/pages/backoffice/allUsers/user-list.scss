@@ -1,0 +1,354 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+  }
+  
+  /* Container for the entire users section */
+  .users-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Header section with title, filter, and add button */
+  .users-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-bottom: 2px solid #DB1E37;
+  }
+  
+  .users-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1a202c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Container for filter and add button */
+  .filter-and-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px; /* Ensure proper spacing between filter and button */
+  }
+  
+  /* Role filter dropdown */
+  .role-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .role-filter label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4a5568;
+  }
+  
+  .role-filter select {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #2d3748;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  
+  .role-filter select:focus {
+    outline: none;
+    border-color: #DB1E37;
+    box-shadow: 0 0 0 2px rgba(219, 30, 55, 0.1);
+  }
+  
+  /* Add user button container */
+  .add-user-header {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* Add user button */
+  .btn-add-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(135deg, #DB1E37 0%, #0A4955 100%);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-add-user i {
+    font-size: 1.2rem;
+  }
+  
+  .btn-add-user:hover {
+    background: linear-gradient(135deg, #c91b32 0%, #083c4a 100%);
+    box-shadow: 0 4px 12px rgba(219, 30, 55, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  .btn-add-user:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(219, 30, 55, 0.2);
+  }
+  
+  /* Users list container */
+  .users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  
+  .users-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .users-list::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+  }
+  
+  .users-list::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e0;
+  }
+  
+  /* User card */
+  .user-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #edf2f7;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+  
+  .user-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* User content (info + actions) */
+  .user-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+  }
+  
+  /* User info section */
+  .user-info {
+    flex-grow: 1;
+  }
+  
+  /* User title (name + role) */
+  .user-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #2d3748;
+    text-transform: capitalize;
+    margin-bottom: 8px;
+  }
+  
+  /* Role tag */
+  .role-tag {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  
+  .role-entrepreneur {
+    background-color: #38a169;
+  }
+  
+  .role-coach {
+    background-color: #3182ce;
+  }
+  
+  .role-superadmin {
+    background-color: #e53e3e;
+  }
+  
+  .role-admin {
+    background-color: #d69e2e;
+  }
+  
+  .role-investor {
+    background-color: #805ad5;
+  }
+  
+  /* User details (phone + email) */
+  .user-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #718096;
+    font-size: 0.9rem;
+  }
+  
+  .user-details span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .user-details i {
+    font-size: 1rem;
+    color: #a0aec0;
+  }
+  
+  /* User actions (edit + delete buttons) */
+  .user-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Edit button */
+  .btn-edit {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #3182ce;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-edit:hover {
+    background-color: #2b6cb0;
+    box-shadow: 0 2px 8px rgba(49, 130, 206, 0.3);
+  }
+  
+  /* Delete button */
+  .btn-delete {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #e53e3e;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-delete:hover {
+    background-color: #c53030;
+    box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
+  }
+  
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    background: #f7fafc;
+    border: 1px dashed #e2e8f0;
+    border-radius: 8px;
+    color: #718096;
+  }
+  
+  .empty-state i {
+    font-size: 2.5rem;
+    color: #e53e3e;
+    margin-bottom: 15px;
+  }
+  
+  .empty-state p {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .users-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+  
+    .filter-and-add {
+      width: 100%;
+      justify-content: space-between;
+    }
+  
+    .user-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .user-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  
+    .btn-edit,
+    .btn-delete {
+      flex: 1;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .users-header h2 {
+      font-size: 1.3rem;
+    }
+  
+    .role-filter label {
+      font-size: 0.9rem;
+    }
+  
+    .role-filter select {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+    }
+  
+    .btn-add-user {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+    }
+  
+    .user-title {
+      font-size: 1.1rem;
+    }
+  
+    .role-tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+    }
+  
+    .user-details {
+      font-size: 0.85rem;
+    }
+  }

@@ -1,0 +1,89 @@
+<div class="dashboard-container">
+    <div class="dashboard-content">
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-header">
+                    <h3>Prise de contact</h3>
+                    <div class="header-line"></div>
+                </div>
+                <div class="welcome-description">
+                    <p>Découvrez l'excellence de nos coachs professionnels. Que vous soyez débutant ou expert, nos coachs personnalisent leur approche selon vos besoins et objectifs.</p>
+                </div>
+            </div>
+        </div>
+        <div class="main-grid">
+            <div class="coaches-section">
+                <div class="section-header">
+                    <h2>Nos Coachs</h2>
+                </div>
+
+                <!-- Specialization Filter -->
+                <div class="filter-bar">
+                    <div class="specialization-filter">
+                        <label for="specializationFilter">Filtrer par spécialité :</label>
+                        <select id="specializationFilter" [(ngModel)]="selectedSpecialization" (change)="filterCoaches()">
+                            <option value="">Toutes les spécialités</option>
+                            <option *ngFor="let spec of specializations" [value]="spec">{{ spec }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Rechercher un coach par nom..." [(ngModel)]="searchTerm" (input)="filterCoaches()" class="search-input" />
+                </div>
+
+                <!-- Coach List with Card Design -->
+                <div class="coach-list">
+                    <div class="coach-card" *ngFor="let coach of filteredCoaches | slice: (page - 1) * itemsPerPage : page * itemsPerPage">
+                        <div class="coach-info">
+                            <div class="avatar-container">
+                                <!-- Show image if profile_pictureurl exists, otherwise show text avatar -->
+                                <ng-container *ngIf="coach.profile_pictureurl; else textAvatar">
+                                    <img [src]="coach.profile_pictureurl" [alt]="'Photo de ' + coach.name" class="profile-picture" (error)="handleImageError(coach)" />
+                                </ng-container>
+                                <ng-template #textAvatar>
+                                    <div class="text-avatar">
+                                        {{ getFirstLetter(coach.name) }}
+                                    </div>
+                                </ng-template>
+                                <span class="status-dot" [class.active]="isCoachActive(coach)"></span>
+                            </div>
+                            <div class="coach-details">
+                                <h3>{{ coach.name }}</h3>
+                                <p class="specialty">
+                                    <span class="specialty-tag"> spécialité : {{ coach.specialization }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="coach-actions">
+                            <button class="btn-discover" (click)="discoverCoach(coach)">Découvrir</button>
+                            <button class="btn-reserve" (click)="reserveCoach(coach)">Réserver</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Pagination with Numbers -->
+                <div class="pagination-controls" *ngIf="totalPages > 1">
+                    <button class="pagination-btn" (click)="prevPage()" [disabled]="page === 1">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <div class="pagination-numbers">
+                        <button *ngFor="let num of getPageNumbers()" class="page-number" [class.active]="num === page" (click)="goToPage(num)">
+                            {{ num }}
+                        </button>
+                    </div>
+                    <button class="pagination-btn" (click)="nextPage()" [disabled]="page === totalPages">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Appointments Section -->
+            <div class="appointments-section">
+                <app-appointments-list></app-appointments-list>
+            </div>
+        </div>
+    </div>
+</div>

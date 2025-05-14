@@ -1,0 +1,140 @@
+<div class="container">
+    <header class="page-header">
+        <h1>Découvrez nos offres</h1>
+    </header>
+
+    <section class="service-section" aria-label="Offres de services">
+        <p class="success" *ngIf="successMessage" role="alert">{{ successMessage }}</p>
+        <p class="error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+        <div class="pack-container">
+            <article *ngFor="let pack of packs" class="pack-card">
+                <header class="pack-header">
+                    <h2 class="pack-title">{{ pack.name }}</h2>
+                    <button *ngIf="!hasService[pack.name]" class="add-service-btn" (click)="openAddModalForPack(pack)" title="Ajouter un service" aria-label="Ajouter un service au pack">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                    </button>
+                </header>
+
+                <div class="pack-services">
+                    <div *ngIf="pack.services.length === 0" class="empty-message">Aucun service ajouté pour le moment.</div>
+                    <div *ngIf="pack.services.length > 0" class="service-content">
+                        <h4>{{ pack.services[0].name }}</h4>
+                        <p class="service-description">{{ truncateDescription(pack.services[0].description) }}</p>
+                        <div *ngIf="pack.services[0].subServices.length > 0" class="sub-services">
+                            <ul class="sub-service-list">
+                                <li *ngFor="let subService of pack.services[0].subServices">
+                                    <span class="check-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DB1E37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" stroke="#DB1E37" stroke-width="2" />
+                                            <path d="M8 12l3 3 5-6" />
+                                        </svg>
+                                    </span>
+                                    {{ subService }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="service-actions">
+                            <button class="edit-btn" (click)="openEditModal(pack, pack.services[0])" title="Modifier le service" aria-label="Modifier le service">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path
+                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                                    ></path>
+                                </svg>
+                            </button>
+                            <button class="delete-btn" (click)="deleteService(pack, pack.services[0])" title="Supprimer le service" aria-label="Supprimer le service">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="pack.services.length > 0" class="price-section">
+                    <span class="price" [ngClass]="{ 'price-free': pack.name === 'Free', 'price-premium': pack.name === 'Premium', 'price-gold': pack.name === 'Gold' }"> {{ pack.services[0].price }}€ </span>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Modal pour ajouter un service -->
+    <div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()" aria-modal="true" role="dialog">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Ajouter un service à {{ selectedPack?.name }}</h2>
+                <button class="close-btn" (click)="closeAddModal()" [disabled]="isLoading" title="Fermer" aria-label="Fermer la fenêtre modale">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <form (ngSubmit)="createService()" class="modal-form">
+                <div class="form-group">
+                    <label for="packName">Pack</label>
+                    <input type="text" id="packName" [value]="selectedPack?.name" disabled aria-label="Nom du pack" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="name">Nom</label>
+                    <input type="text" id="name" [(ngModel)]="newService.name" name="name" required aria-required="true" />
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" [(ngModel)]="newService.description" name="description" aria-label="Description du service"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price">Prix (€)</label>
+                    <input type="number" id="price" [(ngModel)]="newService.price" name="price" step="0.01" min="0" required aria-required="true" />
+                </div>
+                <div class="form-group">
+                    <label for="subServices">Sous-services (séparés par des virgules)</label>
+                    <input type="text" id="subServices" [(ngModel)]="newService.subServicesInput" name="subServices" placeholder="ex. 10 vidéos/jr, 1 reel, 5 photos" aria-label="Sous-services" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn" [disabled]="isLoading">Ajouter</button>
+                    <button type="button" class="cancel-btn" (click)="closeAddModal()" [disabled]="isLoading">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour modifier un service -->
+    <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()" aria-modal="true" role="dialog">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Modifier le service dans {{ selectedPack?.name }}</h2>
+                <button class="close-btn" (click)="closeEditModal()" [disabled]="isLoading" title="Fermer" aria-label="Fermer la fenêtre modale">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <form (ngSubmit)="updateService()" class="modal-form">
+                <div class="form-group">
+                    <label for="edit-packName">Pack</label>
+                    <input type="text" id="edit-packName" [value]="selectedPack?.name" disabled aria-label="Nom du pack" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="edit-name">Nom</label>
+                    <input type="text" id="edit-name" [(ngModel)]="editService.name" name="name" required aria-required="true" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" [(ngModel)]="editService.description" name="description" aria-label="Description du service"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-price">Prix (€)</label>
+                    <input type="number" id="edit-price" [(ngModel)]="editService.price" name="price" step="0.01" min="0" required aria-required="true" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-subServices">Sous-services (séparés par des virgules)</label>
+                    <input type="text" id="edit-subServices" [(ngModel)]="editService.subServicesInput" name="subServices" placeholder="ex. 10 vidéos/jr, 1 reel, 5 photos" aria-label="Sous-services" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn" [disabled]="isLoading">Enregistrer</button>
+                    <button type="button" class="cancel-btn" (click)="closeEditModal()" [disabled]="isLoading">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

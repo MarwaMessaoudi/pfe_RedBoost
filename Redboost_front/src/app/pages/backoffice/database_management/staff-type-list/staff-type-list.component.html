@@ -1,0 +1,109 @@
+<div class="container">
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{ width: '50vw' }"></p-confirmDialog>
+    <div class="page-header">
+        <h2>Gestion des données</h2>
+    </div>
+
+    <div class="add-button-container">
+        <button pButton type="button" label="Nouveau type" icon="pi pi-plus" (click)="openNewTypeDialog()" class="add-btn"></button>
+        <button pButton type="button" label="Filtrer le personnel" icon="pi pi-filter" [routerLink]="['/staff-filter']" class="filter-btn"></button>
+    </div>
+
+    <p-table [value]="staffTypes" styleClass="p-datatable-gridlines custom-table" [loading]="loading">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Nom</th>
+                <th>Créé le</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-staffType>
+            <tr>
+                <td>{{ staffType.typeName }}</td>
+                <td>{{ staffType.createdAt | date }}</td>
+                <td>
+                    <button pButton type="button" icon="pi pi-info-circle" class="p-button-rounded p-button-success" (click)="viewDetails(staffType.id)"></button>
+                    <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info" (click)="openEditTypeDialog(staffType)"></button>
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteStaffType(staffType.id)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog header="Créer un nouveau type de personnel" [(visible)]="newTypeDialogVisible" [modal]="true" [style]="{ width: '50vw', height: '70vh' }">
+        <div class="p-field">
+            <label for="typeName">Nom du type</label>
+            <input type="text" pInputText id="typeName" [(ngModel)]="newTypeName" required />
+            <small *ngIf="!newTypeName" class="p-error">Le nom du type est requis</small>
+        </div>
+
+        <div class="p-field">
+            <label>Attributs par défaut (toujours inclus)</label>
+            <p-table [value]="defaultAttributes" styleClass="custom-table">
+                <ng-template pTemplate="body" let-attribute>
+                    <tr>
+                        <td>{{ attribute.attributeName }}</td>
+                        <td>{{ attribute.dataType }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div class="p-field">
+            <label for="attributes">Attributs supplémentaires</label>
+            <p-multiSelect [options]="availableAttributes" [(ngModel)]="selectedAttributeIds" optionLabel="attributeName" optionValue="id" placeholder="Sélectionner des attributs" [style]="{ width: '100%' }"></p-multiSelect>
+        </div>
+
+        <div class="p-field">
+            <h4>Créer un nouvel attribut</h4>
+            <label for="newAttributeName">Nom de l'attribut</label>
+            <input type="text" pInputText id="newAttributeName" [(ngModel)]="newAttributeName" />
+            <label>Valeurs par défaut (facultatif)</label>
+            <div>
+                <input type="text" pInputText #defaultValueInput (keyup.enter)="addDefaultValue(defaultValueInput.value); defaultValueInput.value = ''" placeholder="Ajouter une valeur par défaut et appuyer sur Entrée" />
+                <ul>
+                    <li *ngFor="let value of newAttributeDefaultValues">{{ value }} <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger" (click)="removeDefaultValue(value)"></button></li>
+                </ul>
+            </div>
+            <button pButton type="button" label="Ajouter un attribut" icon="pi pi-plus" (click)="createNewAttribute()" [disabled]="!newAttributeName" class="add-btn"></button>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <p-button icon="pi pi-times" label="Annuler" (click)="newTypeDialogVisible = false" styleClass="p-button-secondary"></p-button>
+            <p-button icon="pi pi-check" label="Créer" (click)="createStaffType()" [disabled]="!newTypeName" styleClass="p-button-primary"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog header="Modifier le type de personnel" [(visible)]="editTypeDialogVisible" [modal]="true" [style]="{ width: '50vw', height: '70vh' }">
+        <div *ngIf="editStaffType">
+            <div class="p-field">
+                <label for="editTypeName">Nom du type</label>
+                <input type="text" pInputText id="editTypeName" [(ngModel)]="editStaffType.typeName" required />
+                <small *ngIf="!editStaffType.typeName" class="p-error">Le nom du type est requis</small>
+            </div>
+
+            <div class="p-field">
+                <label>Attributs par défaut (toujours inclus)</label>
+                <p-table [value]="defaultAttributes" styleClass="custom-table">
+                    <ng-template pTemplate="body" let-attribute>
+                        <tr>
+                            <td>{{ attribute.attributeName }}</td>
+                            <td>{{ attribute.dataType }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <div class="p-field">
+                <label for="editAttributes">Attributs supplémentaires</label>
+                <p-multiSelect [options]="availableAttributes" [(ngModel)]="selectedAttributeIds" optionLabel="attributeName" optionValue="id" placeholder="Sélectionner des attributs" [style]="{ width: '100%' }"></p-multiSelect>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <p-button icon="pi pi-times" label="Annuler" (click)="editTypeDialogVisible = false" styleClass="p-button-secondary"></p-button>
+            <p-button icon="pi pi-check" label="Enregistrer" (click)="updateStaffType()" [disabled]="!editStaffType || !editStaffType.typeName" styleClass="p-button-primary"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

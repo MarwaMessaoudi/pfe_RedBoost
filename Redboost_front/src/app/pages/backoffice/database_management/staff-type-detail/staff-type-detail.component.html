@@ -1,0 +1,97 @@
+<div class="container">
+    <p-toast></p-toast>
+    <div class="page-header">
+        <h2>{{ staffType?.typeName }}</h2>
+        <button pButton type="button" label="Retour à la liste" icon="pi pi-arrow-left" (click)="goToStaffTypes()" class="back-btn"></button>
+    </div>
+
+    <div class="staff-type-details" *ngIf="staffType">
+        <div class="detail-section">
+            <h3>Détails</h3>
+            <p><strong>ID :</strong> {{ staffType.id }}</p>
+            <p><strong>Créé le :</strong> {{ staffType.createdAt | date }}</p>
+        </div>
+
+        <div class="detail-section">
+            <h3>Attributs</h3>
+            <p-table [value]="filteredAttributes" styleClass="p-datatable-gridlines custom-table">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type de données</th>
+                        <th>Valeurs par défaut</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-attribute>
+                    <tr>
+                        <td>{{ attribute.attributeName }}</td>
+                        <td>{{ attribute.dataType }}</td>
+                        <td>{{ attribute.defaultValues?.join(', ') || 'Aucune' }}</td>
+                        <td>
+                            <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info" (click)="openEditAttributeDialog(attribute)" [disabled]="isDefaultAttribute(attribute)"></button>
+                            <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteAttribute(attribute.id)" [disabled]="isDefaultAttribute(attribute)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <button pButton type="button" label="Ajouter un attribut" icon="pi pi-plus" (click)="openAddAttributeDialog()" class="add-btn"></button>
+        </div>
+
+        <div class="detail-section">
+            <h3>Importer/Exporter</h3>
+            <div class="file-actions">
+                <button pButton type="button" label="Télécharger le modèle" icon="pi pi-download" (click)="downloadTemplate()" class="download-btn"></button>
+                <div class="file-upload">
+                    <label for="file-upload" class="custom-file-upload"> <i class="pi pi-upload"></i> Choisir un fichier </label>
+                    <input id="file-upload" type="file" accept=".xlsx" (change)="onFileSelected($event)" #fileInput />
+                    <span class="file-name">{{ selectedFile?.name || 'Aucun fichier sélectionné' }}</span>
+                    <button pButton type="button" label="Télécharger le fichier" icon="pi pi-upload" [disabled]="!selectedFile" (click)="uploadFile()" class="upload-btn"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-dialog header="Ajouter un attribut" [(visible)]="addAttributeDialogVisible" [modal]="true" [style]="{ width: '40vw', height: '60vh' }">
+        <div class="p-field">
+            <label for="existingAttribute">Sélectionner des attributs existants</label>
+            <p-multiSelect [options]="availableAttributes" [(ngModel)]="selectedAttributeIds" optionLabel="attributeName" optionValue="id" placeholder="Sélectionner des attributs" [style]="{ width: '100%' }"></p-multiSelect>
+        </div>
+        <div class="p-field">
+            <h4>Ou créer un nouvel attribut</h4>
+            <label for="newAttributeName">Nom de l'attribut</label>
+            <input type="text" pInputText id="newAttributeName" [(ngModel)]="newAttributeName" />
+            <label>Valeurs par défaut (facultatif)</label>
+            <div>
+                <input type="text" pInputText #defaultValueInput (keyup.enter)="addDefaultValue(defaultValueInput.value); defaultValueInput.value = ''" placeholder="Ajouter une valeur par défaut et appuyer sur Entrée" />
+                <ul>
+                    <li *ngFor="let value of newAttributeDefaultValues">{{ value }} <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger" (click)="removeDefaultValue(value)"></button></li>
+                </ul>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button icon="pi pi-times" label="Annuler" (click)="addAttributeDialogVisible = false" styleClass="p-button-secondary"></p-button>
+            <p-button icon="pi pi-check" label="Ajouter" (click)="addAttribute()" [disabled]="selectedAttributeIds.length === 0 && !newAttributeName" styleClass="p-button-primary"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog header="Modifier l'attribut" [(visible)]="editAttributeDialogVisible" [modal]="true" [style]="{ width: '40vw', height: '60vh' }">
+        <div class="p-field" *ngIf="editAttribute">
+            <label for="editAttributeName">Nom de l'attribut</label>
+            <input type="text" pInputText id="editAttributeName" [(ngModel)]="editAttribute.attributeName" />
+        </div>
+        <div class="p-field" *ngIf="editAttribute">
+            <label>Valeurs par défaut (facultatif)</label>
+            <div>
+                <input type="text" pInputText #defaultValueInputEdit (keyup.enter)="addDefaultValueEdit(defaultValueInputEdit.value); defaultValueInputEdit.value = ''" placeholder="Ajouter une valeur par défaut et appuyer sur Entrée" />
+                <ul>
+                    <li *ngFor="let value of editAttribute?.defaultValues">{{ value }} <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger" (click)="removeDefaultValueEdit(value)"></button></li>
+                </ul>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button icon="pi pi-times" label="Annuler" (click)="editAttributeDialogVisible = false" styleClass="p-button-secondary"></p-button>
+            <p-button icon="pi pi-check" label="Enregistrer" (click)="updateAttribute()" [disabled]="!editAttribute?.attributeName" styleClass="p-button-primary"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

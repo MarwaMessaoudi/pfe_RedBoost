@@ -1,0 +1,47 @@
+<div class="feedback-popup" [@fadeInOut]>
+    <p-toast></p-toast>
+    <div class="feedback-header">
+        <h2 class="feedback-title">Évaluez votre expérience</h2>
+        <p class="feedback-subtitle">Votre avis nous aide à nous améliorer</p>
+    </div>
+
+    <div class="rating-options">
+        <div
+            *ngFor="let option of ratingOptions"
+            class="rating-option"
+            [class.selected]="selectedRating === option.value"
+            [class.submitted]="isSubmitted"
+            (click)="selectRating(option.value)"
+            (mouseenter)="onHover(option.value)"
+            (mouseleave)="onLeave()"
+            [@ratingHover]="hoveredRating === option.value ? 'hovered' : 'default'"
+            tabindex="0"
+            (keydown.enter)="selectRating(option.value)"
+            role="radio"
+            [attr.aria-checked]="selectedRating === option.value"
+            [attr.aria-label]="option.label + ' (' + option.value + ' sur ' + ratingOptions.length + ')'"
+        >
+            <div class="emoji-container">
+                <span class="emoji">{{ option.emoji }}</span>
+                <span class="emoji-glow"></span>
+            </div>
+            <span class="label">{{ option.label }}</span>
+            <span class="selected-indicator">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+            </span>
+        </div>
+    </div>
+
+    <div class="feedback-footer">
+        <button class="submit-button" (click)="submitFeedback()" [disabled]="!selectedRating || isSubmitted">
+            <span class="button-text">{{ isSubmitted ? 'Envoi...' : 'Envoyer mon avis' }}</span>
+            <span class="button-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+            </span>
+        </button>
+    </div>
+</div>

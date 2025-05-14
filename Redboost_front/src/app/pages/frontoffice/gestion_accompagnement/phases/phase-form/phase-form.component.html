@@ -1,0 +1,49 @@
+<div class="modal-overlay animate-fadeIn">
+    <div class="modal-box animate-slideIn">
+        <!-- Close Button -->
+        <button class="close-icon" (click)="onCancel()" aria-label="Close modal">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Modal Title -->
+        <h3 class="modal-title">
+            <i class="fas fa-plus-circle"></i>
+            {{ data.isEdit ? 'Modifier la Phase' : 'Nouvelle Phase' }}
+        </h3>
+
+        <!-- Form -->
+        <form [formGroup]="phaseForm" (ngSubmit)="onSubmit()" class="activity-form">
+            <div class="form-group">
+                <label for="phaseName">Nom:</label>
+                <input id="phaseName" formControlName="phaseName" placeholder="Entrez le nom de la phase" required aria-required="true" />
+                <small *ngIf="f['phaseName']?.touched && f['phaseName']?.hasError('required')" class="error-msg"> Le nom est obligatoire </small>
+                <small *ngIf="f['phaseName']?.touched && f['phaseName']?.hasError('maxlength')" class="error-msg"> La longueur maximale est de 100 caractères </small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" formControlName="description" placeholder="Entrez une description" rows="3" aria-required="false"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Date de début:</label>
+                <input id="startDate" type="date" formControlName="startDate" [min]="minDate" (change)="startDateChanged($event)" required aria-required="true" />
+                <small *ngIf="f['startDate']?.touched && f['startDate']?.hasError('required')" class="error-msg"> La date de début est obligatoire </small>
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">Date de fin:</label>
+                <input id="endDate" type="date" formControlName="endDate" [min]="minStartDate" required aria-required="true" />
+                <small *ngIf="f['endDate']?.touched && f['endDate']?.hasError('required')" class="error-msg"> La date de fin est obligatoire </small>
+                <small *ngIf="phaseForm.hasError('dateRangeInvalid')" class="error-msg"> La date de fin ne peut pas être avant la date de début </small>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" (click)="onCancel()" aria-label="Cancel">Annuler</button>
+                <button type="submit" class="btn-send" [disabled]="phaseForm.invalid || submitting" [attr.aria-label]="data.isEdit ? 'Update phase' : 'Create phase'">
+                    {{ data.isEdit ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

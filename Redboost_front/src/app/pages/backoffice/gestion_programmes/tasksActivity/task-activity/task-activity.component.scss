@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Root CSS variables for light and dark color schemes */
+:root {
+    --surface-ground: #f9f9f9; /* Light gray background */
+    --surface-card: #ffffff; /* White card background */
+
+    --phase-form-text-color: #3c4043; /* Matches task-form-text-color */
+    --phase-form-background-color: var(--surface-ground);
+    --phase-form-border-color: #e0e0e0; /* Matches task-form-border-color */
+    --phase-form-input-background-color: var(--surface-card);
+    --phase-form-primary-button-color: #5e35b1; /* Matches task-primary-color */
+    --phase-form-primary-button-text-color: #fff; /* Matches task-form-primary-button-text-color */
+    --phase-form-secondary-button-color: var(--surface-card); /* Matches color of task-form buttons/secondary text*/
+    --phase-form-secondary-button-text-color: #5f6368; /* Matches color of task-form buttons/secondary text*/
+    --phase-form-label-color: #5f6368; /* Matches task-form-label-color */
+    --phase-form-hint-color: #80868b; /* Matches task-form-hint-color */
+    --phase-form-header-color: #3c4043; /* Matches task-form-header-color */
+    --phase-form-section-header-color: #5f6368; /* Matches task-form-section-title-color */
+    --phase-form-description-color: #5f6368; /* Matches task-form-section-title-color */
+    --phase-form-status-box-color: #5f6368; /* Matches task-form-section-title-color */
+
+    --phase-form-font-family: 'Poppins', sans-serif;
+}
+
+/* Form Container */
+.app-task-activity-form-container {
+    width: 100%;
+    max-width: 600px; /* Ensure it fills the container width without horizontal scrolling */
+    margin: 0 auto;
+    background-color: var(--surface-ground);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px; /* Reduced padding */
+    font-family: var(--phase-form-font-family);
+    box-sizing: border-box; /* Prevents overflow */
+
+    /* Title */
+    .app-task-activity-form-mat-dialog-title {
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 12px; /* Reduced margin for title */
+    }
+
+    /* Content */
+    .app-task-activity-form-mat-dialog-content {
+        padding: 0;
+    }
+
+    /* Form Container */
+    .app-task-activity-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Reduced gap between form fields */
+    }
+
+    /* Form Field Styles */
+    .app-task-activity-form-mat-form-field {
+        width: 100%;
+        margin-bottom: 10px; /* Reduced margin between fields */
+    }
+
+    /* Label */
+    .app-task-activity-form-mat-label {
+        font-size: 14px;
+        color: var(--phase-form-label-color);
+        margin-bottom: 6px; /* Reduced margin for labels */
+    }
+
+    /* Inputs */
+    .app-task-activity-form-mat-input,
+    .app-task-activity-form-mat-select {
+        width: 100%;
+        padding: 10px; /* Reduced padding in the input fields */
+        font-size: 14px;
+        border: 1px solid var(--phase-form-border-color);
+        border-radius: 4px;
+        background-color: var(--phase-form-input-background-color);
+        color: var(--phase-form-text-color);
+        transition: border-color 0.2s ease;
+    }
+
+    .app-task-activity-form-mat-input:focus,
+    .app-task-activity-form-mat-select:focus {
+        border-color: var(--phase-form-primary-button-color);
+        outline: none;
+    }
+
+    .app-task-activity-form-mat-textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    /* Hints and Errors */
+    .app-task-activity-form-mat-hint {
+        font-size: 12px;
+        color: var(--phase-form-hint-color);
+    }
+
+    .app-task-activity-form-mat-error {
+        font-size: 12px;
+        color: #d32f2f;
+    }
+
+    /* Action Buttons */
+    .app-task-activity-form-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid var(--phase-form-border-color);
+    }
+
+    .app-task-activity-form-mat-button,
+    .app-task-activity-form-mat-raised-button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .app-task-activity-form-mat-raised-button {
+        background-color: var(--phase-form-primary-button-color);
+        color: var(--phase-form-primary-button-text-color);
+    }
+
+    .app-task-activity-form-mat-raised-button:hover {
+        background-color: #4527a0;
+    }
+
+    .app-task-activity-form-mat-button:hover {
+        background-color: var(--phase-form-border-color);
+    }
+
+    .app-task-activity-form-mat-raised-button:disabled {
+        background-color: #c5c5c5;
+        color: #757575;
+        cursor: not-allowed;
+    }
+
+    /* Attachment Section */
+    .app-task-activity-form-attachments-section {
+        margin-top: 16px;
+        padding: 12px;
+        border: 1px solid var(--phase-form-border-color);
+        border-radius: 4px;
+        background-color: var(--surface-ground);
+    }
+
+    .app-task-activity-form-no-attachments {
+        font-style: italic;
+        color: var(--phase-form-hint-color);
+    }
+
+    .app-task-activity-form-attachment-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-task-activity-form-container {
+        width: 100%;
+        padding: 16px;
+        border-radius: 0;
+    }
+
+    .app-task-activity-form .app-task-activity-form-mat-form-field {
+        width: 100%;
+    }
+
+    .app-task-activity-form-mat-dialog-title {
+        font-size: 18px;
+    }
+
+    .app-task-activity-form-form-actions {
+        padding: 12px 0;
+    }
+}
