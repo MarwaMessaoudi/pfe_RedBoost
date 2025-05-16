@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team.project.redboost.config.JwtUtil;
 import team.project.redboost.dto.ReclamationDTO;
 import team.project.redboost.entities.Reclamation;
@@ -37,10 +38,13 @@ public class ReclamationController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Create a new reclamation
-    @PostMapping("/add")
+    // Create a new reclamation with optional file upload
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Reclamation> createReclamation(@RequestBody ReclamationDTO reclamationDTO, HttpServletRequest request) {
+    public ResponseEntity<Reclamation> createReclamation(
+            @RequestPart("reclamation") ReclamationDTO reclamationDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            HttpServletRequest request) {
         try {
             // Extract the token from the request header
             String authHeader = request.getHeader("Authorization");
@@ -76,8 +80,8 @@ public class ReclamationController {
             reclamation.setStatut(StatutReclamation.NOUVELLE); // Default status
             reclamation.setUser(user);
 
-            // Save the reclamation
-            Reclamation createdReclamation = reclamationService.createReclamation(reclamation);
+            // Save the reclamation with file (if provided)
+            Reclamation createdReclamation = reclamationService.createReclamation(reclamation, file);
             return new ResponseEntity<>(createdReclamation, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error creating reclamation", e);
@@ -88,7 +92,7 @@ public class ReclamationController {
     // Get all reclamations (only for ADMIN)
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Reclamation>> getAllReclamations(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<ReclamationDTO>> getAllReclamations(@AuthenticationPrincipal UserDetails userDetails) {
         // Fetch the User entity from the database using the email from UserDetails
         String email = userDetails.getUsername();
         User user = userRepository.findByEmail(email);
@@ -97,12 +101,12 @@ public class ReclamationController {
         }
 
         // Fetch all reclamations (only accessible to ADMIN)
-        List<Reclamation> reclamations = reclamationService.getAllReclamations();
+        List<ReclamationDTO> reclamations = reclamationService.getAllReclamations();
         return new ResponseEntity<>(reclamations, HttpStatus.OK);
     }
 
     // Get a reclamation by ID (only for the authenticated user)
-    @GetMapping()
+    @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Reclamation> getReclamationById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         // Fetch the User entity from the database using the email from UserDetails
@@ -125,8 +129,8 @@ public class ReclamationController {
     @GetMapping("/user")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Reclamation>> getReclamationsByUserId(
-            @RequestParam(required = false) Long userId,  // Make userId optional
-            @AuthenticationPrincipal UserDetails userDetails) { // Keep AuthenticationPrincipal
+            @RequestParam(required = false) Long userId,
+            @AuthenticationPrincipal UserDetails userDetails) {
         try {
             List<Reclamation> reclamations;
             if (userId != null) {
@@ -141,7 +145,6 @@ public class ReclamationController {
                     return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // User not found
                 }
                 reclamations = reclamationService.getReclamationsByUser(user);
-
             }
 
             return new ResponseEntity<>(reclamations, HttpStatus.OK);
@@ -197,19 +200,16 @@ public class ReclamationController {
     public ResponseEntity<Reclamation> updateReclamationStatus(
             @PathVariable Long id,
             @RequestBody StatutUpdateRequest request) {
-
         try {
-            StatutReclamation nouveauStatut = request.getStatut(); // Get the statut from the request object
-
+            StatutReclamation nouveauStatut = request.getStatut();
             Reclamation updatedReclamation = reclamationService.updateReclamationStatut(id, nouveauStatut);
-
             if (updatedReclamation != null) {
                 return ResponseEntity.ok(updatedReclamation);
             } else {
-                return ResponseEntity.notFound().build(); // Or throw an exception
+                return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null); // Invalid enum value
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

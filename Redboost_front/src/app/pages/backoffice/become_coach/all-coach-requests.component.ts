@@ -32,6 +32,7 @@ interface CoachRequest {
     trainingProgramUrl: string | null;
     certificationDocuments: CertificationDocument[];
     binome: boolean;
+    isIncompleteBinome?: boolean;
 }
 
 interface Connection {
@@ -55,14 +56,17 @@ interface Connection {
                         <div class="card-header">
                             <div class="card-title-wrapper">
                                 <h3 class="card-title">{{ item.firstName }} {{ item.lastName }}</h3>
-                                <span *ngIf="item.binome" class="binome-icon" title="Binome Request">👥</span>
+                                <span *ngIf="item.binome" class="binome-icon" [title]="item.isIncompleteBinome ? 'Incomplete Binome Request' : 'Binome Request'">
+                                    👥{{ item.isIncompleteBinome ? '*' : '' }}
+                                </span>
                             </div>
                             <span class="status" [ngClass]="{
-                                'status-pending': item.status === 'PENDING',
+                                'status-pending': item.status === 'PENDING' && !item.isIncompleteBinome,
                                 'status-approved': item.status === 'APPROVED',
-                                'status-rejected': item.status === 'REJECTED'
+                                'status-rejected': item.status === 'REJECTED',
+                                'status-awaiting': item.isIncompleteBinome
                             }">
-                                {{ item.status }}
+                                {{ item.isIncompleteBinome ? 'AWAITING BINOME' : item.status }}
                             </span>
                         </div>
                         <div class="card-body">
@@ -104,7 +108,7 @@ interface Connection {
                             </div>
                         </div>
                         <div class="card-footer" *ngIf="item.status === 'PENDING'">
-                            <button class="approve-btn" (click)="approveRequest(item.id)">Approve</button>
+                            <button *ngIf="canApprove(item)" class="approve-btn" (click)="approveRequest(item.id)">Approve</button>
                             <button class="reject-btn" (click)="rejectRequest(item.id)">Reject</button>
                         </div>
                     </div>
@@ -113,222 +117,227 @@ interface Connection {
             <div *ngIf="!loading && !error && displayItems.length === 0" class="no-data">No coach requests found.</div>
         </div>
     `,
-    styles: [
-        `
-            .container {
-                max-width: 1200px;
-                margin: 40px auto;
-                padding: 20px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                position: relative;
-            }
-            .title {
-                font-size: 2rem;
-                font-weight: bold;
-                color: #034a55;
-                margin-bottom: 30px;
-                text-align: center;
-            }
-            .loading {
-                text-align: center;
-                color: #034a55;
-                font-size: 1.2rem;
-            }
-            .error {
-                text-align: center;
-                color: #c8223a;
-                font-size: 1.2rem;
-                margin-bottom: 20px;
-            }
-            .no-data {
-                text-align: center;
-                color: #6b7280;
-                font-size: 1.2rem;
-                margin-top: 20px;
-            }
+    styles: [`
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #034a55;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            color: #034a55;
+            font-size: 1.2rem;
+        }
+        .error {
+            text-align: center;
+            color: #c8223a;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .no-data {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            position: relative;
+        }
+        .card-wrapper {
+            min-height: 0;
+        }
+        .card {
+            background: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+            position: relative;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .connection-color-0 {
+            border: 2px solid #ec4899;
+            box-shadow: 0 0 8px rgba(236, 72, 153, 0.5);
+        }
+        .connection-color-1 {
+            border: 2px solid #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+        .connection-color-2 {
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+        .connection-color-3 {
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+        .connection-color-4 {
+            border: 2px solid #8b5cf6;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+        }
+        .card:hover.connection-color-0,
+        .card.connection-color-0:hover ~ .card.connection-color-0 {
+            border: 2px solid #db2777;
+            box-shadow: 0 0 12px rgba(219, 39, 119, 0.7);
+        }
+        .card:hover.connection-color-1,
+        .card.connection-color-1:hover ~ .card.connection-color-1 {
+            border: 2px solid #059669;
+            box-shadow: 0 0 12px rgba(5, 150, 105, 0.7);
+        }
+        .card:hover.connection-color-2,
+        .card.connection-color-2:hover ~ .card.connection-color-2 {
+            border: 2px solid #2563eb;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.7);
+        }
+        .card:hover.connection-color-3,
+        .card.connection-color-3:hover ~ .card.connection-color-3 {
+            border: 2px solid #d97706;
+            box-shadow: 0 0 12px rgba(217, 119, 6, 0.7);
+        }
+        .card:hover.connection-color-4,
+        .card.connection-color-4:hover ~ .card.connection-color-4 {
+            border: 2px solid #7c3aed;
+            box-shadow: 0 0 12px rgba(124, 58, 237, 0.7);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #EA7988 0%, #568086 100%);
+            color: white;
+        }
+        .card-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: #f3f4f6;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .card-header .binome-icon:hover {
+            transform: scale(1.2);
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background: #facc15;
+            color: #1f2937;
+        }
+        .status-approved {
+            background: #10b981;
+            color: white;
+        }
+        .status-rejected {
+            background: #ef4444;
+            color: white;
+        }
+        .status-awaiting {
+            background: #f59e0b;
+            color: white;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .info-section {
+            margin-bottom: 20px;
+        }
+        .info-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #034a55;
+            margin-bottom: 10px;
+        }
+        .info-section p {
+            margin: 8px 0;
+            color: #1f2937;
+            font-size: 0.95rem;
+        }
+        .info-section p strong {
+            color: #034a55;
+            margin-right: 5px;
+        }
+        .doc-link {
+            color: #034a55;
+            text-decoration: underline;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        .doc-link:hover {
+            color: #c8223a;
+        }
+        .card-footer {
+            padding: 15px 20px;
+            background: #f3f4f6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .approve-btn,
+        .reject-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .approve-btn {
+            background-color: #10b981;
+            color: white;
+        }
+        .approve-btn:hover {
+            background-color: #059669;
+        }
+        .reject-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        .reject-btn:hover {
+            background-color: #dc2626;
+        }
+        .incomplete-binome {
+            border: 2px dashed #f59e0b;
+        }
+        @media (max-width: 900px) {
             .cards-container {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-                position: relative;
+                grid-template-columns: repeat(2, 1fr);
             }
-            .card-wrapper {
-                min-height: 0;
+        }
+        @media (max-width: 600px) {
+            .cards-container {
+                grid-template-columns: 1fr;
             }
-            .card {
-                background: #f9fafb;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                overflow: hidden;
-                transition: transform 0.2s, box-shadow 0.3s;
-                position: relative;
-                border: 2px solid transparent;
-                height: 100%;
-            }
-            .card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            }
-            .connection-color-0 {
-                border: 2px solid #ec4899;
-                box-shadow: 0 0 8px rgba(236, 72, 153, 0.5);
-            }
-            .connection-color-1 {
-                border: 2px solid #10b981;
-                box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-            }
-            .connection-color-2 {
-                border: 2px solid #3b82f6;
-                box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-            }
-            .connection-color-3 {
-                border: 2px solid #f59e0b;
-                box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
-            }
-            .connection-color-4 {
-                border: 2px solid #8b5cf6;
-                box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
-            }
-            .card:hover.connection-color-0,
-            .card.connection-color-0:hover ~ .card.connection-color-0 {
-                border: 2px solid #db2777;
-                box-shadow: 0 0 12px rgba(219, 39, 119, 0.7);
-            }
-            .card:hover.connection-color-1,
-            .card.connection-color-1:hover ~ .card.connection-color-1 {
-                border: 2px solid #059669;
-                box-shadow: 0 0 12px rgba(5, 150, 105, 0.7);
-            }
-            .card:hover.connection-color-2,
-            .card.connection-color-2:hover ~ .card.connection-color-2 {
-                border: 2px solid #2563eb;
-                box-shadow: 0 0 12px rgba(37, 99, 235, 0.7);
-            }
-            .card:hover.connection-color-3,
-            .card.connection-color-3:hover ~ .card.connection-color-3 {
-                border: 2px solid #d97706;
-                box-shadow: 0 0 12px rgba(217, 119, 6, 0.7);
-            }
-            .card:hover.connection-color-4,
-            .card.connection-color-4:hover ~ .card.connection-color-4 {
-                border: 2px solid #7c3aed;
-                box-shadow: 0 0 12px rgba(124, 58, 237, 0.7);
-            }
-            .card-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px 20px;
-                background: linear-gradient(135deg, #EA7988 0%, #568086 100%);
-                color: white;
-            }
-            .card-title-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            .card-title {
-                font-size: 1.25rem;
-                font-weight: 600;
-                margin: 0;
-                color: #f3f4f6;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            }
-            .card-header .binome-icon:hover {
-                transform: scale(1.2);
-            }
-            .status {
-                padding: 5px 10px;
-                border-radius: 12px;
-                font-size: 0.9rem;
-                font-weight: 500;
-            }
-            .status-pending {
-                background: #facc15;
-                color: #1f2937;
-            }
-            .status-approved {
-                background: #10b981;
-                color: white;
-            }
-            .status-rejected {
-                background: #ef4444;
-                color: white;
-            }
-            .card-body {
-                padding: 20px;
-            }
-            .info-section {
-                margin-bottom: 20px;
-            }
-            .info-section h4 {
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: #034a55;
-                margin-bottom: 10px;
-            }
-            .info-section p {
-                margin: 8px 0;
-                color: #1f2937;
-                font-size: 0.95rem;
-            }
-            .info-section p strong {
-                color: #034a55;
-                margin-right: 5px;
-            }
-            .doc-link {
-                color: #034a55;
-                text-decoration: underline;
-                margin-right: 10px;
-                display: inline-block;
-            }
-            .doc-link:hover {
-                color: #c8223a;
-            }
-            .card-footer {
-                padding: 15px 20px;
-                background: #f3f4f6;
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-            }
-            .approve-btn,
-            .reject-btn {
-                padding: 8px 16px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: 600;
-                transition: background-color 0.3s;
-            }
-            .approve-btn {
-                background-color: #10b981;
-                color: white;
-            }
-            .approve-btn:hover {
-                background-color: #059669;
-            }
-            .reject-btn {
-                background-color: #ef4444;
-                color: white;
-            }
-            .reject-btn:hover {
-                background-color: #dc2626;
-            }
-            @media (max-width: 900px) {
-                .cards-container {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-            @media (max-width: 600px) {
-                .cards-container {
-                    grid-template-columns: 1fr;
-                }
-            }
-        `
-    ]
+        }
+    `]
 })
 export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
     requests: CoachRequest[] = [];
@@ -383,49 +392,71 @@ export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
         const processedIds = new Set<number>();
         const columns = 3;
 
-        // Collect binome pairs and non-binome requests
+        // Collect binome pairs and non-binome/incomplete binome requests
         const binomePairs: [CoachRequest, CoachRequest][] = [];
-        const nonBinomeRequests: CoachRequest[] = [];
+        const singleRequests: CoachRequest[] = [];
 
         this.requests.forEach((request) => {
-            if (request.binome && request.relatedBinomeRequestId && !processedIds.has(request.id)) {
-                const relatedRequest = this.requests.find(
-                    (r) => r.id === request.relatedBinomeRequestId
-                );
-                if (relatedRequest) {
-                    binomePairs.push([request, relatedRequest]);
+            if (processedIds.has(request.id)) return;
+
+            if (request.binome) {
+                if (request.relatedBinomeRequestId) {
+                    const relatedRequest = this.requests.find(
+                        (r) => r.id === request.relatedBinomeRequestId
+                    );
+                    if (relatedRequest) {
+                        // Both binome requests exist
+                        binomePairs.push([request, relatedRequest]);
+                        processedIds.add(request.id);
+                        processedIds.add(relatedRequest.id);
+                    } else {
+                        // Related binome request ID exists but not found
+                        singleRequests.push({
+                            ...request,
+                            status: 'PENDING',
+                            binome: true,
+                            isIncompleteBinome: true
+                        });
+                        processedIds.add(request.id);
+                    }
+                } else {
+                    // Binome request with no related request ID (first request)
+                    singleRequests.push({
+                        ...request,
+                        status: 'PENDING',
+                        binome: true,
+                        isIncompleteBinome: true
+                    });
                     processedIds.add(request.id);
-                    processedIds.add(relatedRequest.id);
                 }
-            } else if (!request.binome && !processedIds.has(request.id)) {
-                nonBinomeRequests.push(request);
+            } else {
+                // Non-binome request
+                singleRequests.push(request);
                 processedIds.add(request.id);
             }
         });
 
-        // Shuffle non-binome requests to randomize their placement
-        for (let i = nonBinomeRequests.length - 1; i > 0; i--) {
+        // Shuffle single requests to randomize their placement
+        for (let i = singleRequests.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [nonBinomeRequests[i], nonBinomeRequests[j]] = [nonBinomeRequests[j], nonBinomeRequests[i]];
+            [singleRequests[i], singleRequests[j]] = [singleRequests[j], singleRequests[i]];
         }
 
-        // Combine binome pairs and non-binome requests
+        // Combine binome pairs and single requests
         const items: (CoachRequest | [CoachRequest, CoachRequest])[] = [];
         let binomeIndex = 0;
-        let nonBinomeIndex = 0;
+        let singleIndex = 0;
 
-        // Randomly decide whether to add a binome pair or a non-binome request
-        while (binomeIndex < binomePairs.length || nonBinomeIndex < nonBinomeRequests.length) {
+        while (binomeIndex < binomePairs.length || singleIndex < singleRequests.length) {
             if (binomeIndex >= binomePairs.length) {
-                items.push(nonBinomeRequests[nonBinomeIndex++]);
-            } else if (nonBinomeIndex >= nonBinomeRequests.length) {
+                items.push(singleRequests[singleIndex++]);
+            } else if (singleIndex >= singleRequests.length) {
                 items.push(binomePairs[binomeIndex++]);
             } else {
-                // Randomly choose between binome pair and non-binome request
                 if (Math.random() < 0.5) {
                     items.push(binomePairs[binomeIndex++]);
                 } else {
-                    items.push(nonBinomeRequests[nonBinomeIndex++]);
+                    items.push(singleRequests[singleIndex++]);
                 }
             }
         }
@@ -439,12 +470,24 @@ export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
                     displayItems.push(null);
                 }
             } else {
-                // Non-binome request
+                // Single request (non-binome or incomplete binome)
                 displayItems.push(item);
             }
         });
 
         this.displayItems = displayItems;
+    }
+
+    canApprove(item: CoachRequest): boolean {
+        if (item.binome) {
+            // For binome requests, require a valid related request
+            if (!item.relatedBinomeRequestId) {
+                return false; // No related request ID (incomplete)
+            }
+            const relatedRequest = this.requests.find((r) => r.id === item.relatedBinomeRequestId);
+            return !!relatedRequest && relatedRequest.status === 'PENDING'; // Related request must exist and be PENDING
+        }
+        return true; // Non-binome requests can be approved
     }
 
     approveRequest(requestId: number) {
@@ -481,7 +524,7 @@ export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
                 this.fetchRequests();
             },
             error: (err) => {
-                const errorMessage = err.error?.message || 'Failed to approve request';
+                const errorMessage = err.error?.message || 'Failed to reject request';
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
@@ -492,13 +535,12 @@ export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
     }
 
     updateConnections() {
-        const cout = 0;
         const connections: Connection[] = [];
         const processedPairs = new Set<string>();
         let colorIndex = 0;
 
         this.requests.forEach((request) => {
-            if (request.binome && request.relatedBinomeRequestId) {
+            if (request.binome && request.relatedBinomeRequestId && !request.isIncompleteBinome) {
                 const pairKey = [request.id, request.relatedBinomeRequestId].sort().join('-');
                 if (processedPairs.has(pairKey)) return;
                 processedPairs.add(pairKey);
@@ -518,6 +560,10 @@ export class AllCoachRequestsComponent implements OnInit, AfterViewChecked {
     }
 
     getConnectionClass(requestId: number): string {
+        const request = this.requests.find((r) => r.id === requestId);
+        if (request?.isIncompleteBinome) {
+            return 'incomplete-binome';
+        }
         const connection = this.connections.find(
             (conn) => conn.id1 === requestId || conn.id2 === requestId
         );

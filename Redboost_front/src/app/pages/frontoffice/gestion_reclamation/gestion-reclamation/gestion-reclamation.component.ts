@@ -1,92 +1,91 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ReclamationService } from '../../service/reclamation.service';
+import { UserService } from '../../service/UserService';
 import { jwtDecode } from 'jwt-decode';
+
+interface JwtPayload {
+    userId: string;
+    email: string;
+    role: string;
+}
 
 @Component({
     selector: 'app-gestion-reclamation',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule],
-    providers: [DatePipe, ReclamationService],
+    providers: [DatePipe, ReclamationService, UserService],
     templateUrl: './gestion-reclamation.component.html',
     styleUrls: ['./gestion-reclamation.component.scss']
 })
 export class GestionReclamationComponent implements OnInit {
-    myDate: Date = new Date();
     reclamationForm: FormGroup;
     selectedFiles: File[] = [];
     fileError: string | null = null;
     successMessage: string | null = null;
     errorMessage: string | null = null;
     isSubmitting = false;
+    validationErrors: string[] = [];
 
-    public f: any; // Public property to access form controls
+    public f: any;
 
     constructor(
         private fb: FormBuilder,
         private reclamationService: ReclamationService,
+        private userService: UserService,
         private datePipe: DatePipe,
-        private http: HttpClient
+        private http: HttpClient,
+        private cdr: ChangeDetectorRef
     ) {
         this.reclamationForm = this.fb.group({
-            nom: ['', Validators.required],
-            email: ['', [Validators.required, Validators.email]],
-            date: this.datePipe.transform(this.myDate, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), // Initialize with formatted date
+            nomComplet: [{ value: '', disabled: true }, Validators.required],
+            date: [{ value: '', disabled: true }, Validators.required],
+            email: [{ value: '', disabled: true }, Validators.required],
             sujet: ['', Validators.required],
             description: ['', Validators.required],
-            categorie: ['', Validators.required],
-            fichierReclamation: [null]
+            categorie: ['', Validators.required]
         });
-        this.f = this.reclamationForm.controls; // Assign form controls to 'f'
+        this.f = this.reclamationForm.controls;
     }
 
     ngOnInit(): void {
-        // Attendre un court instant pour s'assurer que tout est prêt
-        setTimeout(() => {
-            this.loadUserInfo();
-        }, 100);
-    }
-
-    loadUserInfo() {
-        const token = localStorage.getItem('accessToken');
+        console.log('GestionReclamationComponent initialized');
+        const token = this.accessToken;
         if (token) {
             try {
-                const decodedToken: any = jwtDecode(token);
-                console.log('Structure complète du token:', JSON.stringify(decodedToken, null, 2));
-
-                // Extraire l'email à partir du champ "sub"
-                const email = decodedToken.sub || '';
-
-                // Pour le nom, vous pourriez utiliser l'email ou demander à l'API
-                // Pour l'instant, utilisez l'email sans le domaine comme nom
-                const nomUtilisateur = email.split('@')[0] || '';
-
-                console.log('Valeurs extraites:', { email, nomUtilisateur });
-
-                // Définir les valeurs dans le formulaire
-                this.reclamationForm.controls['email'].setValue(email);
-                this.reclamationForm.controls['email'].markAsDirty();
-
-                this.reclamationForm.controls['nom'].setValue(nomUtilisateur);
-                this.reclamationForm.controls['nom'].markAsDirty();
+                const decodedToken: JwtPayload = jwtDecode(token);
+                const userId = Number(decodedToken.userId);
+                this.userService.getUserById(userId).subscribe({
+                    next: (user) => {
+                        if (user) {
+                            const nomComplet = `${user.firstName || 'N/A'} ${user.lastName || 'N/A'}`.trim();
+                            this.reclamationForm.patchValue({
+                                nomComplet: nomComplet,
+                                email: user.email || decodedToken.email,
+                                date: this.datePipe.transform(new Date(), 'yyyy-MM-dd')
+                            });
+                        } else {
+                            this.errorMessage = 'Impossible de charger les informations utilisateur.';
+                            this.clearMessagesAfterTimeout();
+                        }
+                    },
+                    error: (error) => {
+                        console.error('Error fetching user details:', error);
+                        this.errorMessage = 'Erreur lors du chargement des informations utilisateur.';
+                        this.clearMessagesAfterTimeout();
+                    }
+                });
             } catch (error) {
-                console.error('Error decoding token:', error);
-                this.errorMessage = "Impossible de charger les informations de l'utilisateur.";
+                console.error('Error decoding JWT token:', error);
+                this.errorMessage = 'Erreur lors de l\'authentification.';
+                this.clearMessagesAfterTimeout();
             }
         } else {
-            console.error('Token non trouvé dans localStorage');
+            this.errorMessage = 'Vous devez être connecté pour soumettre une réclamation.';
+            this.clearMessagesAfterTimeout();
         }
-    }
-
-    formatDate(date: Date): string {
-        // Keep this formatting function
-        return this.datePipe.transform(date, 'yyyy-MM-ddTHH:mm:ss.SSSZ') || '';
-    }
-
-    get accessToken(): string | null {
-        return localStorage.getItem('accessToken');
     }
 
     onFilesChange(event: Event): void {
@@ -98,7 +97,7 @@ export class GestionReclamationComponent implements OnInit {
             for (let i = 0; i < input.files.length; i++) {
                 const file = input.files[i];
                 const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-                const maxSize = 5 * 1024 * 1024;
+                const maxSize = 5 * 1024 * 1024; // 5MB
 
                 if (allowedTypes.includes(file.type)) {
                     if (file.size <= maxSize) {
@@ -118,60 +117,119 @@ export class GestionReclamationComponent implements OnInit {
     }
 
     onSubmit(): void {
-        if (this.reclamationForm.invalid) {
+        this.validationErrors = [];
+        this.errorMessage = null;
+        this.successMessage = null;
+
+        if (!this.reclamationForm.get('categorie')?.value) {
+            this.validationErrors.push('Catégorie requise');
+        }
+        if (!this.reclamationForm.get('description')?.value) {
+            this.validationErrors.push('Description requise');
+        }
+
+        if (this.reclamationForm.invalid || this.validationErrors.length > 0) {
+            this.reclamationForm.markAllAsTouched();
+            this.cdr.detectChanges();
             return;
         }
 
-        if (!this.accessToken) {
+        const token = this.accessToken;
+        if (!token) {
             this.errorMessage = 'Vous devez être connecté pour soumettre une réclamation.';
+            this.clearMessagesAfterTimeout();
             return;
         }
 
         this.isSubmitting = true;
-        this.errorMessage = null;
-        this.successMessage = null;
 
         const reclamationData = {
             sujet: this.reclamationForm.get('sujet')?.value,
             description: this.reclamationForm.get('description')?.value,
-            categorie: this.reclamationForm.get('categorie')?.value,
-            nom: this.reclamationForm.get('nom')?.value,
-            email: this.reclamationForm.get('email')?.value
-            // No need to send date, the server will set it
+            categorie: this.reclamationForm.get('categorie')?.value
         };
 
-        console.log('Sending reclamation data:', reclamationData);
+        const formData = new FormData();
+        formData.append('reclamation', new Blob([JSON.stringify(reclamationData)], { type: 'application/json' }));
+        if (this.selectedFiles.length > 0) {
+            formData.append('file', this.selectedFiles[0]);
+        }
 
         this.http
-            .post<any>('http://localhost:8085/api/reclamations/add', reclamationData, {
+            .post<any>('http://localhost:8085/api/reclamations/add', formData, {
                 headers: new HttpHeaders({
-                    Authorization: `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${token}`
                 })
             })
             .subscribe({
                 next: (response) => {
                     this.isSubmitting = false;
-                    this.successMessage = 'Votre réclamation a été soumise avec succès!';
+                    this.successMessage = 'Votre réclamation a été soumise avec succès !';
+                    console.log('Success message set:', this.successMessage, 'Timestamp:', Date.now());
+                    this.cdr.detectChanges();
+                    console.log('After detectChanges, checking DOM for success-message');
+                    const messageElement = document.getElementById('success-message');
+                    console.log('Success message element:', messageElement);
+                    this.scrollToMessage('success-message');
                     this.resetForm();
+                    this.clearMessagesAfterTimeout();
                 },
                 error: (error) => {
                     this.isSubmitting = false;
-                    this.errorMessage = 'Une erreur est survenue lors de la soumission de votre réclamation. Veuillez réessayer.';
+                    this.errorMessage = 'Échec de la soumission de la réclamation. Veuillez réessayer.';
                     console.error('Erreur lors de la création de la réclamation:', error);
-                    console.error('Status:', error.status);
-                    console.error('Message:', error.message);
-                    if (error.error) {
-                        console.error('Error details:', error.error);
-                    }
+                    this.cdr.detectChanges();
+                    this.scrollToMessage('error-message');
+                    this.clearMessagesAfterTimeout();
                 }
             });
     }
+
     resetForm(): void {
         this.reclamationForm.reset();
+        this.reclamationForm.patchValue({
+            nomComplet: this.reclamationForm.get('nomComplet')?.value,
+            email: this.reclamationForm.get('email')?.value,
+            date: this.datePipe.transform(new Date(), 'yyyy-MM-dd')
+        });
         this.selectedFiles = [];
         this.fileError = null;
-        //reload the form
-        this.reclamationForm.controls['date'].setValue(this.formatDate(new Date()));
+        this.successMessage = null;
+        this.errorMessage = null;
+        this.validationErrors = [];
+        this.cdr.detectChanges();
+    }
+
+    clearMessagesAfterTimeout(): void {
+        setTimeout(() => {
+            this.successMessage = null;
+            this.errorMessage = null;
+            this.validationErrors = [];
+            this.cdr.detectChanges();
+        }, 7000);
+    }
+
+    scrollToMessage(messageId: string): void {
+        const attemptScroll = (attempts: number, maxAttempts: number) => {
+            setTimeout(() => {
+                const messageElement = document.getElementById(messageId);
+                console.log(`Attempt ${attempts}: Scrolling to: ${messageId}, Element:`, messageElement, 'Timestamp:', Date.now());
+                if (messageElement) {
+                    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else if (attempts < maxAttempts) {
+                    console.warn(`Element not found: ${messageId}, retrying...`);
+                    this.cdr.detectChanges(); // Force change detection on retry
+                    attemptScroll(attempts + 1, maxAttempts);
+                } else {
+                    console.error(`Failed to find element: ${messageId} after ${maxAttempts} attempts`);
+                }
+            }, 1000); // Increased to 1000ms
+        };
+
+        attemptScroll(1, 3);
+    }
+
+    get accessToken(): string | null {
+        return localStorage.getItem('accessToken');
     }
 }

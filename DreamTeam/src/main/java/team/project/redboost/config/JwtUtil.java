@@ -32,6 +32,7 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 days
     private static final long REFRESH_TOKEN_EXPIRATION = 30L * 24 * 60 * 60 * 1000; // 30 days
 
+
     // Add method to get the secret key
     public String getSecretKey() {
         return secretKey;
@@ -161,6 +162,8 @@ public class JwtUtil {
             return false; // Token is invalid
         }
     }
+
+
     // Get the role from the token
     public Role getRoleFromToken(String token) {
         Key key = Keys.hmacShaKeyFor(getSecretKey().getBytes());

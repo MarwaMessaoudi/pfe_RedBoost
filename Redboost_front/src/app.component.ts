@@ -18,7 +18,7 @@ import { filter } from 'rxjs/operators';
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppComponent implements OnInit {
-    private publicRoutes = ['/signin', '/signup', '/forgot-password', '/reset-password', '/confirm-email', '/coach-request','binome-coach-request', '/'];
+    private publicRoutes = ['/signin', '/signup', '/forgot-password', '/reset-password', '/confirm-email', '/coach-request','/binome-coach-request', '/'];
 
     constructor(
         private authService: AuthService,

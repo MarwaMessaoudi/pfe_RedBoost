@@ -9,7 +9,6 @@ import { KanbanBoardComponent } from './app/pages/frontoffice/gestion_accompagne
 import { SigninComponent } from './app/pages/frontoffice/gestion_user/auth/signin/signin.component';
 import { SignUpComponent } from './app/pages/frontoffice/gestion_user/auth/signup/signup.component';
 import { ConfirmEmailComponent } from './app/pages/frontoffice/gestion_user/auth/confirm-email/confirm-email.component';
-import { MarketplaceComponent } from './app/pages/frontoffice/marketplace/marketplace';
 import { AppointmentsReceivedComponent } from './app/pages/frontoffice/gestion_rendez-vous/AppointmentsReceived/appointments-received.component';
 import { AddProjetComponent } from './app/pages/frontoffice/gestion_startup/addprojet/addprojet.component';
 import { AfficheProjetComponent } from './app/pages/frontoffice/gestion_startup/affiche-projet/affiche-projet.component';
@@ -21,7 +20,6 @@ import { MarketLandingComponent } from './app/pages/frontoffice/landing/componen
 import { CoachRequestComponent } from './app/pages/backoffice/become_coach/coachrequest';
 import { AllCoachRequestsComponent } from './app/pages/backoffice/become_coach/all-coach-requests.component';
 import { AllReclamationsComponent } from './app/pages/frontoffice/gestion_reclamation/all-reclamations/all-reclamations.component';
-import { InvestorDashboardComponent } from './app/pages/dashboard/inverstdashboard/investor-dashboard';
 import { RoleGuard } from './role.guard';
 import { DashboardRedirectComponent } from './app/pages/dashboard/dashboard-redirect/dashboard-redirect.component';
 import { UnderConstructionComponent } from './app/pages/under-construction.component';
@@ -34,23 +32,19 @@ import { MeetingDetailsPopupComponent } from './app/pages/frontoffice/gestion_re
 import { MeetingListComponent } from './app/pages/frontoffice/gestion_rendez-vous/meetinglist/meeting-list.component';
 import { UserListComponent } from './app/pages/backoffice/allUsers/user-list.component';
 import { BinomeCoachRequestComponent } from './app/pages/backoffice/become_coach/binome_coach_request';
-import { StaffTypeListComponent } from './app/pages/backoffice/database_management/staff-type-list/staff-type-list.component';
-import { StaffTypeDetailComponent } from './app/pages/backoffice/database_management/staff-type-detail/staff-type-detail.component';
-import { StaffFilterComponent } from './app/pages/backoffice/database_management/staff-filter/staff-filter.component';
+
 import { ResourcesLandingComponent } from './app/pages/frontoffice/resourses-landing/ResourcesLandingComponent';
 import { ResourcesComponent } from './app/pages/frontoffice/landing/components/resources.component';
-import { KanbanActivityComponent } from './app/pages/backoffice/gestion_programmes/kanban-activity/kanban-activity.component';
-import { ProgramMonitoringComponent } from './app/pages/backoffice/gestion_programmes/program-monitoring/program-monitoring.component';
-import { ProgramDetailComponent } from './app/pages/backoffice/gestion_programmes/program-details/program-details.component';
+
 import { ShowProduitsComponent } from './app/pages/frontoffice/gestion_startup/Produit/show-produits/show-produits.component';
 import { ShowServicePComponent } from './app/pages/frontoffice/gestion_startup/ServiceP/show-service-p/show-service-p.component';
 import { EvaluationFormComponent } from './app/pages/frontoffice/evaluation-form/evaluation-form.component';
-import { DashboardComponent } from './app/pages/dashboard/dashboard/dashboard.component';
+//import { DashboardComponent } from './app/pages/dashboard/dashboard/dashboard.component';
 import { AboutComponent } from './app/pages/apropos/about';
 import { ServicesComponent } from './app/pages/servicePage/services.component';
 import { FeedbackPageComponent } from './app/pages/frontoffice/FeedbackPageComponent/feedback-popup.component';
 import { AssignCoachComponent } from './app/pages/backoffice/assign-coach/assign-coach.component';
-
+import  {CoachDashboardComponent} from './app/pages/dashboard/dashboard/coach-dashboard.component';
 
 
 export const pagesRoutes: Routes = [
@@ -64,7 +58,6 @@ export const pagesRoutes: Routes = [
     { path: 'details-projet/:id/ShowProd', component: ShowProduitsComponent },
     { path: 'details-projet/:id/ShowService', component: ShowServicePComponent },
     { path: 'gestion-reclamation', component: GestionReclamationComponent },
-    { path: 'marketplace', component: MarketplaceComponent },
 {
     path: 'appointments',
     component: AppointmentListComponent,
@@ -86,23 +79,12 @@ export const pagesRoutes: Routes = [
     { path: 'meeting-list', component: MeetingListComponent },
     { path: 'meeting-details-popup', component: MeetingDetailsPopupComponent },
     { path: 'all-users', component: UserListComponent },
-    { path: 'staff-types', component: StaffTypeListComponent },
-    { path: 'staff-types/:id', component: StaffTypeDetailComponent },
-    { path: 'staff-filter', component: StaffFilterComponent },
+ 
     { path: 'evaluation', component: EvaluationFormComponent },
-    { path: 'Dash', component: DashboardComponent },
+    //{ path: 'Dash', component: DashboardComponent },
     { path: 'all-resourses', component: ResourcesLandingComponent },
 
-    {
-        path: 'Activities',
-        children: [{ path: ':activityId', component: KanbanActivityComponent }]
-    },
-    { path: 'ProgramMonitoring', component: ProgramMonitoringComponent },
-    { path: 'programs/:id', component: ProgramDetailComponent },
-
-    { path: 'customers', loadChildren: () => import('./app/pages/backoffice/customers/customers.routes') },
-    { path: 'services', loadChildren: () => import('./app/pages/backoffice/services/services.routes') },
-    { path: 'inv', loadChildren: () => import('./app/pages/backoffice/invoices/invoice-quotations.routes') }
+   
 ];
 
 export const appRoutes: Routes = [
@@ -133,6 +115,12 @@ export const appRoutes: Routes = [
                 data: { expectedRole: 'ENTREPRENEUR' },
                 component: UnderConstructionComponent
             },
+              {
+                path: 'coach-dashboard',
+                canActivate: [RoleGuard],
+                data: { expectedRole: 'COACH' },
+                component: CoachDashboardComponent
+            },
             {
                 path: 'investor-dashboard',
                 canActivate: [RoleGuard],
@@ -152,7 +140,6 @@ export const appRoutes: Routes = [
             },
             { path: 'investor/v1', loadChildren: () => import('./app/pages/frontoffice/startup/investorStartups/investor.routes') },
             { path: 'startup/v1', loadChildren: () => import('./app/pages/frontoffice/startup/StartupsRequest/startup.routes') },
-            { path: 'startup/:id', loadChildren: () => import('./app/pages/frontoffice/marketplace/StartupDetails/startup.routes') },
             { path: 'startup-details/:id', loadChildren: () => import('./app/pages/frontoffice/startup/DetailsInvestment/details.routes') },
             ...pagesRoutes
         ]

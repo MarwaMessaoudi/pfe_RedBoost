@@ -30,6 +30,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
     @Query("SELECT c FROM Conversation c WHERE :user MEMBER OF c.participants " +
             "ORDER BY (SELECT MAX(m.dateEnvoi) FROM c.messages m) DESC")
+
     List<Conversation> findAllUserConversations(@Param("user") User user);
 
     @Query("SELECT c FROM Conversation c WHERE " +

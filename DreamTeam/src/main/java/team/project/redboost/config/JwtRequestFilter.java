@@ -35,8 +35,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
 
-
-
         // Récupération de l'en-tête Authorization depuis la requête
         final String authorizationHeader = request.getHeader("Authorization");
         String email = null;
@@ -99,6 +97,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // Passage au filtre suivant dans la chaîne
         chain.doFilter(request, response);
     }
+
 
     // Extract JWT from Cookies
     private String getJwtFromCookies(HttpServletRequest request) {

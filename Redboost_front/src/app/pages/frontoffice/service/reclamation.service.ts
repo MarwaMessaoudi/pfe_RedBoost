@@ -4,26 +4,7 @@ import { Observable, throwError, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { StatutReclamation } from '../../../models/statut-reclamation.model';
 import { CategorieReclamation } from '../../../models/categorie-reclamation.model';
-
-import { jwtDecode } from 'jwt-decode'; // Correct import
-
-export interface ReponseReclamation {
-    id: number;
-    contenu: string;
-    dateCreation: Date;
-    userId?: number;
-    reclamation?: Reclamation;
-    fichiers?: Fichier[];
-    roleEnvoyeur?: 'USER' | 'ADMIN' | 'INVESTOR' | 'ENTREPRENEUR' | 'COACH'; // Optional because the frontend doesn't necessarily need to know it until the data arrives
-}
-
-export interface Message {
-    id: number;
-    contenu: string;
-    date: Date;
-    expediteur: 'utilisateur' | 'admin';
-    fichiers?: any[];
-}
+import { jwtDecode } from 'jwt-decode';
 
 export interface Fichier {
     id?: number;
@@ -32,19 +13,30 @@ export interface Fichier {
     url?: string;
 }
 
-export interface Reclamation {
-    categorie: CategorieReclamation;
-    idReclamation: number;
-    sujet: string;
-    description: string;
-    date: Date;
-    statut: StatutReclamation;
-    reponses?: ReponseReclamation[];
-    fichiers?: Fichier[];
+export interface ReponseReclamation {
+    id: number;
+    contenu: string;
+    dateCreation: Date;
+    userId?: number;
+    reclamation?: Reclamation;
+    roleEnvoyeur?: 'USER' | 'ADMIN' | 'INVESTOR' | 'ENTREPRENEUR' | 'COACH';
 }
 
-// Define Role
-export type Role = 'USER' | 'ADMIN' | 'INVESTOR' | 'ENTREPRENEUR' | 'COACH'; // Update for your actual role types
+export interface Reclamation {
+    idReclamation: number;
+    sujet: string;
+    date: Date;
+    statut: StatutReclamation;
+    description: string;
+    categorie: CategorieReclamation;
+    fichierReclamation?: string; // Add this to match backend
+    fichiers?: Fichier[]; // Keep for compatibility, but may not be needed
+    userId?: number;
+    email?: string;
+    reponses?: ReponseReclamation[];
+}
+
+export type Role = 'USER' | 'ADMIN' | 'INVESTOR' | 'ENTREPRENEUR' | 'COACH';
 
 @Injectable({
     providedIn: 'root'
@@ -69,6 +61,22 @@ export class ReclamationService {
         return headers;
     }
 
+    createReclamation(reclamation: any, file?: File): Observable<Reclamation> {
+        const formData = new FormData();
+        formData.append('reclamation', new Blob([JSON.stringify(reclamation)], { type: 'application/json' }));
+        if (file) {
+            formData.append('file', file);
+        }
+
+        return this.http
+            .post<Reclamation>(`${this.apiUrl}/add`, formData, {
+                headers: this.getHeaders()
+            })
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
     getAllReclamations(): Observable<Reclamation[]> {
         return this.http.get<Reclamation[]>(`${this.apiUrl}/all`, {
             headers: this.getHeaders()
@@ -76,24 +84,20 @@ export class ReclamationService {
     }
 
     getReclamationsUtilisateur(): Observable<Reclamation[]> {
-        const token = this.getAccessToken(); // Get the access token
-
+        const token = this.getAccessToken();
         if (!token) {
             console.warn('No token found. Cannot retrieve reclamations.');
-            return of([]); // Handle error
+            return of([]);
         }
         try {
-            const decodedToken: any = jwtDecode(token); // Change from JwtPayload because we do not know what the function is
-
-            const userId = decodedToken.userId; //Access the data from data decodedToken (use any)
-
+            const decodedToken: any = jwtDecode(token);
+            const userId = decodedToken.userId;
             if (!userId) {
                 console.warn('No user ID found in token. Cannot retrieve reclamations.');
-                return of([]); // Handle error
+                return of([]);
             }
 
             let params = new HttpParams().set('userId', userId.toString());
-
             return this.http
                 .get<Reclamation[]>(`${this.apiUrl}/user`, {
                     headers: this.getHeaders(),
@@ -112,17 +116,14 @@ export class ReclamationService {
     }
 
     getReponses(idReclamation: number): Observable<ReponseReclamation[]> {
-        return this.http.get<ReponseReclamation[]>(`${this.apiUrl}/${idReclamation}/responses`, { headers: this.getHeaders() });
+        return this.http.get<ReponseReclamation[]>(`${this.apiUrl}/${idReclamation}/responses`, {
+            headers: this.getHeaders()
+        });
     }
 
     createReponse(idReclamation: number, contenu: string, roleEnvoyeur: Role): Observable<ReponseReclamation> {
         const url = `${this.apiUrl}/${idReclamation}/responses`;
         const body = { contenu };
-
-        console.log('URL de la requête:', url);
-        console.log('Corps de la requête:', body);
-        console.log('Headers:', this.getHeaders().keys());
-
         return this.http
             .post<ReponseReclamation>(url, body, {
                 headers: this.getHeaders().set('Content-Type', 'application/json')
@@ -135,26 +136,26 @@ export class ReclamationService {
 
     updateReclamationStatut(idReclamation: number, statut: StatutReclamation): Observable<any> {
         const url = `${this.apiUrl}/${idReclamation}/statut`;
-
-        return this.http.patch<any>(url, { statut }, { headers: this.getHeaders() }).pipe(
+        return this.http.patch<any>(url, { statut }, {
+            headers: this.getHeaders()
+        }).pipe(
             tap((response) => console.log('Réponse du serveur:', response)),
             catchError(this.handleError)
         );
     }
-    getCurrentRole(): Role | null {
-        //Or whatever data type your role is
-        const token = this.getAccessToken(); // Use getAccessToken since you already have this
 
+    getCurrentRole(): Role | null {
+        const token = this.getAccessToken();
         if (!token) {
-            console.warn('No token found. Cannot retrieve reclamations.');
-            return null; // Handle error
+            console.warn('No token found. Cannot retrieve role.');
+            return null;
         }
         try {
-            const decodedToken: any = jwtDecode(token); // Change from JwtPayload because we do not know what the function is
-            const role = decodedToken.role; // Assuming it's userId in the claim
+            const decodedToken: any = jwtDecode(token);
+            const role = decodedToken.role;
             if (!role) {
-                console.warn('No user role found in token.');
-                return null; // Handle error
+                console.warn('No role found in token.');
+                return null;
             }
             return role as Role;
         } catch (error) {
@@ -165,7 +166,6 @@ export class ReclamationService {
 
     private handleError(error: HttpErrorResponse): Observable<never> {
         let errorMessage = '';
-
         if (error.error instanceof ErrorEvent) {
             errorMessage = `Erreur: ${error.error.message}`;
         } else {
@@ -174,7 +174,6 @@ export class ReclamationService {
                 console.error("Corps de la réponse d'erreur:", error.error);
             }
         }
-
         console.error(errorMessage);
         return throwError(() => new Error(errorMessage));
     }

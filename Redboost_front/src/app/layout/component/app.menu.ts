@@ -91,9 +91,6 @@ export class AppMenu implements OnInit {
             case 'INVESTOR':
                 roleMenu = this.getInvestorMenu();
                 break;
-            case 'SUPERADMIN':
-                roleMenu = this.getSuperAdminMenu();
-                break;
             case 'ADMIN':
                 roleMenu = this.getAdminMenu();
                 break;
@@ -109,52 +106,7 @@ export class AppMenu implements OnInit {
         this.model = [...roleMenu];
     }
 
-    private getSuperAdminMenu(): MenuItem[] {
-        return [
-            {
-                label: 'Accueil',
-                items: [
-                    { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/dashboard'] } // Icône de graphique pour le tableau de bord
-                ]
-            },
-            {
-                label: 'Demandes de coachs',
-                items: [
-                    { label: 'Demandes de coachs', icon: 'pi pi-fw pi-users', routerLink: ['/all-coach-requests'] } // Icône d'utilisateurs pour les demandes
-                ]
-            },
-            {
-                label: 'Utilisateurs',
-                items: [
-                    { label: 'Tous les utilisateurs', icon: 'pi pi-fw pi-user', routerLink: ['/all-users'] } // Icône d'utilisateur pour les utilisateurs
-                ]
-            },
-            {
-                label: 'Gérer les types',
-                items: [
-                    { label: 'Gérer les types', icon: 'pi pi-fw pi-tags', routerLink: ['/staff-types'] } // Icône d'étiquettes pour les types
-                ]
-            },
-            {
-                label: 'Filtrer les données du personnel',
-                items: [
-                    { label: 'Filtrer les données du personnel', icon: 'pi pi-fw pi-filter', routerLink: ['/staff-filter'] } // Icône de filtre conservée
-                ]
-            },
-            {
-                label: 'Gestion de programmes',
-                items: [
-                    { label: 'Gestion de programmes', icon: 'pi pi-fw pi-folder', routerLink: ['/ProgramMonitoring'] } // Icône de dossier pour les programmes
-                ]
-            },
-            {
-                label: 'Assigner coach',
-                items: [
-                    { label: 'Assignation', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assign-coach'] } // Icône de graphique pour le tableau de bord
-                ]
-            }
-        ];
-    }
+   
 
     private getAdminMenu(): MenuItem[] {
         return [
@@ -164,18 +116,14 @@ export class AppMenu implements OnInit {
                     { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/dashboard'] } // Icône de graphique pour le tableau de bord
                 ]
             },
-            {
-                label: 'Gestion de programmes',
-                items: [
-                    { label: 'Gestion de programmes', icon: 'pi pi-fw pi-folder', routerLink: ['/ProgramMonitoring'] } // Icône de dossier pour les programmes
-                ]
-            },
+        
             {
                 label: 'Réclamations',
                 items: [
                     { label: 'Toutes les réclamations', icon: 'pi pi-fw pi-file-excel', routerLink: ['/all-reclamations'] } // Icône de fichier Excel pour les réclamations
                 ]
-            }, {
+            }, 
+            {
                 label: 'Utilisateurs',
                 items: [
                     { label: 'Tous les utilisateurs', icon: 'pi pi-fw pi-user', routerLink: ['/all-users'] } // Icône d'utilisateur pour les utilisateurs
@@ -200,30 +148,7 @@ export class AppMenu implements OnInit {
             //         { label: 'Documents', icon: 'pi pi-fw pi-file', routerLink: ['/documents'] } // Icône de fichier pour les documents
             //     ]
             // },
-            {
-                label: 'Ressources',
-                items: [
-                    { label: 'Toutes les ressources', icon: 'pi pi-fw pi-box', routerLink: ['/all-resourses'] } // Icône de boîte pour les ressources
-                ]
-            },
-            {
-                label: 'Clients',
-                items: [
-                    { label: 'Ajouter un client', icon: 'pi pi-fw pi-user-plus', routerLink: ['/customers'] } // Icône d'ajout d'utilisateur pour les clients
-                ]
-            },
-            {
-                label: 'Services',
-                items: [
-                    { label: 'Ajouter un service', icon: 'pi pi-fw pi-cog', routerLink: ['/services'] } // Icône d'engrenage pour les services
-                ]
-            },
-            {
-                label: 'Factures / Devis',
-                items: [
-                    { label: 'Générer une facture / devis', icon: 'pi pi-fw pi-money-bill', routerLink: ['/inv'] } // Icône de billet pour les factures
-                ]
-            }
+           
         ];
     }
 
@@ -278,7 +203,7 @@ export class AppMenu implements OnInit {
             {
                 label: 'Accueil',
                 items: [
-                    { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Dash'] } // Icône de graphique pour le tableau de bord
+                    { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/coach-dashboard'] } // Icône de graphique pour le tableau de bord
                 ]
             },
             {
@@ -320,24 +245,13 @@ export class AppMenu implements OnInit {
                     { label: 'Tableau de bord', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/dashboard'] } // Icône de graphique pour le tableau de bord
                 ]
             },
-            {
+/*             {
                 label: 'Marketplace',
                 items: [
                     { label: 'Marketplace', icon: 'pi pi-fw pi-shopping-cart', routerLink: ['/marketplace'] } // Icône de panier pour le marketplace
                 ]
-            },
-            {
-                label: 'Startups',
-                items: [
-                    { label: 'Mes startups', icon: 'pi pi-fw pi-briefcase', routerLink: ['/investor/v1'] } // Icône de mallette pour les startups
-                ]
-            },
-            // {
-            //     label: 'Documents',
-            //     items: [
-            //         { label: 'Documents', icon: 'pi pi-fw pi-file', routerLink: ['/documents'] } // Icône de fichier pour les documents
-            //     ]
-            // },
+            }, */
+          
             {
                 label: 'Mes réclamations',
                 items: [

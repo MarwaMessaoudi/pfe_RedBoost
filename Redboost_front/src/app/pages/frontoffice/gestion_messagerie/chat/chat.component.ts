@@ -97,7 +97,7 @@ interface RoleSpecificUser {
     phoneNumber: string;
     role: string;
     isActive: boolean;
-    profile_pictureurl?: string;
+    profilePictureUrl?: string;
     specialization?: string;
     yearsOfExperience?: number;
     StartupName?: string;
@@ -194,31 +194,37 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     addMember(): void {
-        if (!this.currentUserId || !this.currentChat.conversationId) {
-            console.error("Impossible d'ajouter un membre: ID utilisateur ou ID de conversation manquant");
-            return;
-        }
-    
-        this.isLoading = true;
-        this.http.get<RoleSpecificUser[]>(`http://localhost:8085/api/conversations/${this.currentChat.conversationId}/non-members`).subscribe({
-            next: (nonMembers) => {
-                this.availableUsers = nonMembers.filter(user => 
+    if (!this.currentUserId || !this.currentChat.conversationId) {
+        console.error("Impossible d'ajouter un membre: ID utilisateur ou ID de conversation manquant");
+        return;
+    }
+
+    this.isLoading = true;
+    this.http.get<RoleSpecificUser[]>(`http://localhost:8085/api/conversations/${this.currentChat.conversationId}/non-members`).subscribe({
+        next: (nonMembers) => {
+            // Map non-members to ensure profile_pictureurl has a fallback
+            this.availableUsers = nonMembers
+                .filter(user => 
                     user.role && ['ENTREPRENEUR', 'COACH', 'INVESTOR'].some(role => 
                         role.toLowerCase() === user.role.toLowerCase()
                     )
-                );
-                this.showAddMemberModal = true;
-                this.isLoading = false;
-                this.cdr.detectChanges();
-            },
-            error: (error) => {
-                console.error('Erreur lors de la récupération des non-membres:', error);
-                alert('Échec de la récupération des utilisateurs disponibles.');
-                this.isLoading = false;
-                this.cdr.detectChanges();
-            }
-        });
-    }
+                )
+                .map(user => ({
+                    ...user,
+                    profile_pictureurl: user.profilePictureUrl || 'assets/avatars/user.jpg'
+                }));
+            this.showAddMemberModal = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+        },
+        error: (error) => {
+            console.error('Erreur lors de la récupération des non-membres:', error);
+            alert('Échec de la récupération des utilisateurs disponibles.');
+            this.isLoading = false;
+            this.cdr.detectChanges();
+        }
+    });
+}
 
     viewMembers(): void {
         if (!this.currentUserId || !this.currentChat.conversationId) {

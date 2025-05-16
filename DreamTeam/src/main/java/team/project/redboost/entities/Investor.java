@@ -24,9 +24,6 @@ public class Investor extends User {
     private String legalForm; // Forme juridique (Legal form, e.g., SARL, SA)
     private Double shareCapital; // Capital social (Share capital)
 
-    @OneToMany(mappedBy = "investor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("investor")
-    private List<InvestmentRequest> investmentRequests;
 
     public Investor() {}
 

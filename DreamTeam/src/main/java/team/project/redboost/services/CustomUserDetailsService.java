@@ -25,13 +25,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getEmail(), user.getPassword(), user.getAuthorities());
     }
 
-    public UserDetails loadUserByProviderId(String providerId) throws UsernameNotFoundException {
-        // This method is for OAuth2 users
-        User user = userRepository.findByProviderId(providerId);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with provider ID: " + providerId);
-        }
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(), user.getAuthorities());
-    }
+//    public UserDetails loadUserByProviderId(String providerId) throws UsernameNotFoundException {
+//        // This method is for OAuth2 users
+//        User user = userRepository.findByProviderId(providerId);
+//        if (user == null) {
+//            throw new UsernameNotFoundException("User not found with provider ID: " + providerId);
+//        }
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getEmail(), user.getPassword(), user.getAuthorities());
+//    }
 }

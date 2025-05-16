@@ -31,8 +31,5 @@ public class ReponseReclamation {
     @Column(columnDefinition = "TEXT")
     private String contenu;
 
-    @Enumerated(EnumType.STRING) // Stocker le rôle de l'envoyeur
-    private Role roleEnvoyeur;
-
     private LocalDateTime dateCreation = LocalDateTime.now();
 }

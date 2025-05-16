@@ -68,7 +68,6 @@ export class AuthService {
             const result = await signInWithPopup(this.auth, provider);
             const idToken = await result.user?.getIdToken();
 
-            console.log('Firebase ID Token:', idToken);
 
             const loginPayload = { idToken, role: selectedRole };
 
@@ -175,7 +174,8 @@ export class AuthService {
             return of(null);
         }
     }
-
+         //a commenter 
+         // 
     private startTokenRefresh() {
         this.stopTokenRefresh(); // Prevent duplicate timers
 
@@ -209,6 +209,7 @@ export class AuthService {
             )
             .subscribe();
     }
+
 
     private stopTokenRefresh() {
         if (this.refreshSubscription) {

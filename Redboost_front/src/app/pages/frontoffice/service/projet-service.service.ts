@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse } from '@angul
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { Projet, Objectives, Statut } from '../../../models/Projet';
-import { DashboardStatistics } from '../../../models/statistics';
 
 interface Coach {
     id: number;
@@ -391,9 +390,7 @@ export class ProjetService {
         );
     }
 
-    getCoachDashboardStatistics(userId: number): Observable<DashboardStatistics> {
-        return this.http.get<DashboardStatistics>(`${this.apiUrl}/coach/${userId}/statistics`);
-    }
+   
 
     addCoachToProjet(projetId: number, userId: number): Observable<Projet> {
         const url = `${this.apiUrl}/${projetId}/coach/${userId}`;

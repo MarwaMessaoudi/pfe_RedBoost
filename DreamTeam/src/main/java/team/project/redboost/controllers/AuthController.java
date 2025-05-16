@@ -98,6 +98,7 @@ public class AuthController {
 
             // Check if user exists
             User user = userService.findByEmail(email);
+
             if (user == null) {
                 // Create the user (Coach, Entrepreneur, or User) based on the role
                 if (role.equals(Role.COACH.name())) {
@@ -122,7 +123,7 @@ public class AuthController {
                 user.setLastName("Unknown");  // Default value
                 user.setPassword("unknown");
                 user.setPhoneNumber("Unknown");
-
+                user.setActive(true);
                 // Save the new user
                 User savedUser = userService.addUser(user);
 
@@ -165,6 +166,10 @@ public class AuthController {
             throw new RuntimeException(e);
         }
     }
+
+
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpServletResponse response) {

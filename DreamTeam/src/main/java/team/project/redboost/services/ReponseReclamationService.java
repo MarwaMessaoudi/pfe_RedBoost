@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import team.project.redboost.entities.Reclamation;
 import team.project.redboost.entities.ReponseReclamation;
 import team.project.redboost.entities.User;
-import team.project.redboost.entities.Role;
 import team.project.redboost.repositories.ReclamationRepository;
 import team.project.redboost.repositories.ReponseReclamationRepository;
 import team.project.redboost.repositories.UserRepository;
@@ -29,8 +28,8 @@ public class ReponseReclamationService {
         return reponses;
     }
 
-    // Créer une réponse (gérée en fonction du rôle de l'utilisateur)
-    public ReponseReclamation createReponse(Long idReclamation, String contenu, User user, Role roleEnvoyeur) {
+    // Créer une réponse
+    public ReponseReclamation createReponse(Long idReclamation, String contenu, User user) {
         // Valider le contenu de la réponse
         if (contenu == null || contenu.trim().isEmpty()) {
             throw new IllegalArgumentException("Le contenu de la réponse ne peut pas être vide.");
@@ -46,7 +45,6 @@ public class ReponseReclamationService {
         ReponseReclamation reponse = new ReponseReclamation();
         reponse.setContenu(contenu); // Définir le contenu de la réponse
         reponse.setUser(user); // Définir l'utilisateur
-        reponse.setRoleEnvoyeur(roleEnvoyeur); // Définir le rôle de l'envoyeur
         reponse.setDateCreation(LocalDateTime.now()); // Définir la date de création
 
         // Associer la réponse à la réclamation
@@ -73,7 +71,7 @@ public class ReponseReclamationService {
         // Mettre à jour la réponse
         ReponseReclamation existing = existingOpt.get();
         existing.setContenu(updatedReponse.getContenu()); // Mettre à jour le contenu
-        // Ne pas modifier le rôle de l'envoyeur, la réclamation ou l'utilisateur lors de la mise à jour
+        // Ne pas modifier la réclamation ou l'utilisateur lors de la mise à jour
 
         // Enregistrer la réponse mise à jour
         return reponseRepository.save(existing);
@@ -87,6 +85,4 @@ public class ReponseReclamationService {
         }
         throw new IllegalArgumentException("Réponse non trouvée avec l'ID : " + idReponse);
     }
-
-
 }

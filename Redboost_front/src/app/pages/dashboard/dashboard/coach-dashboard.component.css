@@ -1,0 +1,23 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+table {
+    @apply border-collapse;
+}
+
+th, td {
+    @apply border border-gray-200;
+}
+
+th {
+    @apply bg-gray-100 font-semibold text-gray-700;
+}
+
+tr:hover {
+    @apply bg-gray-50;
+}
+
+button {
+    @apply focus:outline-none;
+}

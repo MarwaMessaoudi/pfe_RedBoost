@@ -108,7 +108,6 @@ export class SigninComponent {
             return;
         }
 
-        console.log('Firebase initialized with config:', environment.firebaseConfig);
 
         (await this.authService.googleLogin(this.selectedRole)).subscribe({
             next: (response: any) => {

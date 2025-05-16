@@ -228,6 +228,7 @@ public class ConversationController {
                         details.setFirstName(user.getFirstName());
                         details.setLastName(user.getLastName());
                         details.setRole(user.getRole() != null ? user.getRole().toString() : "Utilisateur");
+                        details.setProfilePictureUrl(user.getProfilePictureUrl()); // Add profile picture
                         return details;
                     })
                     .collect(Collectors.toList());

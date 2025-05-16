@@ -122,33 +122,33 @@
     </div>
 
     <!-- Modal for Adding Members -->
-    <div class="user-modal" *ngIf="showAddMemberModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Ajouter un membre au groupe</h3>
-                <button class="close-btn" (click)="closeAddMemberModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="user-list">
-                    <div class="user-item" *ngFor="let user of availableUsers" (click)="selectUser(user)">
-                        <div class="user-content">
-                            <div class="avatar">
-                                <img [src]="user.profile_pictureurl || 'assets/avatars/user.jpg'" [alt]="user.firstName" />
-                            </div>
-                            <div class="user-details">
-                                <h4>{{ user.firstName }} {{ user.lastName }}</h4>
-                                <p>{{ user.role }}</p>
-                            </div>
+  <div class="user-modal" *ngIf="showAddMemberModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Ajouter un membre au groupe</h3>
+            <button class="close-btn" (click)="closeAddMemberModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="user-list">
+                <div class="user-item" *ngFor="let user of availableUsers" (click)="selectUser(user)">
+                    <div class="user-content">
+                        <div class="avatar">
+                            <img [src]="user.profilePictureUrl || 'assets/avatars/user.jpg'" [alt]="user.firstName" />
+                        </div>
+                        <div class="user-details">
+                            <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+                            <p>{{ user.role }}</p>
                         </div>
                     </div>
-                    <p *ngIf="availableUsers.length === 0">Aucun utilisateur disponible.</p>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="add-btn" (click)="confirmAddMember()" [disabled]="!selectedUser">Ajouter</button>
+                <p *ngIf="availableUsers.length === 0">Aucun utilisateur disponible.</p>
             </div>
         </div>
+        <div class="modal-footer">
+            <button class="add-btn" (click)="confirmAddMember()" [disabled]="!selectedUser">Ajouter</button>
+        </div>
     </div>
+</div>
 
     <!-- Modal for Viewing Members -->
     <div class="user-modal" *ngIf="showViewMembersModal">
@@ -162,7 +162,7 @@
                     <div class="user-item" *ngFor="let member of groupMembers">
                         <div class="user-content">
                             <div class="avatar">
-                                <img [src]="member.profile_pictureurl || 'assets/avatars/user.jpg'" [alt]="member.firstName" />
+                                <img [src]="member.profilePictureUrl || 'assets/avatars/user.jpg'" [alt]="member.firstName" />
                             </div>
                             <div class="user-details">
                                 <h4>{{ member.firstName }} {{ member.lastName }}</h4>

@@ -89,7 +89,7 @@ export class ModifierComponent {
         if (error.status === 404) {
           this.errorMessage = 'Utilisateur non trouvé. Il a peut-être été supprimé.';
         } else if (error.status === 403) {
-          this.errorMessage = 'Accès refusé. Vous devez être un SuperAdmin pour modifier un utilisateur.';
+          this.errorMessage = 'Accès refusé. Vous devez être un Admin pour modifier un utilisateur.';
         } else if (error.status === 400) {
           this.errorMessage = error.error?.message || 'Erreur de validation. Veuillez vérifier vos informations.';
         } else if (error.status === 409) {

@@ -11,7 +11,6 @@ import team.project.redboost.dto.ReponseContenuDTO;
 import team.project.redboost.entities.ReponseReclamation;
 import team.project.redboost.entities.User;
 import team.project.redboost.entities.Reclamation;
-import team.project.redboost.entities.Role; // Importer l'énumération Role
 import team.project.redboost.services.ReponseReclamationService;
 import team.project.redboost.repositories.UserRepository;
 import team.project.redboost.repositories.ReclamationRepository;
@@ -36,7 +35,7 @@ public class ReponseReclamationController {
         return ResponseEntity.ok(reponses);
     }
 
-    // Ajouter une nouvelle réponse (gérée en fonction du rôle de l'utilisateur)
+    // Ajouter une nouvelle réponse
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'INVESTOR', 'ENTREPRENEUR', 'COACH', 'ADMIN')")
     public ResponseEntity<?> createReponse(
@@ -64,13 +63,12 @@ public class ReponseReclamationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Réclamation non trouvée.");
         }
 
-        // Créer la réponse avec le rôle de l'utilisateur
+        // Créer la réponse
         try {
             ReponseReclamation savedReponse = reponseService.createReponse(
                     idReclamation,
                     reponseDTO.getContenu(),
-                    user,
-                    user.getRole() // Passer le rôle de l'utilisateur
+                    user
             );
             return new ResponseEntity<>(savedReponse, HttpStatus.CREATED);
         } catch (Exception e) {

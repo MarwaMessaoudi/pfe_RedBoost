@@ -69,7 +69,7 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
 
 
 
-    @Query("SELECT p FROM Projet p WHERE p.founder = :user OR :user MEMBER OF p.entrepreneurs OR :user MEMBER OF p.coaches OR :user MEMBER OF p.investors")
+    @Query("SELECT p FROM Projet p WHERE p.founder = :user OR :user MEMBER OF p.entrepreneurs OR :user MEMBER OF p.coaches OR :user MEMBER OF p.investors OR p.pendingCollaborator = :user")
     List<Projet> findByUser(@Param("user") User user);
 
     @Query("SELECT p FROM Projet p JOIN p.produits pr WHERE pr.id = :produitId")
