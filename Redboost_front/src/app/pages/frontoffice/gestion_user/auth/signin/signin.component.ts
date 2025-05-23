@@ -53,7 +53,7 @@ export class SigninComponent {
                     localStorage.setItem('refreshToken', refreshToken);
                 }
 
-                this.router.navigate(['dashboard']);
+                this.router.navigate(['profile']);
             },
             error: (error) => {
                 console.error('Login failed:', error);
@@ -120,7 +120,7 @@ export class SigninComponent {
                     localStorage.setItem('refreshToken', refreshToken);
                 }
 
-                this.router.navigate(['dashboard']);
+                this.router.navigate(['profile']);
             },
             error: (error: any) => {
                 console.error('Google login failed:', error);

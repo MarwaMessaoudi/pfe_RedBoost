@@ -193,36 +193,34 @@ interface NotificationItem {
                                 </div>
                             </div>
 
-                            <!-- Coaching/Business Information Card -->
-                            <div class="card coaching-card animate-card" *ngIf="(activeFilter === 'all' || activeFilter === 'coaching') && userRole === 'COACH'">
-                                <div class="card-header">
-                                    <h3><i class="pi pi-graduation-cap"></i> Coaching Information</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div class="form-group">
-                                        <label for="specialization">Specialization</label>
-                                        <input id="specialization" type="text" pInputText formControlName="specialization" placeholder="Enter your specialization (2-100 characters)" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="yearsOfExperience">Years of Experience</label>
-                                        <input id="yearsOfExperience" type="number" pInputText formControlName="yearsOfExperience" placeholder="Enter years of experience" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="skillsInput">Skills</label>
-                                        <input id="skillsInput" type="text" pInputText [(ngModel)]="skillInput" (keydown)="addSkill($event)" [ngModelOptions]="{ standalone: true }" placeholder="Type a skill and press Enter" />
-                                        <div class="chip-container">
-                                            <p-chip *ngFor="let skill of skills" [label]="skill" [removable]="true" (onRemove)="removeSkill(skill)"></p-chip>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="expertiseInput">Expertise</label>
-                                        <input id="expertiseInput" type="text" pInputText [(ngModel)]="expertiseInput" (keydown)="addExpertise($event)" [ngModelOptions]="{ standalone: true }" placeholder="Type an expertise and press Enter" />
-                                        <div class="chip-container">
-                                            <p-chip *ngFor="let expertise of expertise" [label]="expertise" [removable]="true" (onRemove)="removeExpertise(expertise)"></p-chip>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- Coaching/Business Information Card -->
+<div class="card coaching-card animate-card" *ngIf="(activeFilter === 'all' || activeFilter === 'coaching') && userRole === 'COACH'">
+    <div class="card-header">
+        <h3><i class="pi pi-graduation-cap"></i> Coaching Information</h3>
+    </div>
+    <div class="card-content">
+        <div class="form-group">
+            <label for="yearsOfExperience">Years of Experience</label>
+            <input id="yearsOfExperience" type="number" pInputText formControlName="yearsOfExperience" placeholder="Enter years of experience" />
+        </div>
+        <div class="form-group">
+            <label for="skillsInput">Skills</label>
+            <input id="skillsInput" type="text" pInputText [(ngModel)]="skillInput" (keydown)="addSkill($event)" [ngModelOptions]="{ standalone: true }" placeholder="Type a skill and press Enter" />
+            <div class="chip-container">
+                <p-chip *ngFor="let skill of skills" [label]="skill" [removable]="true" (onRemove)="removeSkill(skill)"></p-chip>
+            </div>
+           
+        </div>
+        <div class="form-group">
+            <label for="expertiseInput">Expertise</label>
+            <input id="expertiseInput" type="text" pInputText [(ngModel)]="expertiseInput" (keydown)="addExpertise($event)" [ngModelOptions]="{ standalone: true }" placeholder="Type an expertise and press Enter" />
+            <div class="chip-container">
+                <p-chip *ngFor="let expertise of expertise" [label]="expertise" [removable]="true" (onRemove)="removeExpertise(expertise)"></p-chip>
+            </div>
+
+        </div>
+    </div>
+</div>
 
                             <!-- Business Information Card (for Entrepreneurs) -->
                             <div class="card business-card animate-card" *ngIf="(activeFilter === 'all' || activeFilter === 'coaching') && userRole === 'ENTREPRENEUR'">
@@ -1086,7 +1084,6 @@ export class AppTopbar implements OnInit, OnDestroy {
             linkedin: ['', [Validators.pattern('https?://(www.)?linkedin.com/.*')]],
             facebook: ['', [Validators.pattern('https?://(www.)?facebook.com/.*')]],
             instagram: ['', [Validators.pattern('https?://(www.)?instagram.com/.*')]],
-            specialization: ['', [Validators.minLength(2), Validators.maxLength(100)]],
             yearsOfExperience: ['', [Validators.min(0)]],
             startupName: [''],
             industry: [''],
@@ -1170,68 +1167,116 @@ export class AppTopbar implements OnInit, OnDestroy {
         ];
     }
 
-    initProfileForm(): void {
-        this.skills = this.user?.skills
-            ? this.user.skills
-                  .split(',')
-                  .map((s: string) => s.trim())
-                  .filter((s: string) => s)
-            : [];
-        this.expertise = this.user?.expertise
-            ? this.user.expertise
-                  .split(',')
-                  .map((s: string) => s.trim())
-                  .filter((s: string) => s)
-            : [];
-        this.profileForm.patchValue({
-            email: this.user?.email || '',
-            phone: this.user?.phoneNumber || '',
-            bio: this.user?.bio || '',
-            linkedin: this.user?.linkedinUrl || '',
-            facebook: this.user?.facebookUrl || '',
-            instagram: this.user?.instagramUrl || '',
-            specialization: this.user?.specialization || '',
-            yearsOfExperience: this.user?.yearsOfExperience || '',
-            startupName: this.user?.startupName || '',
-            industry: this.user?.industry || '',
-            skills: this.skills.join(','),
-            expertise: this.expertise.join(',')
-        });
-    }
+  initProfileForm(): void {
+    this.skills = this.user?.skills
+        ? this.user.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s)
+        : [];
+    this.expertise = this.user?.expertise
+        ? this.user.expertise.split(',').map((s: string) => s.trim()).filter((s: string) => s)
+        : [];
+    this.profileForm.patchValue({
+        email: this.user?.email || '',
+        phone: this.user?.phoneNumber || '',
+        bio: this.user?.bio || '',
+        linkedin: this.user?.linkedinUrl || '',
+        facebook: this.user?.facebookUrl || '',
+        instagram: this.user?.instagramUrl || '',
+        yearsOfExperience: this.user?.yearsOfExperience || '',
+        startupName: this.user?.startupName || '',
+        industry: this.user?.industry || '',
+        skills: this.skills.join(',') || '',
+        expertise: this.expertise.join(',') || ''
+    }, { emitEvent: false }); // Prevent unnecessary form events
+    console.log('initProfileForm - Form values:', this.profileForm.value); // Debug
+    console.log('initProfileForm - Skills array:', this.skills); // Debug
+    console.log('initProfileForm - Expertise array:', this.expertise); // Debug
+}
 
-    addSkill(event: KeyboardEvent): void {
-        if (event.key === 'Enter' && this.skillInput.trim()) {
-            if (this.skills.length >= 10) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Limit Reached',
-                    detail: 'You can add up to 10 skills.'
-                });
-                return;
-            }
-            const newSkill = this.skillInput.trim();
-            if (newSkill.length > 50) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Invalid Skill',
-                    detail: 'Each skill must be 50 characters or less.'
-                });
-                return;
-            }
-            if (this.skills.includes(newSkill)) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Duplicate Skill',
-                    detail: 'This skill is already added.'
-                });
-                return;
-            }
-            this.skills.push(newSkill);
-            this.profileForm.patchValue({ skills: this.skills.join(',') });
-            this.skillInput = '';
-            this.cdr.detectChanges();
+   addSkill(event: KeyboardEvent | Event): void {
+    if ((event instanceof KeyboardEvent && event.key === 'Enter') || !(event instanceof KeyboardEvent)) {
+        if (!this.skillInput.trim()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Empty Input',
+                detail: 'Please enter a skill.'
+            });
+            return;
         }
+        if (this.skills.length >= 10) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Limit Reached',
+                detail: 'You can add up to 10 skills.'
+            });
+            return;
+        }
+        const newSkill = this.skillInput.trim();
+        if (newSkill.length > 50) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Skill',
+                detail: 'Each skill must be 50 characters or less.'
+            });
+            return;
+        }
+        if (this.skills.includes(newSkill)) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Duplicate Skill',
+                detail: 'This skill is already added.'
+            });
+            return;
+        }
+        this.skills = [...this.skills, newSkill]; // Create new array to trigger change detection
+        this.profileForm.patchValue({ skills: this.skills.join(',') }, { emitEvent: false });
+        this.skillInput = '';
+      
+        this.cdr.markForCheck();
     }
+}
+
+addExpertise(event: KeyboardEvent | Event): void {
+    if ((event instanceof KeyboardEvent && event.key === 'Enter') || !(event instanceof KeyboardEvent)) {
+        if (!this.expertiseInput.trim()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Empty Input',
+                detail: 'Please enter an expertise.'
+            });
+            return;
+        }
+        if (this.expertise.length >= 5) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Limit Reached',
+                detail: 'You can add up to 5 expertise areas.'
+            });
+            return;
+        }
+        const newExpertise = this.expertiseInput.trim();
+        if (newExpertise.length > 50) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Expertise',
+                detail: 'Each expertise must be 50 characters or less.'
+            });
+            return;
+        }
+        if (this.expertise.includes(newExpertise)) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Duplicate Expertise',
+                detail: 'This expertise is already added.'
+            });
+            return;
+        }
+        this.expertise = [...this.expertise, newExpertise]; // Create new array to trigger change detection
+        this.profileForm.patchValue({ expertise: this.expertise.join(',') }, { emitEvent: false });
+        this.expertiseInput = '';
+      
+        this.cdr.markForCheck();
+    }
+}
 
     removeSkill(skill: string): void {
         this.skills = this.skills.filter((s) => s !== skill);
@@ -1239,39 +1284,6 @@ export class AppTopbar implements OnInit, OnDestroy {
         this.cdr.detectChanges();
     }
 
-    addExpertise(event: KeyboardEvent): void {
-        if (event.key === 'Enter' && this.expertiseInput.trim()) {
-            if (this.expertise.length >= 5) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Limit Reached',
-                    detail: 'You can add up to 5 expertise areas.'
-                });
-                return;
-            }
-            const newExpertise = this.expertiseInput.trim();
-            if (newExpertise.length > 50) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Invalid Expertise',
-                    detail: 'Each expertise must be 50 characters or less.'
-                });
-                return;
-            }
-            if (this.expertise.includes(newExpertise)) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Duplicate Expertise',
-                    detail: 'This expertise is already added.'
-                });
-                return;
-            }
-            this.expertise.push(newExpertise);
-            this.profileForm.patchValue({ expertise: this.expertise.join(',') });
-            this.expertiseInput = '';
-            this.cdr.detectChanges();
-        }
-    }
 
     removeExpertise(expertise: string): void {
         this.expertise = this.expertise.filter((e) => e !== expertise);
@@ -1279,79 +1291,82 @@ export class AppTopbar implements OnInit, OnDestroy {
         this.cdr.detectChanges();
     }
 
-    updateProfile(): void {
-        if (this.profileForm.valid && this.userId) {
-            this.isSubmitting = true;
-            const formData = this.profileForm.value;
-            const formatUrl = (url: string) => {
-                if (!url) return null;
-                return url.startsWith('http') ? url : `https://${url}`;
-            };
-            const updatePayload = {
-                email: formData.email,
-                phoneNumber: formData.phone,
-                bio: formData.bio,
-                linkedin: formatUrl(formData.linkedin),
-                facebook: formatUrl(formData.facebook),
-                instagram: formatUrl(formData.instagram),
-                ...(this.userRole === 'COACH' && {
-                    specialization: formData.specialization,
-                    yearsOfExperience: formData.yearsOfExperience,
-                    skills: this.skills.join(',') || null,
-                    expertise: this.expertise.join(',') || null
-                }),
-                ...(this.userRole === 'ENTREPRENEUR' && {
-                    startupName: formData.startupName,
-                    industry: formData.industry
-                })
-            };
-            this.http.patch('http://localhost:8085/users/updateprofile', updatePayload).subscribe({
-                next: (response: any) => {
-                    this.user = {
-                        ...this.user,
-                        email: updatePayload.email,
-                        phoneNumber: updatePayload.phoneNumber,
-                        bio: updatePayload.bio,
-                        facebookUrl: updatePayload.facebook,
-                        instagramUrl: updatePayload.instagram,
-                        linkedinUrl: updatePayload.linkedin,
-                        ...(this.userRole === 'COACH' && {
-                            specialization: updatePayload.specialization,
-                            yearsOfExperience: updatePayload.yearsOfExperience,
-                            skills: updatePayload.skills,
-                            expertise: updatePayload.expertise
-                        }),
-                        ...(this.userRole === 'ENTREPRENEUR' && {
-                            startupName: updatePayload.startupName,
-                            industry: updatePayload.industry
-                        })
-                    };
-                    this.userService.setUser(this.user);
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Profile updated successfully'
-                    });
-                    this.settingsVisible = false;
-                    this.isSubmitting = false;
-                    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                        this.router.navigate(['/profile']);
-                    });
-                    this.cdr.detectChanges();
-                },
-                error: (error) => {
-                    console.error('Error updating profile:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to update profile. Please try again.'
-                    });
-                    this.isSubmitting = false;
-                    this.cdr.detectChanges();
-                }
-            });
-        }
+  updateProfile(): void {
+    if (this.profileForm.valid && this.userId) {
+        this.isSubmitting = true;
+        const formData = this.profileForm.value;
+        const formatUrl = (url: string) => {
+            if (!url) return null;
+            return url.startsWith('http') ? url : `https://${url}`;
+        };
+        const updatePayload = {
+            email: formData.email,
+            phoneNumber: formData.phone,
+            bio: formData.bio,
+            linkedinUrl: formatUrl(formData.linkedin), // Fixed field name
+            facebookUrl: formatUrl(formData.facebook), // Fixed field name
+            instagramUrl: formatUrl(formData.instagram), // Fixed field name
+            ...(this.userRole === 'COACH' && {
+                yearsOfExperience: formData.yearsOfExperience ? parseInt(formData.yearsOfExperience, 10) : null,
+                skills: formData.skills || null, // Use formData.skills directly
+                expertise: formData.expertise || null // Use formData.expertise directly
+            }),
+            ...(this.userRole === 'ENTREPRENEUR' && {
+                startupName: formData.startupName,
+                industry: formData.industry
+            })
+        };
+        console.log('Update profile payload:', updatePayload); // Debug
+        this.http.patch('http://localhost:8085/users/updateprofile', updatePayload).subscribe({
+            next: (response: any) => {
+                console.log('Profile update response:', response); // Debug
+                this.user = {
+                    ...this.user,
+                    email: updatePayload.email,
+                    phoneNumber: updatePayload.phoneNumber,
+                    bio: updatePayload.bio,
+                    facebookUrl: updatePayload.facebookUrl,
+                    instagramUrl: updatePayload.instagramUrl,
+                    linkedinUrl: updatePayload.linkedinUrl,
+                    ...(this.userRole === 'COACH' && {
+                        yearsOfExperience: updatePayload.yearsOfExperience,
+                        skills: updatePayload.skills,
+                        expertise: updatePayload.expertise
+                    }),
+                    ...(this.userRole === 'ENTREPRENEUR' && {
+                        startupName: updatePayload.startupName,
+                        industry: updatePayload.industry
+                    })
+                };
+                console.log('Updated user object:', this.user); // Debug
+                this.userService.setUser(this.user);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Profile updated successfully'
+                });
+                this.settingsVisible = false;
+                this.isSubmitting = false;
+                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigate(['/profile']);
+                });
+                this.cdr.detectChanges();
+            },
+            error: (error) => {
+                console.error('Error updating profile:', error); // Debug
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update profile: ' + (error.error?.message || 'Please try again.')
+                });
+                this.isSubmitting = false;
+                this.cdr.detectChanges();
+            }
+        });
+    } else {
+        console.warn('Form is invalid or userId missing:', this.profileForm.errors, this.userId); // Debug
     }
+}
 
     showSettings(): void {
         console.log('showSettings called');

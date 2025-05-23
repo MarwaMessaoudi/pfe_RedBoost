@@ -1,9 +1,8 @@
-/* Styles spécifiques pour le composant de gestion des réclamations */
 .container {
     max-width: 1200px;
 }
 
-/* Styles pour le formulaire */
+
 form {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -13,7 +12,7 @@ form:hover {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Styles pour les messages de succès et d'erreur */
+
 .alert {
     animation: fadeIn 0.5s ease-in-out;
     z-index: 10;
@@ -21,6 +20,13 @@ form:hover {
     padding: 1rem;
     border-radius: 0.5rem;
     margin-bottom: 1rem;
+    display: block !important; 
+    visibility: visible !important; 
+}
+
+#success-message, #error-message {
+    display: block !important;
+    opacity: 1 !important;
 }
 
 @keyframes fadeIn {
@@ -34,18 +40,17 @@ form:hover {
     }
 }
 
-/* Styles pour les boutons disabled */
+
 button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
-/* Styles pour l'élément de type file */
+
 input[type="file"]::-webkit-file-upload-button {
     cursor: pointer;
 }
 
-/* Ensure read-only inputs are visually distinct */
 input[readonly] {
     cursor: not-allowed;
 }

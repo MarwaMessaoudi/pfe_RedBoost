@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -20,7 +20,7 @@ interface JwtPayload {
     templateUrl: './gestion-reclamation.component.html',
     styleUrls: ['./gestion-reclamation.component.scss']
 })
-export class GestionReclamationComponent implements OnInit {
+export class GestionReclamationComponent implements OnInit, AfterViewChecked {
     reclamationForm: FormGroup;
     selectedFiles: File[] = [];
     fileError: string | null = null;
@@ -28,6 +28,7 @@ export class GestionReclamationComponent implements OnInit {
     errorMessage: string | null = null;
     isSubmitting = false;
     validationErrors: string[] = [];
+    viewChecked = false;
 
     public f: any;
 
@@ -88,6 +89,15 @@ export class GestionReclamationComponent implements OnInit {
         }
     }
 
+    ngAfterViewChecked() {
+        if (this.successMessage && !this.viewChecked) {
+            setTimeout(() => {
+                this.scrollToMessage('success-message');
+            }, 100);
+            this.viewChecked = true;
+        }
+    }
+
     onFilesChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.selectedFiles = [];
@@ -120,6 +130,7 @@ export class GestionReclamationComponent implements OnInit {
         this.validationErrors = [];
         this.errorMessage = null;
         this.successMessage = null;
+        this.viewChecked = false;
 
         if (!this.reclamationForm.get('categorie')?.value) {
             this.validationErrors.push('Catégorie requise');
@@ -166,13 +177,29 @@ export class GestionReclamationComponent implements OnInit {
                     this.isSubmitting = false;
                     this.successMessage = 'Votre réclamation a été soumise avec succès !';
                     console.log('Success message set:', this.successMessage, 'Timestamp:', Date.now());
-                    this.cdr.detectChanges();
-                    console.log('After detectChanges, checking DOM for success-message');
-                    const messageElement = document.getElementById('success-message');
-                    console.log('Success message element:', messageElement);
-                    this.scrollToMessage('success-message');
-                    this.resetForm();
-                    this.clearMessagesAfterTimeout();
+                    
+                    // Force rendering update
+                    setTimeout(() => {
+                        this.cdr.markForCheck();
+                        this.cdr.detectChanges();
+                        console.log('After detectChanges, success message status:', this.successMessage);
+                        
+                        // Check if success-message element exists in DOM
+                        const messageElement = document.getElementById('success-message');
+                        console.log('Success message element:', messageElement);
+                        
+                        if (messageElement) {
+                            // Force show success message
+                            messageElement.style.display = 'block';
+                            messageElement.style.opacity = '1';
+                            messageElement.style.visibility = 'visible';
+                            this.scrollToMessage('success-message');
+                        }
+                        
+                        // Reset form but maintain success message temporarily
+                        this.resetFormKeepMessage();
+                        this.clearMessagesAfterTimeout();
+                    }, 100);
                 },
                 error: (error) => {
                     this.isSubmitting = false;
@@ -185,13 +212,49 @@ export class GestionReclamationComponent implements OnInit {
             });
     }
 
-    resetForm(): void {
+    resetFormKeepMessage(): void {
+        // Store current success message
+        const currentSuccessMessage = this.successMessage;
+        
+        // Reset form fields but keep readonly fields
+        const nomComplet = this.reclamationForm.get('nomComplet')?.value;
+        const email = this.reclamationForm.get('email')?.value;
+        const date = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+        
         this.reclamationForm.reset();
+        
+        // Restore readonly fields
         this.reclamationForm.patchValue({
-            nomComplet: this.reclamationForm.get('nomComplet')?.value,
-            email: this.reclamationForm.get('email')?.value,
-            date: this.datePipe.transform(new Date(), 'yyyy-MM-dd')
+            nomComplet: nomComplet,
+            email: email,
+            date: date
         });
+        
+        // Reset file selection
+        this.selectedFiles = [];
+        this.fileError = null;
+        this.validationErrors = [];
+        
+        // Restore success message
+        this.successMessage = currentSuccessMessage;
+        
+        this.cdr.detectChanges();
+    }
+
+    resetForm(): void {
+        // Only completely reset when manually clicked
+        const nomComplet = this.reclamationForm.get('nomComplet')?.value;
+        const email = this.reclamationForm.get('email')?.value;
+        const date = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+        
+        this.reclamationForm.reset();
+        
+        this.reclamationForm.patchValue({
+            nomComplet: nomComplet,
+            email: email,
+            date: date
+        });
+        
         this.selectedFiles = [];
         this.fileError = null;
         this.successMessage = null;
@@ -210,23 +273,22 @@ export class GestionReclamationComponent implements OnInit {
     }
 
     scrollToMessage(messageId: string): void {
-        const attemptScroll = (attempts: number, maxAttempts: number) => {
-            setTimeout(() => {
-                const messageElement = document.getElementById(messageId);
-                console.log(`Attempt ${attempts}: Scrolling to: ${messageId}, Element:`, messageElement, 'Timestamp:', Date.now());
-                if (messageElement) {
-                    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else if (attempts < maxAttempts) {
-                    console.warn(`Element not found: ${messageId}, retrying...`);
-                    this.cdr.detectChanges(); // Force change detection on retry
-                    attemptScroll(attempts + 1, maxAttempts);
-                } else {
-                    console.error(`Failed to find element: ${messageId} after ${maxAttempts} attempts`);
-                }
-            }, 1000); // Increased to 1000ms
-        };
-
-        attemptScroll(1, 3);
+        setTimeout(() => {
+            const messageElement = document.getElementById(messageId);
+            console.log(`Scrolling to: ${messageId}, Element:`, messageElement);
+            
+            if (messageElement) {
+                // Force show the element
+                messageElement.style.display = 'block';
+                messageElement.style.visibility = 'visible';
+                messageElement.style.opacity = '1';
+                
+                // Scroll to it
+                messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                console.warn(`Element not found: ${messageId}`);
+            }
+        }, 200);
     }
 
     get accessToken(): string | null {

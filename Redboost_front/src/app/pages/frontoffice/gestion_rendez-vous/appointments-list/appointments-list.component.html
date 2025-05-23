@@ -1,17 +1,19 @@
 <div class="appointments-container">
     <div class="appointments-header">
-        <h2>Mes Rendez Vous</h2>
+        <h2>Mes Rendez Vous</h2> <!-- Titre de la section des rendez-vous -->
     </div>
 
     <!-- Section de filtres et recherche -->
     <div class="appointments-filters">
         <div class="search-box">
-            <i class="bi bi-search"></i>
+            <i class="bi bi-search"></i> <!-- Icône de recherche -->
             <input type="text" [(ngModel)]="searchTerm" (input)="filterAppointments()" placeholder="Rechercher un rendez-vous..." />
+            <!-- Champ de recherche qui met à jour le filtre en temps réel -->
         </div>
         <div class="filter-status">
             <select [(ngModel)]="statusFilter" (change)="filterAppointments()">
-                <option value="">Tous les statuts</option>
+                <!-- Menu déroulant pour filtrer par statut -->
+                <option value="">Tous les statuts</option> <!-- Option par défaut -->
                 <option value="PENDING">En attente</option>
                 <option value="ACCEPTED">Accepté</option>
                 <option value="REJECTED">Refusé</option>
@@ -21,32 +23,33 @@
 
     <!-- Liste des rendez-vous -->
     <div class="appointments-list">
-        <div class="appointment-card" *ngFor="let appointment of pagedAppointments">
+        <div class="appointment-card" *ngFor="let appointment of filteredAppointments | slice: (currentPage - 1) * itemsPerPage : currentPage * itemsPerPage">
+            <!-- Boucle sur les rendez-vous filtrés et paginés -->
             <div class="appointment-content">
                 <div class="appointment-info">
                     <div class="appointment-title">
-                        {{ appointment.title }}
+                        {{ appointment.title }} <!-- Titre du rendez-vous -->
                         <span class="status-tag" [ngClass]="appointment.status.toLowerCase()">
-                            {{ getStatusLabel(appointment.status) }}
+                            {{ getStatusLabel(appointment.status) }} <!-- Statut traduit -->
                         </span>
                     </div>
                     <div class="appointment-details">
                         <span class="date">
-                            <i class="bi bi-calendar"></i>
-                            {{ appointment.date | date: 'dd MMMM yyyy' }}
+                            <i class="bi bi-calendar"></i> <!-- Icône de calendrier -->
+                            {{ appointment.date | date: 'dd MMMM yyyy' }} <!-- Date formatée -->
                         </span>
                         <span class="time">
-                            <i class="bi bi-clock"></i>
-                            {{ appointment.heure }}
+                            <i class="bi bi-clock"></i> <!-- Icône d'horloge -->
+                            {{ appointment.heure }} <!-- Heure du rendez-vous -->
                         </span>
                     </div>
                 </div>
                 <div class="appointment-actions">
                     <button class="btn-edit" (click)="openEditModal(appointment)" [disabled]="appointment.status === 'ACCEPTED' || appointment.status === 'REJECTED'">
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-pencil"></i> <!-- Bouton pour modifier (désactivé si ACCEPTED ou REJECTED) -->
                     </button>
                     <button class="btn-delete" (click)="openDeleteModal(appointment.id || 0)" [disabled]="appointment.status === 'ACCEPTED' || appointment.status === 'REJECTED'">
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash"></i> <!-- Bouton pour supprimer (désactivé si ACCEPTED ou REJECTED) -->
                     </button>
                 </div>
             </div>
@@ -54,26 +57,25 @@
 
         <!-- État vide -->
         <div *ngIf="!filteredAppointments.length" class="empty-state">
-            <i class="bi bi-calendar-x"></i>
-            <p>Aucun rendez-vous trouvé</p>
+            <i class="bi bi-calendar-x"></i> <!-- Icône pour indiquer l'absence de rendez-vous -->
+            <p>Aucun rendez-vous trouvé</p> <!-- Message affiché si aucun rendez-vous -->
         </div>
     </div>
 
     <!-- Pagination -->
     <div class="pagination-container" *ngIf="filteredAppointments.length > itemsPerPage">
+        <!-- Affiché uniquement s'il y a plus d'éléments que le nombre par page -->
         <div class="pagination-controls">
             <button class="page-control" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
-                <i class="bi bi-chevron-left"></i>
+                <i class="bi bi-chevron-left"></i> <!-- Bouton précédent -->
             </button>
-
             <div class="page-numbers">
                 <button *ngFor="let page of getPageNumbers()" class="page-number" [class.active]="page === currentPage" (click)="changePage(page)">
-                    {{ page }}
+                    {{ page }} <!-- Numéros de page cliquables -->
                 </button>
             </div>
-
             <button class="page-control" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
-                <i class="bi bi-chevron-right"></i>
+                <i class="bi bi-chevron-right"></i> <!-- Bouton suivant -->
             </button>
         </div>
     </div>

@@ -3,10 +3,10 @@ $secondary-color: #245c67; // Medium teal
 $accent-color: #e44d62; // Vibrant red
 $accent-light: #e47988; // Light pink/red
 $dark-color: #0a4955; // Dark teal (same as primary)
-$light-color: #f8f9fa; // Keeping this light color
+$light-color: #f8f9fa; // Light gray
 $success-color: #245c67; // Medium teal
 $warning-color: #e44d62; // Vibrant red
-$danger-color: #db1e37; // Dark red from palette
+$danger-color: #db1e37; // Dark red
 
 // Base Styles
 .profile-container {
@@ -14,14 +14,22 @@ $danger-color: #db1e37; // Dark red from palette
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #568086 100%);
+    background: linear-gradient(135deg, $light-color 0%, #568086 100%);
     padding: 2rem;
-    font-family:
-        'Inter',
-        -apple-system,
-        BlinkMacSystemFont,
-        sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+::ng-deep .p-toast {
+    z-index: 1100 !important; // Higher than topbar's z-index (1200)
+    position: fixed;
+    top: 70px; // Adjust based on your topbar height
+    right: 20px;
+}
+
+::ng-deep .p-toast-message {
+    z-index: 1101 !important;
+}
+
 
 .profile-card {
     width: 100%;
@@ -30,9 +38,7 @@ $danger-color: #db1e37; // Dark red from palette
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: fadeInUp 0.8s ease-out;
 
     &:hover {
@@ -54,8 +60,7 @@ $danger-color: #db1e37; // Dark red from palette
 }
 
 @keyframes float {
-    0%,
-    100% {
+    0%, 100% {
         transform: translateY(0);
     }
     50% {
@@ -89,7 +94,7 @@ $danger-color: #db1e37; // Dark red from palette
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, #db1e37 0%, #0a4955 100%);
+        background: linear-gradient(135deg, $danger-color 0%, $primary-color 100%);
         z-index: 0;
         transform: skewY(-4deg);
         transform-origin: top left;
@@ -119,7 +124,7 @@ $danger-color: #db1e37; // Dark red from palette
         animation: pulse 1.5s ease infinite;
         border-color: rgba(255, 255, 255, 0.5);
 
-        .img-overlay {
+        .upload-overlay {
             opacity: 1;
         }
     }
@@ -128,40 +133,6 @@ $danger-color: #db1e37; // Dark red from palette
         width: 100%;
         height: 100%;
         object-fit: cover;
-    }
-
-    .img-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-
-        .edit-icon {
-            background: #e44d62;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-
-            &:hover {
-                transform: scale(1.1);
-                background: #db1e37;
-            }
-        }
     }
 
     .upload-overlay {
@@ -192,7 +163,7 @@ $danger-color: #db1e37; // Dark red from palette
             transition: background-color 0.3s ease;
 
             &:hover {
-                background-color: rgba(255, 255, 255, 0.2);
+                background-color: rgba($accent-color, 0.3);
             }
         }
     }
@@ -212,71 +183,73 @@ $danger-color: #db1e37; // Dark red from palette
         justify-content: center;
         gap: 0.5rem;
         flex-wrap: wrap;
-        position: relative;
 
         .name-text {
-            position: relative;
             display: flex;
             align-items: center;
+            gap: 10px;
 
-            .edit-name-icon {
-                margin-left: 10px;
-                font-size: 0.8rem;
-                cursor: pointer;
-                opacity: 0.7;
-                transition: all 0.3s ease;
-
-                &:hover {
-                    opacity: 1;
-                    transform: scale(1.2);
-                }
-            }
-        }
-
-        .name-edit {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-
-            .name-input {
-                background: transparent;
-                border: none;
-                border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-                color: white;
-                font-size: 1.8rem;
-                font-weight: 700;
-                text-align: center;
-                width: 120px;
-                outline: none;
-                transition: all 0.3s ease;
-
-                &:focus {
-                    border-bottom-color: white;
-                }
-            }
-
-            .save-name-icon {
+            .edit-icon {
                 font-size: 1rem;
+                color: $accent-light;
                 cursor: pointer;
                 transition: all 0.3s ease;
 
                 &:hover {
+                    color: $accent-color;
                     transform: scale(1.2);
                 }
             }
         }
-    }
 
-    .profile-title {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin: 0.5rem 0 1rem;
-        font-weight: 400;
-        color: #ffffff;
+        .name-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.5rem;
+            outline: none;
+            transition: all 0.3s ease;
+
+            &:focus {
+                border-bottom-color: $accent-light;
+                box-shadow: 0 2px 4px rgba($accent-color, 0.2);
+            }
+        }
+
+        .save-button, .cancel-button {
+            background: $success-color;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+
+            &:hover {
+                background: darken($success-color, 10%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba($success-color, 0.3);
+            }
+        }
+
+        .cancel-button {
+            background: $danger-color;
+
+            &:hover {
+                background: darken($danger-color, 10%);
+                box-shadow: 0 4px 12px rgba($danger-color, 0.3);
+            }
+        }
     }
 
     .profile-badge {
-        background: #e44d62;
+        background: $accent-color;
         color: white;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
@@ -310,8 +283,8 @@ $danger-color: #db1e37; // Dark red from palette
         opacity: 0;
 
         &:hover {
-            background: white;
-            color: #0a4955;
+            background: $accent-light;
+            color: $primary-color;
             transform: translateY(-3px) scale(1.1);
         }
 
@@ -332,7 +305,7 @@ $danger-color: #db1e37; // Dark red from palette
     display: flex;
     justify-content: space-around;
     padding: 1.5rem;
-    background: rgba(#505050, 0.08);
+    background: rgba($primary-color, 0.08);
     border-radius: 12px;
     margin: 1.5rem;
 
@@ -349,19 +322,19 @@ $danger-color: #db1e37; // Dark red from palette
             transform: translateY(-50%);
             width: 1px;
             height: 40px;
-            background: rgba(#0a4955, 0.1);
+            background: rgba($primary-color, 0.1);
         }
 
         .stat-number {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #29747d;
+            color: $secondary-color;
             margin-bottom: 0.25rem;
         }
 
         .stat-label {
             font-size: 0.85rem;
-            color: #245c67;
+            color: $primary-color;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 500;
@@ -379,16 +352,14 @@ $danger-color: #db1e37; // Dark red from palette
     border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 30px rgba(10, 73, 85, 0.08);
+    box-shadow: 0 8px 30px rgba($primary-color, 0.08);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-    border: 1px solid rgba(10, 73, 85, 0.05);
-    position: relative;
-    overflow: hidden;
+    border: 1px solid rgba($primary-color, 0.05);
 
     &:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(10, 73, 85, 0.15);
-        border-color: rgba(228, 77, 98, 0.2);
+        box-shadow: 0 12px 40px rgba($primary-color, 0.15);
+        border-color: rgba($accent-color, 0.2);
 
         .section-header::after {
             width: 100%;
@@ -410,7 +381,7 @@ $danger-color: #db1e37; // Dark red from palette
             left: 0;
             width: 50px;
             height: 3px;
-            background: linear-gradient(90deg, #e44d62, #0a4955);
+            background: linear-gradient(90deg, $accent-color, $primary-color);
             border-radius: 3px;
             transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -419,7 +390,7 @@ $danger-color: #db1e37; // Dark red from palette
     .section-title {
         font-size: 1.3rem;
         font-weight: 700;
-        color: #0a4955;
+        color: $primary-color;
         display: flex;
         align-items: center;
         gap: 0.8rem;
@@ -427,54 +398,14 @@ $danger-color: #db1e37; // Dark red from palette
         i {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, rgba(228, 77, 98, 0.1) 0%, rgba(10, 73, 85, 0.1) 100%);
+            background: linear-gradient(135deg, rgba($accent-color, 0.1) 0%, rgba($primary-color, 0.1) 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e44d62;
+            color: $accent-color;
             font-size: 1.1rem;
         }
-    }
-
-    .edit-section-btn {
-        background: linear-gradient(135deg, rgba(228, 77, 98, 0.1) 0%, rgba(10, 73, 85, 0.1) 100%);
-        border: none;
-        color: #245c67;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-
-        &:hover {
-            background: linear-gradient(135deg, #e44d62 0%, #0a4955 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(228, 77, 98, 0.3);
-
-            i {
-                transform: rotate(10deg) scale(1.1);
-            }
-        }
-
-        i {
-            transition: all 0.3s ease;
-        }
-    }
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
     }
 }
 
@@ -483,7 +414,7 @@ $danger-color: #db1e37; // Dark red from palette
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1.5rem;
-    background: #f8f9fa;
+    background: $light-color;
     padding: 1.5rem;
     border-radius: 12px;
 
@@ -491,7 +422,7 @@ $danger-color: #db1e37; // Dark red from palette
         label {
             display: block;
             font-size: 0.85rem;
-            color: #245c67;
+            color: $secondary-color;
             margin-bottom: 0.25rem;
             font-weight: 500;
         }
@@ -499,15 +430,15 @@ $danger-color: #db1e37; // Dark red from palette
         p {
             margin: 0;
             font-weight: 500;
-            color: #0a4955;
+            color: $primary-color;
         }
     }
 }
 
-// Tags Section (Replaces Skills Section)
+// Tags Section
 .tags-container {
     padding: 1.5rem;
-    background: #f8f9fa;
+    background: $light-color;
     border-radius: 12px;
 
     .tag-group {
@@ -516,7 +447,7 @@ $danger-color: #db1e37; // Dark red from palette
         .tag-label {
             display: block;
             font-size: 0.9rem;
-            color: #245c67;
+            color: $secondary-color;
             margin-bottom: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
@@ -541,45 +472,30 @@ $danger-color: #db1e37; // Dark red from palette
             animation: fadeIn 0.5s ease-out;
 
             &.skill-tag {
-                background: linear-gradient(135deg, rgba(228, 77, 98, 0.1) 0%, rgba(10, 73, 85, 0.1) 100%);
-                color: #0a4955;
-                border: 1px solid rgba(10, 73, 85, 0.2);
+                background: linear-gradient(135deg, rgba($accent-color, 0.1) 0%, rgba($primary-color, 0.1) 100%);
+                color: $primary-color;
+                border: 1px solid rgba($primary-color, 0.2);
 
                 &:hover {
-                    background: linear-gradient(135deg, #e44d62 0%, #0a4955 100%);
+                    background: linear-gradient(135deg, $accent-color 0%, $primary-color 100%);
                     color: white;
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(228, 77, 98, 0.3);
+                    box-shadow: 0 4px 12px rgba($accent-color, 0.3);
                 }
             }
 
             &.expertise-tag {
-                background: linear-gradient(135deg, rgba(10, 73, 85, 0.1) 0%, rgba(228, 77, 98, 0.1) 100%);
-                color: #245c67;
-                border: 1px solid rgba(228, 77, 98, 0.2);
+                background: linear-gradient(135deg, rgba($primary-color, 0.1) 0%, rgba($accent-color, 0.1) 100%);
+                color: $secondary-color;
+                border: 1px solid rgba($accent-color, 0.2);
 
                 &:hover {
-                    background: linear-gradient(135deg, #0a4955 0%, #e44d62 100%);
+                    background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
                     color: white;
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(10, 73, 85, 0.3);
+                    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
                 }
             }
-        }
-    }
-}
-
-// Bio Section
-.bio-section {
-    .bio-content {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 1.5rem;
-
-        p {
-            margin: 0;
-            line-height: 1.6;
-            color: #245c67;
         }
     }
 }
@@ -634,54 +550,37 @@ $danger-color: #db1e37; // Dark red from palette
                 transform: translateX(3px);
             }
         }
-    }
 
-    .primary {
-        background: linear-gradient(135deg, #0a4955 0%, #245c67 100%);
-        color: white;
-    }
+        &.primary {
+            background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+            color: white;
+        }
 
-    .secondary {
-        background: white;
-        color: #0a4955;
-        border: 1px solid rgba(#0a4955, 0.3);
+        &.secondary {
+            background: white;
+            color: $primary-color;
+            border: 1px solid rgba($primary-color, 0.3);
 
-        &:hover {
-            border-color: #0a4955;
+            &:hover {
+                border-color: $primary-color;
+            }
         }
     }
 }
 
-// Edit Modal Styles
-.edit-modal-content {
-    padding: 1rem;
-
-    .edit-form {
-        display: grid;
-        gap: 1.5rem;
+// Ripple Animation
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 1;
     }
-
-    .form-group {
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #245c67;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-
-            &:focus {
-                border-color: #0a4955;
-                box-shadow: 0 0 0 2px rgba(#0a4955, 0.1);
-            }
-        }
+    20% {
+        transform: scale(25, 25);
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(40, 40);
     }
 }
 
@@ -701,7 +600,17 @@ $danger-color: #db1e37; // Dark red from palette
     }
 
     .profile-name {
-        font-size: 1.5rem !important;
+        font-size: 1.5rem;
+
+        .name-input {
+            font-size: 1.2rem;
+            width: 100px;
+        }
+
+        .save-button, .cancel-button {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
     }
 
     .profile-stats {
@@ -728,219 +637,5 @@ $danger-color: #db1e37; // Dark red from palette
     .action-buttons {
         flex-direction: column;
         padding: 0 1rem 1rem;
-    }
-
-    // Edit Modal Styles - Enhanced with your color palette and animations
-    .edit-modal-content {
-        padding: 1.5rem;
-        animation: fadeIn 0.4s ease-out forwards;
-
-        .edit-form {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            position: relative;
-            margin-bottom: 1.25rem;
-
-            label {
-                display: block;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-                color: $primary-color;
-                transition: all 0.3s ease;
-            }
-
-            .form-input {
-                width: 100%;
-                padding: 0.75rem 1rem;
-                border: 2px solid rgba($primary-color, 0.2);
-                border-radius: 8px;
-                font-family: inherit;
-                transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-                background-color: rgba($light-color, 0.8);
-                color: $dark-color;
-
-                &:focus {
-                    border-color: $accent-color;
-                    box-shadow: 0 0 0 4px rgba($accent-color, 0.15);
-                    outline: none;
-                }
-
-                &:hover {
-                    border-color: rgba($primary-color, 0.4);
-                }
-            }
-
-            // Floating label effect when input is focused
-            &:focus-within label {
-                color: $accent-color;
-                transform: translateY(-2px);
-            }
-        }
-    }
-
-    // Dialog Header Enhancement
-    ::ng-deep .p-dialog .p-dialog-header {
-        background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
-        color: white;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        padding: 1.5rem;
-
-        .p-dialog-title {
-            font-weight: 600;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-
-            i {
-                font-size: 1.25rem;
-            }
-        }
-
-        .p-dialog-header-icon {
-            color: rgba(white, 0.8);
-            transition: all 0.3s ease;
-
-            &:hover {
-                color: white;
-                transform: rotate(90deg);
-                background: rgba(white, 0.1);
-            }
-        }
-    }
-
-    // Dialog Content Enhancement
-    ::ng-deep .p-dialog .p-dialog-content {
-        padding: 0;
-        background: linear-gradient(135deg, rgba($light-color, 0.9) 0%, rgba(white, 0.95) 100%);
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-    }
-
-    // Dialog Footer Enhancement
-    ::ng-deep .p-dialog .p-dialog-footer {
-        border-top: 1px solid rgba($primary-color, 0.1);
-        padding: 1rem 1.5rem;
-        background: white;
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-
-        button {
-            min-width: 100px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-            &.p-button-text {
-                color: $primary-color;
-
-                &:hover {
-                    background: rgba($primary-color, 0.05) !important;
-                    color: $primary-color !important;
-                    transform: translateX(-5px);
-                }
-            }
-
-            &.p-button-success {
-                background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
-                border: none;
-
-                &:hover {
-                    background: linear-gradient(135deg, darken($primary-color, 5%) 0%, darken($secondary-color, 5%) 100%);
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
-                }
-
-                &:active {
-                    transform: translateY(0);
-                }
-            }
-        }
-    }
-
-    // Overlay Enhancement
-    ::ng-deep .p-dialog-mask {
-        background-color: rgba($dark-color, 0.7);
-        backdrop-filter: blur(5px);
-    }
-
-    // Dialog Enter/Leave Animations
-    ::ng-deep .p-dialog-enter {
-        opacity: 0;
-        transform: scale(0.9) translateY(20px);
-    }
-
-    ::ng-deep .p-dialog-enter-active {
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    ::ng-deep .p-dialog-enter-done {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-
-    ::ng-deep .p-dialog-exit {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-
-    ::ng-deep .p-dialog-exit-active {
-        transition: all 0.2s ease-in;
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-    }
-
-    // Input focus animation
-    @keyframes inputHighlighter {
-        from {
-            background: $accent-color;
-        }
-        to {
-            width: 0;
-            background: transparent;
-        }
-    }
-
-    // Ripple effect for buttons
-    @keyframes ripple {
-        0% {
-            transform: scale(0, 0);
-            opacity: 1;
-        }
-        20% {
-            transform: scale(25, 25);
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
-            transform: scale(40, 40);
-        }
-    }
-
-    // Responsive adjustments
-    @media (max-width: 768px) {
-        ::ng-deep .p-dialog {
-            width: 90vw !important;
-            max-width: 90vw !important;
-
-            .p-dialog-header,
-            .p-dialog-content,
-            .p-dialog-footer {
-                padding: 1rem;
-            }
-        }
-
-        .edit-modal-content {
-            padding: 1rem;
-
-            .edit-form {
-                gap: 1rem;
-            }
-        }
     }
 }

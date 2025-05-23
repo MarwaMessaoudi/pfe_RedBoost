@@ -1,10 +1,12 @@
 package team.project.redboost.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.ToString;
+import team.project.redboost.dto.CommentSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -73,6 +75,7 @@ public class Task {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference("taskComments")
+    @JsonSerialize(contentUsing = CommentSerializer.class)
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 

@@ -23,7 +23,7 @@ import { AllReclamationsComponent } from './app/pages/frontoffice/gestion_reclam
 import { RoleGuard } from './role.guard';
 import { DashboardRedirectComponent } from './app/pages/dashboard/dashboard-redirect/dashboard-redirect.component';
 import { UnderConstructionComponent } from './app/pages/under-construction.component';
-import { AppointmentListComponent } from './app/pages/frontoffice/gestion_rendez-vous/appointment-list/appointment-list.component';
+import { AppointmentListComponent } from './app/pages/frontoffice/gestion_rendez-vous/Coach-List/Coach-list.component';
 import { ForgotPasswordComponent } from './app/pages/frontoffice/gestion_user/forgotpassword/forgotpassword.component';
 import { ResetPasswordComponent } from './app/pages/frontoffice/gestion_user/reset-password/reset-password.component';
 import { ChatComponent } from './app/pages/frontoffice/gestion_messagerie/chat/chat.component';

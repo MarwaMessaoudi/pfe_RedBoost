@@ -348,8 +348,7 @@ export class CreateAppointmentModalComponent implements OnInit {
             const newAppointment: RendezVous = {
                 ...formValues,
                 date: dateStr,
-                heure: timeStr,
-                email: 'default@email.com' // Valeur par défaut
+                heure: timeStr
             };
 
             if (!this.coachId) {

@@ -1,6 +1,7 @@
 package team.project.redboost.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import team.project.redboost.entities.*;
 import team.project.redboost.repositories.PhaseRepository;
@@ -25,6 +26,9 @@ public class PhaseService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate; // Add this for WebSocket messaging
 
     public void checkUserAuthorizationForProject(Long projetId, String userEmail) {
         User user = userService.findByEmail(userEmail);
@@ -55,7 +59,10 @@ public class PhaseService {
         phase.setProjet(projet);
         phase.setCreatedAt(LocalDateTime.now());
         phase.setUpdatedAt(LocalDateTime.now());
-        return phaseRepository.save(phase);
+        Phase savedPhase = phaseRepository.save(phase);
+        // Broadcast the new phase to the project-specific topic
+        messagingTemplate.convertAndSend("/topic/project/" + projetId + "/phases", savedPhase);
+        return savedPhase;
     }
 
     public List<Phase> getAllPhases(String userEmail) {
@@ -93,7 +100,10 @@ public class PhaseService {
             phase.setProjet(projet);
         }
         phase.setUpdatedAt(LocalDateTime.now());
-        return phaseRepository.save(phase);
+        Phase savedPhase = phaseRepository.save(phase);
+        // Broadcast the updated phase to the project-specific topic
+        messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/phases", savedPhase);
+        return savedPhase;
     }
 
     public void deletePhase(Long phaseId, String userEmail) {
@@ -101,6 +111,9 @@ public class PhaseService {
                 .orElseThrow(() -> new EntityNotFoundException("Phase not found with ID: " + phaseId));
         checkUserAuthorizationForProject(phase.getProjet().getId(), userEmail);
         phaseRepository.deleteById(phaseId);
+        // Broadcast the deletion event to the project-specific topic
+        messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/phases",
+                new PhaseDeletionMessage(phaseId));
     }
 
     public List<Phase> getPhasesByDateRange(LocalDate start, LocalDate end, String userEmail) {
@@ -122,12 +135,33 @@ public class PhaseService {
             task.setPhase(phase);
             taskService.updateTask(task.getTaskId(), task, userEmail);
         }
-        return phaseRepository.save(phase);
+        Phase savedPhase = phaseRepository.save(phase);
+        // Broadcast the updated phase to the project-specific topic
+        messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/phases", savedPhase);
+        return savedPhase;
     }
 
     public List<Map<String, Object>> getEntrepreneursByProject(Long projetId) {
         projetRepository.findById(projetId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + projetId));
         return phaseRepository.findEntrepreneursByProject(projetId);
+    }
+}
+
+// Helper class for phase deletion message
+class PhaseDeletionMessage {
+    private Long phaseId;
+    private String action = "delete";
+
+    public PhaseDeletionMessage(Long phaseId) {
+        this.phaseId = phaseId;
+    }
+
+    public Long getPhaseId() {
+        return phaseId;
+    }
+
+    public String getAction() {
+        return action;
     }
 }

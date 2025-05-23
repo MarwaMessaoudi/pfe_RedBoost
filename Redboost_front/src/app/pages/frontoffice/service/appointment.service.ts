@@ -51,7 +51,6 @@ export class AppointmentService {
         const backendData = {
             title: appointment.title,
             heure: appointment.heure,
-            email: appointment.email,
             description: appointment.description,
             date: appointment.date,
             status: appointment.status || 'PENDING'

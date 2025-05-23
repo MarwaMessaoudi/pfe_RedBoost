@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public class RendezVousDTO {
     private Long id;
     private String title;
-    private String email;
     private LocalDate date;
     private String heure;
     private String description;
@@ -13,16 +12,14 @@ public class RendezVousDTO {
     private String status;
     private Long coachId;
     private Long entrepreneurId;
-    private boolean canJoinNow; // Indique si le bouton "Rejoindre maintenant" doit être affiché
+    private boolean canJoinNow;
 
-    // Constructeurs
     public RendezVousDTO() {}
 
-    public RendezVousDTO(Long id, String title, String email, LocalDate date, String heure, String description,
+    public RendezVousDTO(Long id, String title, LocalDate date, String heure, String description,
                          String meetingLink, String status, Long coachId, Long entrepreneurId, boolean canJoinNow) {
         this.id = id;
         this.title = title;
-        this.email = email;
         this.date = date;
         this.heure = heure;
         this.description = description;
@@ -33,7 +30,6 @@ public class RendezVousDTO {
         this.canJoinNow = canJoinNow;
     }
 
-    // Getters et setters
     public Long getId() {
         return id;
     }
@@ -48,14 +44,6 @@ public class RendezVousDTO {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public LocalDate getDate() {
@@ -121,6 +109,4 @@ public class RendezVousDTO {
     public void setCanJoinNow(boolean canJoinNow) {
         this.canJoinNow = canJoinNow;
     }
-
-
 }

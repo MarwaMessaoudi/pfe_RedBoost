@@ -1,54 +1,52 @@
 <div class="appointments-container">
   <div class="appointments-header">
-    <h1>Mes Rendez-vous Reçus</h1>
-    <p class="subtitle">Gérez vos rendez-vous en toute simplicité et efficacité.</p>
+    <h1>Mes Rendez-vous Reçus</h1> <!-- Titre principal de la section -->
+    <p class="subtitle">Gérez vos rendez-vous en toute simplicité et efficacité.</p> <!-- Sous-titre descriptif -->
   </div>
   <div class="appointments-grid">
     <div class="appointments-list">
       <div class="appointment-card" *ngFor="let appointment of appointments" 
            [ngClass]="{'PENDING': appointment.status === 'PENDING', 'ACCEPTED': appointment.status === 'ACCEPTED', 'REJECTED': appointment.status === 'REJECTED'}">
+        <!-- Boucle sur la liste des rendez-vous avec classes dynamiques selon le statut -->
         <div class="appointment-content">
           <div class="appointment-info">
             <div class="appointment-title">
-              {{ appointment.title }}
+              {{ appointment.title }} <!-- Titre du rendez-vous -->
               <span class="status-tag" [ngClass]="{'PENDING': appointment.status === 'PENDING', 'ACCEPTED': appointment.status === 'ACCEPTED', 'REJECTED': appointment.status === 'REJECTED'}">
                 {{ appointment.status === 'PENDING' ? 'En attente' : appointment.status === 'ACCEPTED' ? 'Accepté' : 'Refusé' }}
+                <!-- Affichage du statut traduit -->
               </span>
             </div>
             <div class="appointment-details">
               <span class="date">
                 <p>
-                  <i class="bi bi-calendar"></i>
-                  {{ appointment.date | date:'dd MMMM yyyy' }}
+                  <i class="bi bi-calendar"></i> <!-- Icône de calendrier -->
+                  {{ appointment.date | date:'dd MMMM yyyy' }} <!-- Date formatée -->
                 </p>
               </span>
               <span class="heure" *ngIf="appointment.heure">
-                <i class="bi bi-stopwatch"></i>
-                {{ (appointment.heure) }}
+                <i class="bi bi-stopwatch"></i> <!-- Icône d'horloge -->
+                {{ appointment.heure }} <!-- Heure du rendez-vous si disponible -->
               </span>
             </div>
           </div>
           <div class="appointment-actions" *ngIf="appointment.status === 'PENDING'">
+            <!-- Actions visibles uniquement pour les rendez-vous en attente -->
             <button class="btn-approve" (click)="approveAppointment(appointment.id)">
-              Approuver
+              Approuver <!-- Bouton pour approuver le rendez-vous -->
             </button>
             <button class="btn-reject" (click)="rejectAppointment(appointment.id)">
-              Refuser
+              Refuser <!-- Bouton pour refuser le rendez-vous -->
             </button>
           </div>
         </div>
       </div>
       <div *ngIf="!appointments.length" class="empty-state">
-        <i class="fas fa-calendar-heures"></i>
-        <h3>Aucun rendez-vous trouvé</h3>
-        <p>Vos rendez-vous apparaîtront ici une fois programmés.</p>
+        <i class="fas fa-calendar-heures"></i> <!-- Icône pour indiquer l'absence de rendez-vous -->
+        <h3>Aucun rendez-vous trouvé</h3> <!-- Titre de l'état vide -->
+        <p>Vos rendez-vous apparaîtront ici une fois programmés.</p> <!-- Message d'information -->
       </div>
     </div>
-    <!--
-    <div class="calendar-section">
-      <div class="calendar-wrapper">
-        <full-calendar #calendar [options]="calendarOptions"></full-calendar> Ajoutez #calendar ici 
-      </div>
-    </div> --> 
+
   </div>
 </div>

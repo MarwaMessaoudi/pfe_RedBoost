@@ -72,12 +72,16 @@ export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
                 );
             }
 
-            if (error.status === 403) {
-                // Skip redirect for project-related endpoints for ADMIN/SUPERADMIN
-                if (req.url.includes('/projects') || req.url.includes('/projet')) {
-                    console.warn(`Access denied to ${req.url} (403). Skipping redirect for project resource.`);
-                    return throwError(() => error); // Let the component handle the error
-                }
+          if (error.status === 403) {
+        // Skip redirect for project and conversation endpoints
+        if (
+          req.url.includes('/projects') ||
+          req.url.includes('/projet') ||
+          req.url.includes('/api/conversations')
+        ) {
+          console.warn(`Access denied to ${req.url} (403). Skipping redirect for protected resource.`);
+          return throwError(() => error); // Let the component handle the error
+        }
 
                 messageService.add({
                     severity: 'error',

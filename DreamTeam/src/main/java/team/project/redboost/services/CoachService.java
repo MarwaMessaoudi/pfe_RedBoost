@@ -30,6 +30,9 @@ public class CoachService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private UserService userService;
+
     public CoachRequest submitCoachRequest(CoachRequestForm form) {
         CoachData coachData = form.getCoachData();
         if (coachRequestRepository.existsByEmailAndStatus(coachData.getEmail(), RequestStatus.PENDING)) {
@@ -126,7 +129,6 @@ public class CoachService {
         }
     }
 
-
     @Transactional
     public void approveCoachRequest(Long requestId) {
         CoachRequest request = coachRequestRepository.findById(requestId)
@@ -148,7 +150,7 @@ public class CoachService {
         coach.setEmail(request.getEmail());
         coach.setPhoneNumber(request.getPhoneNumber());
         coach.setRole(Role.COACH);
-        coach.setActive(true);
+        coach.setActive(false); // Set to false until password is set
         coach.setYearsOfExperience(request.getYearsOfExperience());
         coach.setSkills(request.getSkills());
         coach.setExpertise(request.getExpertise());
@@ -174,6 +176,24 @@ public class CoachService {
 
         // Save the Coach (this also saves the User part due to inheritance)
         coach = coachRepository.save(coach);
+
+        // Generate password reset token
+        String resetToken = userService.generatePasswordResetToken(coach);
+
+        // Send password reset email
+        try {
+            String resetLink = "http://localhost:4200/reset-password?token=" + resetToken;
+            String subject = "Set Your Password";
+            String body = "Hello " + coach.getFirstName() + ",\n\n" +
+                    "Your coach request has been approved!\n\n" +
+                    "Please set your password by clicking the link below:\n" +
+                    resetLink + "\n\n" +
+                    "If you didn't request this, please contact support.\n\n" +
+                    "Best regards,\nRedboost Team";
+            emailService.sendEmail(coach.getEmail(), subject, body);
+        } catch (MessagingException | IOException e) {
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
 
         // Handle binome relationship
         if (request.getRelatedBinomeRequestId() != null) {
@@ -205,8 +225,6 @@ public class CoachService {
         // Delete the request after approval
         coachRequestRepository.delete(request);
     }
-
-
 
     public void rejectCoachRequest(Long requestId) {
         CoachRequest request = coachRequestRepository.findById(requestId)

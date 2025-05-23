@@ -17,7 +17,6 @@ import team.project.redboost.entities.RendezVous;
 import team.project.redboost.entities.RendezVousDTO;
 import team.project.redboost.repositories.CoachRepository;
 import team.project.redboost.repositories.EntrepreneurRepository;
-import team.project.redboost.repositories.RendezVousRepository;
 import team.project.redboost.services.RendezVousService;
 import team.project.redboost.services.GoogleCalendarService;
 
@@ -104,10 +103,7 @@ public class RendezVousController {
                 logger.warn("Validation échouée : titre manquant ou vide");
                 return ResponseEntity.badRequest().body(new ErrorResponse("Title is required"));
             }
-            if (rendezVous.getEmail() == null || rendezVous.getEmail().trim().isEmpty()) {
-                logger.warn("Validation échouée : email manquant ou vide");
-                return ResponseEntity.badRequest().body(new ErrorResponse("Email is required"));
-            }
+
             if (rendezVous.getDate() == null) {
                 logger.warn("Validation échouée : date manquante");
                 return ResponseEntity.badRequest().body(new ErrorResponse("Date is required"));
@@ -194,13 +190,6 @@ public class RendezVousController {
             return ResponseEntity.status(500).body(new ErrorResponse("Internal server error: " + e.getMessage()));
         }
     }
-
-
-
-
-
-
-
 
 
 
@@ -327,6 +316,8 @@ public class RendezVousController {
             @ApiResponse(responseCode = "500", description = "Erreur serveur")
     })
     @GetMapping("/accepted")
+
+
     public ResponseEntity<List<RendezVous>> getAcceptedAppointmentsByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "ACCEPTED") RendezVous.Status status) {
@@ -409,6 +400,9 @@ public class RendezVousController {
         List<Coach> coaches = coachRepository.findAll(); // Fetch all coaches
         return ResponseEntity.ok(coaches);
     }
+
+
+
     // Endpoint to fetch a coach by ID
     @GetMapping("api/coachlist/{id}")
     @Operation(summary = "Récupérer un coach par son ID")

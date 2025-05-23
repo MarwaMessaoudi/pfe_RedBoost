@@ -292,8 +292,8 @@ export class MeetingListComponent implements OnInit {
         });
     }
 
-    formatDate(dateStr: string): string {
-        const date = new Date(dateStr);
+    formatDate(dateInput: string | Date): string {
+        const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
         return date.toLocaleString();
     }
 

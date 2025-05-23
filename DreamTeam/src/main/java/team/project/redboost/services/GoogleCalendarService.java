@@ -36,7 +36,7 @@ public class GoogleCalendarService {
     private static final String CENTRAL_CALENDAR_ID = "messaoudimarwa75@gmail.com";
     private static final String CLIENT_ID = "847579644213-tt8aljrm2luej8b38q16f7hdl99ssnl1.apps.googleusercontent.com";
     private static final String CLIENT_SECRET = "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";
-    private static final String REFRESH_TOKEN = "1//04YRpQ2W3n8bBCgYIARAAGAQSNwF-L9IrW3d4Hul8ZnKH5RHFhuQ9Fx1saruIAyodrKwNHMr48ihkundMDA4w3pDoShYjgdeJn1Y";
+    private static final String REFRESH_TOKEN = "1//04DE7uncFrquGCgYIARAAGAQSNwF-L9Ir3ZgwGmXhcd87TSMBrxA6N-O058uJc8u-1_2QPaa89LBNuyVX2Xp9jdpX8iKyxM2btrA";
 
     private Calendar calendarService;
 
@@ -51,14 +51,12 @@ public class GoogleCalendarService {
         try {
             System.out.println("Début de l'ajout dans Google Calendar");
             System.out.println("RendezVous ID: " + rendezVous.getId());
-            System.out.println("Email stocké dans RendezVous: " + rendezVous.getEmail());
 
             Event event = new Event()
                     .setSummary(rendezVous.getTitle())
                     .setDescription(rendezVous.getDescription())
                     .setOrganizer(new Event.Organizer().setEmail(ORGANIZER_EMAIL));
 
-            // Convertir LocalDate et heure en LocalDateTime
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalTime heure = LocalTime.parse(rendezVous.getHeure(), formatter);
             LocalDateTime startTime = LocalDateTime.of(rendezVous.getDate(), heure);
@@ -117,7 +115,6 @@ public class GoogleCalendarService {
             conferenceData.setCreateRequest(createConferenceRequest);
             event.setConferenceData(conferenceData);
 
-            // Ajouter l'événement dans le calendrier centralisé
             event = calendarService.events().insert(CENTRAL_CALENDAR_ID, event)
                     .setConferenceDataVersion(1)
                     .setSendNotifications(true)

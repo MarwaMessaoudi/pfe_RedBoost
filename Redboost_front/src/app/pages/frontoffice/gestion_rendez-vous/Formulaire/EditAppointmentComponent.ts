@@ -3,14 +3,15 @@ import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { RendezVous } from '../../../../models/rendez-vous.model';
 
-// Validateur personnalisé pour vérifier que la date n'est pas antérieure à aujourd'hui
+// Custom validator to ensure the date is not before today
 function minDateValidator(): (control: AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
-        if (!control.value) return null; // Si aucune valeur, laisser les autres validateurs gérer (ex. required)
+        if (!control.value) return null; // Let other validators handle empty values (e.g., required)
         const selectedDate = new Date(control.value);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Réinitialiser l'heure pour comparer uniquement les dates
+        today.setHours(0, 0, 0, 0); // Reset time for date-only comparison
         return selectedDate >= today ? null : { minDate: true };
     };
 }
@@ -295,52 +296,90 @@ function minDateValidator(): (control: AbstractControl) => ValidationErrors | nu
         `
     ],
     animations: [
-        trigger('fadeAnimation', [transition(':enter', [style({ opacity: 0 }), animate('300ms ease-out', style({ opacity: 1 }))]), transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))])]),
+        trigger('fadeAnimation', [
+            transition(':enter', [style({ opacity: 0 }), animate('300ms ease-out', style({ opacity: 1 }))]),
+            transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))])
+        ]),
         trigger('slideAnimation', [
-            transition(':enter', [style({ transform: 'translateY(-20px)', opacity: 0 }), animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))]),
-            transition(':leave', [animate('300ms ease-in', style({ transform: 'translateY(-20px)', opacity: 0 }))])
+            transition(':enter', [
+                style({ transform: 'translateY(-20px)', opacity: 0 }),
+                animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('300ms ease-in', style({ transform: 'translateY(-20px)', opacity: 0 }))
+            ])
         ])
     ]
 })
 export class EditAppointmentModalComponent implements OnInit {
-    @Input() form: FormGroup = new FormGroup({});
+    @Input() appointment!: RendezVous;
+    form: FormGroup;
     minDate: string;
 
     constructor(
         public activeModal: NgbActiveModal,
         private fb: FormBuilder
     ) {
-        // Calculer la date d'aujourd'hui au format YYYY-MM-DD
+        // Set today's date as the minimum date in YYYY-MM-DD format
         const today = new Date();
         this.minDate = today.toISOString().split('T')[0];
 
-        // Si le formulaire n'est pas passé via @Input, initialiser un formulaire par défaut
-        if (!this.form.controls['date']) {
-            this.form = this.fb.group({
-                title: ['', Validators.required],
-                date: ['', [Validators.required, minDateValidator()]],
-                heure: ['', Validators.required],
-                description: ['']
-            });
-        }
+        // Initialize the form with validators
+        this.form = this.fb.group({
+            title: ['', Validators.required],
+            date: ['', [Validators.required, minDateValidator()]],
+            heure: ['', Validators.required],
+            description: ['']
+        });
     }
 
     ngOnInit(): void {
-        // Appliquer le validateur minDateValidator si le formulaire est passé via @Input
-        const dateControl = this.form.get('date');
-        if (dateControl && !dateControl.hasValidator(minDateValidator())) {
-            dateControl.setValidators([Validators.required, minDateValidator()]);
-            dateControl.updateValueAndValidity();
+        // Pre-fill the form with appointment data
+        if (this.appointment) {
+            let formattedDate: string;
+            try {
+                // Handle both string and Date inputs for date
+                formattedDate = typeof this.appointment.date === 'string'
+                    ? this.appointment.date.includes('T')
+                        ? this.appointment.date.split('T')[0] // ISO string (e.g., 2025-05-21T00:00:00)
+                        : this.appointment.date // Already YYYY-MM-DD
+                    : new Date(this.appointment.date).toISOString().split('T')[0]; // Date object
+            } catch (error) {
+                console.error('Error formatting date:', this.appointment.date, error);
+                formattedDate = this.minDate; // Fallback to today if parsing fails
+            }
+            console.log('Original appointment date:', this.appointment.date); // Debug
+            console.log('Formatted date for form:', formattedDate); // Debug
+            this.form.patchValue({
+                title: this.appointment.title,
+                date: formattedDate,
+                heure: this.appointment.heure,
+                description: this.appointment.description || ''
+            });
+            console.log('Form after patch:', this.form.value); // Debug
         }
     }
 
     onSave() {
         if (this.form.valid) {
-            const updatedAppointment = {
-                ...this.form.value,
-                email: 'default@email.com' // Valeur par défaut pour l'email
+            const formDate = this.form.get('date')?.value;
+            const formattedDate = formDate ? new Date(formDate).toISOString().split('T')[0] : this.minDate;
+            const updatedAppointment: RendezVous = {
+                id: this.appointment.id,
+                title: this.form.get('title')?.value,
+                date: formattedDate,
+                heure: this.form.get('heure')?.value,
+                description: this.form.get('description')?.value || '',
+                status: this.appointment.status || 'PENDING',
+                coach: this.appointment.coach, // Preserve coach
+                entrepreneur: this.appointment.entrepreneur, // Preserve entrepreneur
+                coachId: this.appointment.coach?.id, // Include coachId
+                duration: this.appointment.duration // Preserve duration if present
             };
+            console.log('Sending updated appointment:', updatedAppointment); // Debug
             this.activeModal.close(updatedAppointment);
+        } else {
+            console.warn('Form is invalid:', this.form.errors); // Debug
         }
     }
 }

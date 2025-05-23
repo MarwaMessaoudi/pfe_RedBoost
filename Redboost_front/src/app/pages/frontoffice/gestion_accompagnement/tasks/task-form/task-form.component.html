@@ -8,7 +8,7 @@
         <!-- Modal Title -->
         <h3 class="modal-title">
             <i class="fas fa-plus-circle"></i>
-            {{ data.isEdit ? 'Modifier la Tâche' : 'Nouvelle Tâche' }}
+            Nouvelle Tâche
         </h3>
 
         <!-- Form -->
@@ -61,20 +61,15 @@
             <div class="form-group date-range">
                 <div class="date-field">
                     <label for="startDate">Date de début:</label>
-                    <!-- Bind min attribute to the calculated effective minimum (max of today and phase start) -->
                     <input id="startDate" type="date" formControlName="startDate" [min]="effectiveMinStartDate" [max]="phaseEndDate || null" (change)="onStartDateChange($event)" required aria-required="true" />
                     <small *ngIf="taskForm.get('startDate')?.touched && taskForm.get('startDate')?.hasError('required')" class="error-msg"> La date de début est obligatoire </small>
-                    <!-- Error messages from startDatePhaseValidator -->
                     <small *ngIf="taskForm.hasError('invalidStartDateEarly')" class="error-msg"> La date de début ne peut pas être antérieure au {{ effectiveMinStartDate | date: 'mediumDate' }}. </small>
                     <small *ngIf="taskForm.hasError('startDateAfterPhaseEnd')" class="error-msg"> La date de début ne peut pas être postérieure à la date de fin de la phase ({{ phaseEndDate | date: 'mediumDate' }}). </small>
                 </div>
                 <div class="date-field">
                     <label for="endDate">Date de fin:</label>
-                    <!-- Bind min to the selected startDate (or effectiveMinStartDate if startDate isn't set yet) -->
-                    <!-- Bind max to the phaseEndDate -->
                     <input id="endDate" type="date" formControlName="endDate" [min]="taskForm.get('startDate')?.value || effectiveMinStartDate" [max]="phaseEndDate || null" (change)="onEndDateChange($event)" required aria-required="true" />
                     <small *ngIf="taskForm.get('endDate')?.touched && taskForm.get('endDate')?.hasError('required')" class="error-msg"> La date de fin est obligatoire </small>
-                    <!-- Error messages from group validators -->
                     <small *ngIf="taskForm.hasError('dateRangeInvalid')" class="error-msg"> La date de fin ne peut pas être antérieure à la date de début. </small>
                     <small *ngIf="taskForm.hasError('endDateBeforePhaseStart')" class="error-msg"> La date de fin ne peut pas être antérieure à la date de début de la phase ({{ phaseStartDate | date: 'mediumDate' }}). </small>
                     <small *ngIf="taskForm.hasError('endDateAfterPhaseEnd')" class="error-msg"> La date de fin ne peut pas être postérieure à la date de fin de la phase ({{ phaseEndDate | date: 'mediumDate' }}). </small>
@@ -96,8 +91,8 @@
 
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" (click)="onCancel()" aria-label="Annuler">Annuler</button>
-                <button type="submit" class="btn-send" [disabled]="taskForm.invalid || submitting" [attr.aria-label]="data.isEdit ? 'Mettre à jour la tâche' : 'Créer la tâche'">
-                    {{ data.isEdit ? 'Mettre à jour' : 'Créer' }}
+                <button type="submit" class="btn-send" [disabled]="taskForm.invalid || submitting" aria-label="Créer la tâche">
+                    Créer
                 </button>
             </div>
         </form>

@@ -156,42 +156,111 @@ export class GestionCommunicationComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setupWebSocket(): void {
-    if (!this.currentUserId) {
-      console.error('Impossible de configurer WebSocket: Aucun ID utilisateur disponible');
+private setupWebSocket(): void {
+  if (!this.currentUserId) {
+    console.error('Impossible de configurer WebSocket: Aucun ID utilisateur disponible');
+    return;
+  }
+
+  this.stompClient = new Client({
+    webSocketFactory: () => new SockJS('http://localhost:8085/ws'),
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000,
+    connectHeaders: {
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+    },
+    onConnect: (frame: IFrame) => {
+      console.log('STOMP Connected for conversation list:', frame);
+
+      // Subscribe to existing conversation message updates
+      this.chats.concat(this.groups).forEach(chat => {
+        this.stompClient!.subscribe(`/topic/conversation/${chat.conversationId}`, (message: IMessage) => {
+          const messageDTO: MessageDTO = JSON.parse(message.body);
+          this.updateChatItem(chat.conversationId, messageDTO);
+        });
+      });
+
+      // Subscribe to conversation creation/deletion updates
+      this.stompClient!.subscribe(`/topic/conversations/${this.currentUserId}`, (message: IMessage) => {
+        const conversationUpdate: { conversation: ConversationDTO; action: string } = JSON.parse(message.body);
+        this.handleConversationUpdate(conversationUpdate);
+      });
+    },
+    onStompError: (frame: IFrame) => {
+      console.error('STOMP Error:', frame);
+    },
+    onWebSocketClose: () => {
+      console.log('WebSocket Closed');
+    },
+    onWebSocketError: (error) => {
+      console.error('WebSocket Error:', error);
+    }
+  });
+
+  this.stompClient.activate();
+}
+
+private async handleConversationUpdate(update: { conversation: ConversationDTO; action: string }): Promise<void> {
+  const { conversation, action } = update;
+
+  if (action === 'create') {
+    // Check if conversation already exists to avoid duplicates
+    const existsInChats = this.chats.some(chat => chat.conversationId === conversation.id);
+    const existsInGroups = this.groups.some(group => group.conversationId === conversation.id);
+    if (existsInChats || existsInGroups) {
       return;
     }
 
-    this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8085/ws'),
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      connectHeaders: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      onConnect: (frame: IFrame) => {
-        console.log('STOMP Connected for conversation list:', frame);
-        this.chats.concat(this.groups).forEach(chat => {
-          this.stompClient!.subscribe(`/topic/conversation/${chat.conversationId}`, (message: IMessage) => {
-            const messageDTO: MessageDTO = JSON.parse(message.body);
-            this.updateChatItem(chat.conversationId, messageDTO);
-          });
-        });
-      },
-      onStompError: (frame: IFrame) => {
-        console.error('STOMP Error:', frame);
-      },
-      onWebSocketClose: () => {
-        console.log('WebSocket Closed');
-      },
-      onWebSocketError: (error) => {
-        console.error('WebSocket Error:', error);
-      }
-    });
+    // Map the conversation to a ChatItem
+    const chatItem = await this.mapToChatItem(conversation);
 
-    this.stompClient.activate();
+    // Fetch unread count
+    try {
+      const unreadCount = await this.http.get<number>(
+        `http://localhost:8085/api/messages/unread/count/${conversation.id}?userId=${this.currentUserId}`
+      ).toPromise();
+      chatItem.unreadCount = unreadCount;
+    } catch (err) {
+      console.error(`Error fetching unread count for conversation ${conversation.id}:`, err);
+      chatItem.unreadCount = 0;
+    }
+
+    // Add to appropriate list and sort
+    if (conversation.estGroupe) {
+      this.groups.push(chatItem);
+      this.groups.sort((a, b) => (b.unreadCount || 0) - (a.unreadCount || 0));
+      this.groups = [...this.groups];
+    } else {
+      this.chats.push(chatItem);
+      this.chats.sort((a, b) => (b.unreadCount || 0) - (a.unreadCount || 0));
+      this.chats = [...this.chats];
+    }
+
+    // Subscribe to messages for the new conversation
+    if (this.stompClient && this.stompClient.connected) {
+      this.stompClient.subscribe(`/topic/conversation/${conversation.id}`, (message: IMessage) => {
+        const messageDTO: MessageDTO = JSON.parse(message.body);
+        this.updateChatItem(conversation.id, messageDTO);
+      });
+    }
+
+    // Show notification (optional)
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Nouvelle conversation',
+      detail: `Vous avez été ajouté à "${conversation.titre}"`
+    });
+  } else if (action === 'delete') {
+    this.chats = this.chats.filter(chat => chat.conversationId !== conversation.id);
+    this.groups = this.groups.filter(group => group.conversationId !== conversation.id);
+    if (this.selectedChat?.conversationId === conversation.id) {
+      this.selectedChat = null;
+      this.showChatDetail = false;
+    }
+    this.notificationService.updateUnreadMessageCount();
   }
+}
 
   private updateChatItem(conversationId: number, message: MessageDTO): void {
     const chatList = this.activeTab === 'groups' ? this.groups : this.chats;

@@ -1,10 +1,9 @@
 <div class="profile-container">
+    <p-toast [style]="{marginTop: '70px'}"></p-toast>
     <div class="profile-card">
-        <!-- Profile Header with Animated Background -->
         <div class="profile-header">
             <div class="header-bg"></div>
             <div class="profile-content">
-                <!-- Profile Image (Static) -->
                 <div class="profile-img-container">
                     <img [src]="user?.profile_pictureurl || 'assets/default-profile.png'" class="profile-img" alt="Profile photo" />
                     <div class="upload-overlay">
@@ -14,16 +13,23 @@
                         <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none" />
                     </div>
                 </div>
-
-                <!-- Profile Info (Bio Under Name) -->
                 <div class="profile-info">
                     <h1 class="profile-name">
-                        <span class="name-text"> {{ user?.firstName }} {{ user?.lastName }} </span>
+                        <span class="name-text">
+                            <ng-container *ngIf="isEditingName; else displayName">
+                                <input type="text" [(ngModel)]="tempFirstName" placeholder="First Name" class="name-input" />
+                                <input type="text" [(ngModel)]="tempLastName" placeholder="Last Name" class="name-input" />
+                                <button class="save-button" (click)="saveName()">Save</button>
+                                <button class="cancel-button" (click)="cancelEditingName()">Cancel</button>
+                            </ng-container>
+                            <ng-template #displayName>
+                                {{ user?.firstName }} {{ user?.lastName }}
+                                <i class="fas fa-edit edit-icon" (click)="startEditingName()"></i>
+                            </ng-template>
+                        </span>
                         <span class="profile-badge">{{ user?.role | titlecase }}</span>
                     </h1>
                     <p class="profile-bio">{{ user?.bio || 'No bio available' }}</p>
-
-                    <!-- Social Links (Icons Only, Unchanged) -->
                     <div class="social-links">
                         <a *ngIf="user?.facebookUrl" [href]="user.facebookUrl" target="_blank" class="social-link">
                             <i class="fab fa-facebook"></i>
@@ -38,18 +44,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- Profile Details -->
         <div class="profile-details">
-            <!-- Stats -->
             <div class="profile-stats">
                 <div class="stat-item" *ngFor="let stat of stats">
                     <div class="stat-number">{{ stat.currentValue }}</div>
                     <div class="stat-label">{{ stat.label }}</div>
                 </div>
             </div>
-
-            <!-- Personal Information Section (Static) -->
             <div class="detail-section">
                 <div class="section-header">
                     <h3 class="section-title"><i class="fas fa-user"></i> Personal Information</h3>
@@ -65,8 +66,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Professional Information Section -->
             <div class="detail-section">
                 <div class="section-header">
                     <h3 class="section-title">
@@ -82,18 +81,12 @@
                     </h3>
                 </div>
                 <div class="info-grid">
-                    <!-- Coach-specific fields -->
                     <ng-container *ngIf="user?.role === 'COACH'">
-                        <div class="info-item">
-                            <label>Specialization</label>
-                            <p>{{ user?.specialization || 'Not specified' }}</p>
-                        </div>
                         <div class="info-item">
                             <label>Experience</label>
                             <p>{{ user?.yearsOfExperience || '0' }} years</p>
                         </div>
                     </ng-container>
-                    <!-- Entrepreneur-specific fields -->
                     <ng-container *ngIf="user?.role === 'ENTREPRENEUR'">
                         <div class="info-item">
                             <label>Startup Name</label>
@@ -104,14 +97,12 @@
                             <p>{{ user?.industry || 'Not specified' }}</p>
                         </div>
                     </ng-container>
-                    <!-- Investor-specific fields (placeholder) -->
                     <ng-container *ngIf="user?.role === 'INVESTOR'">
                         <div class="info-item">
                             <label>Investment Focus</label>
                             <p>{{ user?.investmentFocus || 'Not specified' }}</p>
                         </div>
                     </ng-container>
-                    <!-- Admin/Other roles fallback -->
                     <ng-container *ngIf="user?.role !== 'COACH' && user?.role !== 'ENTREPRENEUR' && user?.role !== 'INVESTOR'">
                         <div class="info-item">
                             <label>Role Details</label>
@@ -120,8 +111,6 @@
                     </ng-container>
                 </div>
             </div>
-
-            <!-- Skills and Expertise Section (Tag-based Layout, Coach Only) -->
             <div class="detail-section" *ngIf="user?.role === 'COACH'">
                 <div class="section-header">
                     <h3 class="section-title"><i class="fas fa-tools"></i> Skills and Expertise</h3>
@@ -130,7 +119,7 @@
                     <div class="tag-group">
                         <label class="tag-label">Skills</label>
                         <div class="tag-list">
-                            <span *ngFor="let skill of user?.skills || []" class="tag skill-tag">
+                            <span *ngFor="let skill of (user?.skills ? user.skills.split(',') : [])" class="tag skill-tag">
                                 {{ skill || 'Not specified' }}
                             </span>
                         </div>
@@ -138,7 +127,7 @@
                     <div class="tag-group">
                         <label class="tag-label">Expertise</label>
                         <div class="tag-list">
-                            <span *ngFor="let expertise of user?.expertise || []" class="tag expertise-tag">
+                            <span *ngFor="let expertise of (user?.expertise ? user.expertise.split(',') : [])" class="tag expertise-tag">
                                 {{ expertise || 'Not specified' }}
                             </span>
                         </div>

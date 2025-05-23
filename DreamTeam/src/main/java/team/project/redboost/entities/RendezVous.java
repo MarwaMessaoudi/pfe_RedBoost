@@ -20,9 +20,6 @@ public class RendezVous {
     private String title;
 
     @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
     private LocalDate date;
 
     @Column(nullable = false)
@@ -31,107 +28,32 @@ public class RendezVous {
     @Column(nullable = false, length = 500)
     private String description;
 
-
-    private String meetingLink; // Nouveau champ pour le lien Google Meet
+    private String meetingLink;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.PENDING; // Valeur par défaut "PENDING"
-
-    public RendezVous(Long id, String title, String description, String date, String heure, String email, Coach coach, Entrepreneur entrepreneur) {
-    }
-
-    public void setCoach(Coach coach) {
-        this.coach = coach;
-    }
-
-    public void setEntrepreneur(Entrepreneur entrepreneur) {
-        this.entrepreneur = entrepreneur;
-    }
+    private Status status = Status.PENDING;
 
     @ManyToOne
     @JoinColumn(name = "coach_id", nullable = false)
-    private Coach coach; // Relationship to Coach
-
-    public Coach getCoach() {
-        return coach;
-    }
-
-    public Entrepreneur getEntrepreneur() {
-        return entrepreneur;
-    }
+    private Coach coach;
 
     @ManyToOne
     @JoinColumn(name = "entrepreneur_id", nullable = false)
-    private Entrepreneur entrepreneur; // Relationship to Entrepreneur
-    // Enum pour les statuts
+    private Entrepreneur entrepreneur;
+
     public enum Status {
         PENDING, ACCEPTED, REJECTED
     }
 
-    // Getters et setters existants restent inchangés, sauf pour status
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    // Updated constructor without email
+    public RendezVous(Long id, String title, String description, String date, String heure, Coach coach, Entrepreneur entrepreneur) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public String getHeure() {
-        return heure;
-    }
-
-    public void setHeure(String heure) {
-        this.heure = heure;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getMeetingLink() {
-        return meetingLink;
-    }
-
-    public void setMeetingLink(String meetingLink) {
-        this.meetingLink = meetingLink;
+        this.date = LocalDate.parse(date);
+        this.heure = heure;
+        this.coach = coach;
+        this.entrepreneur = entrepreneur;
     }
 }

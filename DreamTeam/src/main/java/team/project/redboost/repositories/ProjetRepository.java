@@ -27,6 +27,7 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
 
     @Query("SELECT p.name AS name, p.logoUrl AS logoUrl, p.websiteUrl AS websiteUrl, p.creationDate AS creationDate " +
             "FROM Projet p")
+
     List<Projet> findAllProjectsLimited();
 
     List<Projet> findByEntrepreneursId(Long entrepreneurId);
@@ -36,25 +37,25 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
     @Query("SELECT p FROM Projet p JOIN p.phases ph WHERE ph = :phase")
     Optional<Projet> findProjetByPhase(@Param("phase") Phase phase);
 
-    @Query(value = """
-    SELECT pe.projet_id, 
-           GROUP_CONCAT(
-               CONCAT(
-                   u.id, '|', 
-                   u.first_name, '|', 
-                   u.last_name, '|', 
-                   u.email, '|', 
-                   u.phone_number, '|', 
-                   u.role, '|', 
-                   COALESCE(u.profile_picture_url, '')
-               ) SEPARATOR '; '
-           ) AS entrepreneurs_info
-    FROM projet_entrepreneur pe
-    JOIN user u ON pe.user_id = u.id
-    WHERE pe.projet_id = :projetId
-    GROUP BY pe.projet_id
-""", nativeQuery = true)
-    List<Map<String, Object>> findEntrepreneursByProject(@Param("projetId") Long projetId);
+//    @Query(value = """
+//    SELECT pe.projet_id,
+//           GROUP_CONCAT(
+//               CONCAT(
+//                   u.id, '|',
+//                   u.first_name, '|',
+//                   u.last_name, '|',
+//                   u.email, '|',
+//                   u.phone_number, '|',
+//                   u.role, '|',
+//                   COALESCE(u.profile_picture_url, '')
+//               ) SEPARATOR '; '
+//           ) AS entrepreneurs_info
+//    FROM projet_entrepreneur pe
+//    JOIN user u ON pe.user_id = u.id
+//    WHERE pe.projet_id = :projetId
+//    GROUP BY pe.projet_id
+//""", nativeQuery = true)
+//    List<Map<String, Object>> findEntrepreneursByProject(@Param("projetId") Long projetId);
 
     @Query("SELECT DISTINCT c FROM Projet p " +
             "JOIN p.entrepreneurs e " +

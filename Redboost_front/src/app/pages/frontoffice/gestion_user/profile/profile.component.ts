@@ -9,6 +9,8 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Projet } from '../../../../models/Projet';
+import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
 
 interface ProjectContacts {
     founder: User | null;
@@ -29,9 +31,10 @@ interface User {
 @Component({
     selector: 'app-user-profile',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule, ToastModule],
     templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.scss']
+    styleUrls: ['./profile.component.scss'],
+    providers: [MessageService]
 })
 export class UserProfileComponent implements OnInit {
     user: any = {
@@ -41,7 +44,6 @@ export class UserProfileComponent implements OnInit {
         role: '',
         email: '',
         phoneNumber: '',
-        specialization: '',
         yearsOfExperience: 0,
         startupName: '',
         industry: '',
@@ -60,6 +62,10 @@ export class UserProfileComponent implements OnInit {
     private avatarUrlCache = new Map<string, SafeUrl>();
     defaultAvatar =
         'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADPSURBVHhe7dEBDQAgAMAw3/yvOQ9NswkJoQMIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAkAACAABIAACQAAIAAEgAASAABAAAgAAQAAIAAEgAASAABAAAgAAQAALWot3pD5K6gAAAABJRU5ErkJggg==';
+
+    isEditingName: boolean = false;
+    tempFirstName: string = '';
+    tempLastName: string = '';
 
     stats = [
         { currentValue: 0, label: 'Projects' },
@@ -109,11 +115,10 @@ export class UserProfileComponent implements OnInit {
                 };
                 this.userService.setUser(this.user);
                 this.isLoading = false;
-                // Skip project fetching for ADMIN and SUPERADMIN roles
                 if (!['ADMIN', 'SUPERADMIN'].includes(this.user.role)) {
                     this.fetchUserProjectsAndContacts();
                 } else {
-                    this.stats[0].currentValue = 0; // No projects for ADMIN/SUPERADMIN
+                    this.stats[0].currentValue = 0;
                     localStorage.setItem('stats', JSON.stringify(this.stats));
                     this.isLoading = false;
                 }
@@ -133,166 +138,84 @@ export class UserProfileComponent implements OnInit {
 
     fetchUserProjectsAndContacts(): void {
         this.isLoadingContacts = true;
-        this.projetService
-            .getUserProjects()
-            .pipe(
-                tap((projects: Projet[]) => {
-                    this.stats[0].currentValue = projects.length;
-                    localStorage.setItem('stats', JSON.stringify(this.stats));
+
+        const cachedProjects = localStorage.getItem('userProjects');
+        if (cachedProjects) {
+            const projects = JSON.parse(cachedProjects);
+            this.updateProjectStats(projects);
+            this.processProjects(projects);
+        }
+
+        this.projetService.getUserProjects().pipe(
+            tap((projects: Projet[]) => {
+                localStorage.setItem('userProjects', JSON.stringify(projects));
+                this.updateProjectStats(projects);
+                this.processProjects(projects);
+            }),
+            catchError(() => {
+                this.isLoadingContacts = false;
+                return of([]);
+            })
+        ).subscribe();
+    }
+
+    private updateProjectStats(projects: Projet[]): void {
+        this.stats[0].currentValue = projects.length;
+        this.saveProfileData();
+    }
+
+    private saveProfileData(): void {
+        localStorage.setItem('profileData', JSON.stringify({
+            stats: this.stats,
+            contacts: this.projetContacts
+        }));
+    }
+
+    private processProjects(projects: Projet[]): void {
+        const contactRequests = projects.map(projet => {
+            const projectId = projet.id ?? 0;
+            if (!projectId) return of(null);
+
+            return this.projetService.getProjectContacts(projectId).pipe(
+                tap(contacts => {
+                    this.projetContacts[projectId] = {
+                        founder: contacts.founder,
+                        entrepreneurs: contacts.entrepreneurs || [],
+                        coaches: contacts.coaches || [],
+                        investors: contacts.investors || []
+                    };
+                    this.saveProfileData();
                 }),
-                catchError((error) => {
-                    console.error('Failed to fetch user projects:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to fetch user projects'
-                    });
-                    this.stats[0].currentValue = 0;
-                    localStorage.setItem('stats', JSON.stringify(this.stats));
-                    return of([]);
+                catchError(() => {
+                    this.projetContacts[projectId] = {
+                        founder: null,
+                        entrepreneurs: [],
+                        coaches: [],
+                        investors: []
+                    };
+                    return of(null);
                 })
-            )
-            .subscribe((projects: Projet[]) => {
-                const contactRequests = projects.map((projet) => {
-                    const projectId = projet.id ?? 0;
-                    if (!projectId) {
-                        return of(null);
-                    }
-                    this.projectContactAvatars[projectId] = {};
-                    return this.projetService.getProjectContacts(projectId).pipe(
-                        tap((contacts) => {
-                            const projectContacts: ProjectContacts = {
-                                founder: contacts.founder,
-                                entrepreneurs: contacts.entrepreneurs || [],
-                                coaches: contacts.coaches || [],
-                                investors: contacts.investors || []
-                            };
-                            this.projetContacts[projectId] = projectContacts;
+            );
+        });
 
-                            const userIds: number[] = [];
-                            if (projectContacts.founder?.id) userIds.push(projectContacts.founder.id);
-                            projectContacts.entrepreneurs.forEach((user) => user.id && userIds.push(user.id));
-                            projectContacts.coaches.forEach((user) => user.id && userIds.push(user.id));
-                            projectContacts.investors.forEach((user) => user.id && userIds.push(user.id));
-
-                            if (userIds.length > 0) {
-                                forkJoin(
-                                    userIds.map((id) =>
-                                        this.userService.getUserById(id).pipe(
-                                            catchError((err) => {
-                                                console.error(`Failed to load profile for user ${id}:`, err);
-                                                return of(null);
-                                            })
-                                        )
-                                    )
-                                ).subscribe((profiles) => {
-                                    const profileMap = new Map<number, User>();
-                                    profiles.forEach((profile, index) => {
-                                        if (profile && profile.id) {
-                                            const normalizedProfile = {
-                                                ...profile,
-                                                profilePictureUrl: profile.profilePictureUrl || (profile as any).profile_pictureurl || (profile as any).avatar
-                                            };
-                                            profileMap.set(userIds[index], normalizedProfile);
-                                        }
-                                    });
-
-                                    if (projectContacts.founder?.id) {
-                                        const profile = profileMap.get(projectContacts.founder.id);
-                                        if (profile) {
-                                            projectContacts.founder = {
-                                                ...projectContacts.founder,
-                                                profilePictureUrl: profile.profilePictureUrl || projectContacts.founder.profilePictureUrl
-                                            };
-                                            this.projectContactAvatars[projectId][projectContacts.founder.id] = this.getUserAvatar(projectContacts.founder);
-                                        }
-                                    }
-
-                                    projectContacts.entrepreneurs = projectContacts.entrepreneurs.map((user) => {
-                                        const profile = user.id ? profileMap.get(user.id) : null;
-                                        if (profile && user.id) {
-                                            const updatedUser = { ...user, profilePictureUrl: profile.profilePictureUrl || user.profilePictureUrl };
-                                            this.projectContactAvatars[projectId][user.id] = this.getUserAvatar(updatedUser);
-                                            return updatedUser;
-                                        }
-                                        return user;
-                                    });
-
-                                    projectContacts.coaches = projectContacts.coaches.map((user) => {
-                                        const profile = user.id ? profileMap.get(user.id) : null;
-                                        if (profile && user.id) {
-                                            const updatedUser = { ...user, profilePictureUrl: profile.profilePictureUrl || user.profilePictureUrl };
-                                            this.projectContactAvatars[projectId][user.id] = this.getUserAvatar(updatedUser);
-                                            return updatedUser;
-                                        }
-                                        return user;
-                                    });
-
-                                    projectContacts.investors = projectContacts.investors.map((user) => {
-                                        const profile = user.id ? profileMap.get(user.id) : null;
-                                        if (profile && user.id) {
-                                            const updatedUser = { ...user, profilePictureUrl: profile.profilePictureUrl || user.profilePictureUrl };
-                                            this.projectContactAvatars[projectId][user.id] = this.getUserAvatar(updatedUser);
-                                            return updatedUser;
-                                        }
-                                        return user;
-                                    });
-
-                                    this.projetContacts[projectId] = projectContacts;
-                                });
-                            } else {
-                                this.projetContacts[projectId] = projectContacts;
-                            }
-                        }),
-                        catchError((error) => {
-                            console.error(`Failed to load contacts for project ${projectId}:`, error);
-                            this.projetContacts[projectId] = {
-                                founder: null,
-                                entrepreneurs: [],
-                                coaches: [],
-                                investors: []
-                            };
-                            return of(null);
-                        })
-                    );
-                });
-
-                forkJoin(contactRequests).subscribe(() => {
-                    this.isLoadingContacts = false;
-                    this.updateConnectionsCount();
-                    localStorage.setItem('projetContacts', JSON.stringify(this.projetContacts));
-                    localStorage.setItem('stats', JSON.stringify(this.stats));
-                });
-            });
+        forkJoin(contactRequests).subscribe(() => {
+            this.isLoadingContacts = false;
+            this.updateConnectionsCount();
+        });
     }
 
     updateConnectionsCount(): void {
         const uniqueConnections = new Set<number>();
         const currentUserId = this.user?.id;
 
-        Object.values(this.projetContacts).forEach((contacts) => {
-            // Skip counting the current user
-            if (contacts.founder?.id && contacts.founder.id !== currentUserId) {
-                uniqueConnections.add(contacts.founder.id);
-            }
-            contacts.entrepreneurs?.forEach((user) => {
-                if (user.id && user.id !== currentUserId) {
-                    uniqueConnections.add(user.id);
-                }
-            });
-            contacts.coaches?.forEach((user) => {
-                if (user.id && user.id !== currentUserId) {
-                    uniqueConnections.add(user.id);
-                }
-            });
-            contacts.investors?.forEach((user) => {
-                if (user.id && user.id !== currentUserId) {
-                    uniqueConnections.add(user.id);
-                }
-            });
+        Object.values(this.projetContacts).forEach(contacts => {
+            [contacts.founder, ...contacts.entrepreneurs, ...contacts.coaches, ...contacts.investors]
+                .filter(user => user?.id && user.id !== currentUserId)
+                .forEach(user => uniqueConnections.add(user!.id));
         });
+
         this.stats[1].currentValue = uniqueConnections.size;
-        localStorage.setItem('stats', JSON.stringify(this.stats));
+        this.saveProfileData();
     }
 
     getProjectIds(): number[] {
@@ -394,5 +317,55 @@ export class UserProfileComponent implements OnInit {
                 }
             });
         }
+    }
+
+    startEditingName(): void {
+        this.isEditingName = true;
+        this.tempFirstName = this.user.firstName || '';
+        this.tempLastName = this.user.lastName || '';
+    }
+
+    saveName(): void {
+        if (!this.tempFirstName || !this.tempLastName) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'First name and last name are required'
+            });
+            return;
+        }
+
+        const updatePayload = {
+            firstName: this.tempFirstName,
+            lastName: this.tempLastName
+        };
+
+        this.http.patch('http://localhost:8085/users/updateprofile', updatePayload).subscribe({
+            next: (response: any) => {
+                this.user.firstName = this.tempFirstName;
+                this.user.lastName = this.tempLastName;
+                this.isEditingName = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Name updated successfully'
+                });
+                this.userService.setUser(this.user);
+            },
+            error: (error) => {
+                console.error('Failed to update name:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update name'
+                });
+            }
+        });
+    }
+
+    cancelEditingName(): void {
+        this.isEditingName = false;
+        this.tempFirstName = '';
+        this.tempLastName = '';
     }
 }

@@ -1,8 +1,10 @@
 package team.project.redboost.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import team.project.redboost.dto.PhaseDTO;
 import team.project.redboost.entities.*;
 import team.project.redboost.repositories.TaskRepository;
 import team.project.redboost.repositories.PhaseRepository;
@@ -39,6 +41,9 @@ public class TaskService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public void checkUserAuthorizationForProject(Long projetId, String userEmail) {
         User user = userService.findByEmail(userEmail);
@@ -107,7 +112,7 @@ public class TaskService {
         }
         Task savedTask = taskRepository.save(task);
         updatePhaseTotalXpPoints(phase);
-        logger.info("Created task: {}", task);
+        messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/tasks", savedTask);
         return savedTask;
     }
 
@@ -169,7 +174,6 @@ public class TaskService {
                 task.addSubTask(subTask);
             }
         }
-
         if (updatedTask.getComments() != null) {
             task.getComments().clear();
             for (Comment comment : updatedTask.getComments()) {
@@ -179,7 +183,7 @@ public class TaskService {
         task.setUpdatedAt(LocalDateTime.now());
         Task savedTask = taskRepository.save(task);
         updatePhaseTotalXpPoints(task.getPhase());
-        logger.info("Updated task: {}", task);
+        messagingTemplate.convertAndSend("/topic/project/" + task.getPhase().getProjet().getId() + "/tasks", savedTask);
         return savedTask;
     }
 
@@ -189,7 +193,8 @@ public class TaskService {
         checkUserAuthorizationForProject(task.getPhase().getProjet().getId(), userEmail);
         taskRepository.deleteById(taskId);
         updatePhaseTotalXpPoints(task.getPhase());
-        logger.info("Deleted task: {}", task);
+        messagingTemplate.convertAndSend("/topic/project/" + task.getPhase().getProjet().getId() + "/tasks",
+                new TaskDeletionMessage(taskId));
     }
 
     public List<Task> getTasksByPhaseId(Long phaseId, String userEmail) {
@@ -226,9 +231,17 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with ID: " + taskId));
         checkUserAuthorizationForProject(task.getPhase().getProjet().getId(), userEmail);
+        User user = userService.findByEmail(userEmail);
+        if (user == null) {
+            throw new EntityNotFoundException("User not found with email: " + userEmail);
+        }
+        comment.setUserId(user.getId());
+        comment.setCreatedAt(LocalDateTime.now());
         task.addComment(comment);
         task.setUpdatedAt(LocalDateTime.now());
         Task savedTask = taskRepository.save(task);
+        Hibernate.initialize(savedTask.getComments());
+        messagingTemplate.convertAndSend("/topic/project/" + task.getPhase().getProjet().getId() + "/tasks", savedTask);
         logger.info("Added comment to task: {}", task);
         return savedTask;
     }
@@ -252,6 +265,7 @@ public class TaskService {
         Task savedTask = taskRepository.save(task);
         updatePhaseTotalXpPoints(task.getPhase());
         updatePhaseStatus(task.getPhase());
+        messagingTemplate.convertAndSend("/topic/project/" + task.getPhase().getProjet().getId() + "/tasks", savedTask);
         logger.info("Validated task: {}", task);
         return savedTask;
     }
@@ -275,6 +289,7 @@ public class TaskService {
         Task savedTask = taskRepository.save(task);
         updatePhaseTotalXpPoints(task.getPhase());
         updatePhaseStatus(task.getPhase());
+        messagingTemplate.convertAndSend("/topic/project/" + task.getPhase().getProjet().getId() + "/tasks", savedTask);
         logger.info("Rejected task: {}", task);
         return savedTask;
     }
@@ -285,6 +300,8 @@ public class TaskService {
             int totalXpPoints = phase.getTasks().stream().mapToInt(Task::getXpPoint).sum();
             phase.setTotalXpPoints(totalXpPoints);
             phaseRepository.save(phase);
+            PhaseDTO phaseDTO = new PhaseDTO(phase);
+            messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/phases", phaseDTO);
         }
     }
 
@@ -304,6 +321,25 @@ public class TaskService {
             phase.setStatus(Phase.Status.NOT_STARTED);
         }
         phaseRepository.save(phase);
+        PhaseDTO phaseDTO = new PhaseDTO(phase);
+        messagingTemplate.convertAndSend("/topic/project/" + phase.getProjet().getId() + "/phases", phaseDTO);
         logger.info("Updated phase status for phase {} to {}", phase.getPhaseId(), phase.getStatus());
+    }
+
+    static class TaskDeletionMessage {
+        private Long taskId;
+        private String action = "delete";
+
+        public TaskDeletionMessage(Long taskId) {
+            this.taskId = taskId;
+        }
+
+        public Long getTaskId() {
+            return taskId;
+        }
+
+        public String getAction() {
+            return action;
+        }
     }
 }

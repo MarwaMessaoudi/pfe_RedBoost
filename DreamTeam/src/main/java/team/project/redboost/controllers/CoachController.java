@@ -141,6 +141,8 @@ public class CoachController {
             ));
         }
     }
+
+
     @PostMapping("/reject/{requestId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     public ResponseEntity<?> rejectCoachRequest(@PathVariable Long requestId) {
